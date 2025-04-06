@@ -6,181 +6,208 @@
     <title>The Songwriting Game</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <style>
-        body {
-            background-color: #f8f9fa;
-        }
-        .phase-title {
-            margin-bottom: 1.5rem;
-            color: #6c757d;
-        }
-        .step-card {
-            margin-bottom: 1.5rem;
-        }
-         .list-group-item span, .layer-suggestion span {
-            font-weight: bold;
-            color: #fd5f00; /* Accent color */
-         }
-         .layer-suggestion {
-            font-size: 1.1rem;
-            margin-bottom: 1rem;
-         }
-         .previous-layers {
-            margin-top: 1.5rem;
-            font-size: 0.9rem;
-         }
-         .previous-layers .badge {
-             margin-right: 5px;
-         }
-         /* Add some spacing for buttons */
-         .btn {
-             margin-top: 0.5rem;
-         }
+        /* Existing styles */
+        body { background-color: #f8f9fa; }
+        .phase-title { margin-bottom: 1.5rem; color: #6c757d; }
+        .step-card { margin-bottom: 1.5rem; }
+        .list-group-item span, .layer-suggestion span, .structure-display span, .progression-display span, .length-display span { font-weight: bold; color: #fd5f00; }
+        .layer-suggestion { font-size: 1.1rem; margin-bottom: 1rem; }
+        .previous-layers { margin-top: 1.5rem; font-size: 0.9rem; }
+        .previous-layers .badge { margin-right: 5px; }
+        .btn { margin-top: 0.5rem; }
+        /* New styles */
+        .structure-sequence .badge { font-size: 1rem; margin: 2px; padding: 0.5em 0.7em; }
+        .section-roles { font-size: 0.9em; color: #6c757d; }
+        .chord-progression { font-family: monospace; font-size: 1.1em; }
     </style>
 </head>
 <body>
 
-    <div id="app" class="container mt-4 mb-5"> <h1 class="mb-3">The Songwriting Game</h1>
+    <div id="app" class="container mt-4 mb-5">
+        <h1 class="mb-3">The Songwriting Game</h1>
         <hr>
 
         <div v-if="currentPhase === 1">
-            <h2 class="phase-title">Phase 1: Sonic Core Definition</h2>
-
-            <div class="card step-card" v-if="currentStep === 1.1">
+             <h2 class="phase-title">Phase 1: Sonic Core Definition <button class="btn btn-sm btn-outline-secondary float-end" @click="skipToPhase2Debug">Skip to Phase 2 (Debug)</button></h2>
+             <div class="card step-card" v-if="currentStep === 1.1">
                 <div class="card-body">
                     <h5 class="card-title">Step 1.1: Generate Musical Context</h5>
-
-                    <div v-if="!contextGenerated && !contextConfirmed">
-                        <p>Let's define the musical foundation for your track.</p>
-                        <button class="btn btn-primary" @click="generateContext">
-                            Generate Key, Scale & Tempo
-                        </button>
+                     <div v-if="contextConfirmed">
+                         <p class="alert alert-success">Musical context confirmed: <strong>{{ framework.key }} {{ framework.scale }}</strong> at <strong>{{ framework.tempo }} BPM</strong>.</p>
+                         <button class="btn btn-info" @click="startLayerGeneration">Start Creating Layer 1</button>
                     </div>
-
-                    <div v-if="contextGenerated && !contextConfirmed">
-                        <p>Here's the suggested musical context:</p>
-                        <ul class="list-group mb-3">
-                            <li class="list-group-item">Key: <span>{{ framework.key }}</span></li>
-                            <li class="list-group-item">Scale/Mode: <span>{{ framework.scale }}</span> <small>({{ getScaleDefinition(framework.scale) }})</small></li>
-                            <li class="list-group-item">Tempo: <span>{{ framework.tempo }} BPM</span></li>
-                        </ul>
-                        <p>Like it? Confirm to lock it in, or generate again.</p>
-                        <button class="btn btn-success me-2" @click="confirmContext">
-                            Confirm Context
-                        </button>
-                        <button class="btn btn-secondary" @click="generateContext">
-                            Generate Again
-                        </button>
-                    </div>
-
-                    <div v-if="contextConfirmed">
-                         <p class="alert alert-success">
-                             Musical context confirmed:
-                             <strong>{{ framework.key }} {{ framework.scale }}</strong> at <strong>{{ framework.tempo }} BPM</strong>.
-                         </p>
-                         <p>Now, let's create the first four core instrument layers.</p>
-                         <button class="btn btn-info" @click="startLayerGeneration">
-                            Start Creating Layer 1
-                         </button>
-                    </div>
-                </div>
-            </div> <div class="card step-card" v-if="currentStep === 1.2">
+                     <div v-else> Context generation/confirmation UI... </div>
+                 </div>
+            </div>
+             <div class="card step-card" v-if="currentStep === 1.2">
                  <div class="card-body">
-                     <h5 class="card-title">Step 1.2: Create Initial Layers ({{ currentLayerIndex }} / 4)</h5>
-                     <p>Follow the prompts to build your core sound palette. Implement each layer in your DAW/music app.</p>
-                     <p><strong>Context:</strong> {{ framework.key }} {{ framework.scale }}, {{ framework.tempo }} BPM</p>
-                     <hr>
-
-                     <div v-if="layers[currentLayerIndex - 1]">
-                        <div v-if="!layers[currentLayerIndex - 1].suggested">
-                             <p>Ready to create <strong>Layer {{ currentLayerIndex }}</strong>?</p>
-                             <button class="btn btn-primary" @click="generateLayerSuggestion(currentLayerIndex)">
-                                Generate Suggestion for Layer {{ currentLayerIndex }}
-                             </button>
-                        </div>
-
-                        <div v-if="layers[currentLayerIndex - 1].suggested && !layers[currentLayerIndex - 1].confirmed">
-                            <p>Suggestion for <strong>Layer {{ currentLayerIndex }}</strong>:</p>
-                            <p class="alert alert-info layer-suggestion">
-                                Create a <span>{{ layers[currentLayerIndex - 1].modifier }}</span> <span>{{ layers[currentLayerIndex - 1].type }}</span>.
-                            </p>
-                            <p>Go ahead and create this in your DAW. Once you're happy with it, confirm below.</p>
-                            <button class="btn btn-success" @click="confirmLayerCreated(currentLayerIndex)">
-                                Confirm Layer {{ currentLayerIndex }} Created
-                            </button>
-                             <button class="btn btn-secondary ms-2" @click="generateLayerSuggestion(currentLayerIndex)">
-                                Regenerate Suggestion
-                             </button>
-                        </div>
-
-                        </div>
-
-                     <div class="previous-layers" v-if="getConfirmedLayers().length > 0">
-                         <h6>Confirmed Layers:</h6>
-                         <p>
-                            <span v-for="layer in getConfirmedLayers()" :key="layer.id" class="badge bg-secondary text-light">
-                                L{{ layer.id }}: {{ layer.modifier }} {{ layer.type }}
-                            </span>
-                         </p>
-                     </div>
-
-                     </div>
-            </div> <div class="card step-card" v-if="currentStep === '1.post'">
+                      <h5 class="card-title">Step 1.2: Create Initial Layers ({{ currentLayerIndex }} / 4)</h5>
+                      Layer generation UI... ({{ layers[currentLayerIndex - 1] ? (layers[currentLayerIndex - 1].suggested ? layers[currentLayerIndex-1].modifier+' '+layers[currentLayerIndex-1].type : 'Ready') : 'Waiting' }})
+                      <div v-if="currentLayerIndex <= 4 && layers[currentLayerIndex - 1]">
+                            <button v-if="!layers[currentLayerIndex - 1].suggested" class="btn btn-primary" @click="generateLayerSuggestion(currentLayerIndex)">Generate Suggestion L{{currentLayerIndex}}</button>
+                            <button v-if="layers[currentLayerIndex - 1].suggested && !layers[currentLayerIndex - 1].confirmed" class="btn btn-success" @click="confirmLayerCreated(currentLayerIndex)">Confirm L{{currentLayerIndex}} Created</button>
+                      </div>
+                 </div>
+            </div>
+            <div class="card step-card" v-if="currentStep === '1.post'">
                  <div class="card-body">
                      <h5 class="card-title">Sonic Core Complete!</h5>
                      <p class="alert alert-success">All 4 initial layers created.</p>
-                     <p>Based on these layers and the context, here's a suggested initial chord progression (Progression A) for your main sections:</p>
-                     <p class="alert alert-info"><strong>Progression A:</strong> <span>{{ structure.progressions.A || 'Not generated yet' }}</span></p>
+                     <p>Suggested initial chord progression (Progression A):</p>
+                     <p class="alert alert-info progression-display"><strong>Progression A:</strong> <span class="chord-progression">{{ structure.progressions.A }}</span></p>
                      <button class="btn btn-info" @click="startPhase2">Proceed to Phase 2: Structure Map</button>
                  </div>
              </div>
+        </div>
 
+        <div v-if="currentPhase === 2">
+            <h2 class="phase-title">Phase 2: Structure Map Definition</h2>
 
-        </div> <div v-if="currentPhase === 2">
-             <h2 class="phase-title">Phase 2: Structure Map Definition (Work in Progress)</h2>
+            <div class="card step-card" v-if="currentStep === 2.1">
+                <div class="card-body">
+                    <h5 class="card-title">Step 2.1: Generate Structure Template</h5>
+
+                    <div v-if="!structure.templateGenerated">
+                        <p>Let's choose a structure for your song.</p>
+                        <button class="btn btn-primary" @click="generateStructureTemplate">Generate Structure Template</button>
+                    </div>
+
+                    <div v-if="structure.templateGenerated && !structure.templateConfirmed">
+                        <p>Suggested Structure Template:</p>
+                        <div class="structure-display mb-3">
+                            <h6>Name: <span>{{ structure.templateName }}</span></h6>
+                            <p>Sequence:</p>
+                            <p class="structure-sequence">
+                                <span v-for="(section, index) in structure.templateSequence" :key="index" class="badge bg-dark">
+                                    {{ section }}
+                                </span>
+                            </p>
+                            <p class="section-roles">
+                                <small>Typical Roles: A=Verse/Main, B=Chorus/Contrast, C=Bridge/Development, Intro/Outro=Bookends, Instrumental=Music Focus, +/- = Variation</small>
+                            </p>
+                        </div>
+                        <button class="btn btn-success me-2" @click="confirmStructureTemplate">Confirm Structure</button>
+                        <button class="btn btn-secondary" @click="generateStructureTemplate">Regenerate Structure</button>
+                    </div>
+
+                    <div v-if="structure.templateConfirmed">
+                         <p class="alert alert-success">Structure Template confirmed: <strong>{{ structure.templateName }}</strong></p>
+                         <p>Next, we need to define the harmony (chord progression pattern) for the new section types in this structure ({{ sectionsToDefineHarmony.join(', ') }}).</p>
+                         <button class="btn btn-info" @click="startHarmonyDefinition">Define Harmony</button> </div>
+                </div>
+            </div> <div class="card step-card" v-if="currentStep === 2.2">
+                 <div class="card-body">
+                      <h5 class="card-title">Step 2.2: Define Harmony ({{ currentSectionIndexToDefine + 1 }} / {{ sectionsToDefineHarmony.length }})</h5>
+
+                      <div v-if="currentSectionLetterToDefine">
+                          <p>Define harmony for Section Type: <strong style="font-size: 1.5em;">'{{ currentSectionLetterToDefine }}'</strong></p>
+                          <p>Reference - Progression A: <code class="chord-progression">{{ structure.progressions.A }}</code></p>
+
+                          <div v-if="!structure.progressions[currentSectionLetterToDefine]">
+                               <button class="btn btn-primary" @click="generateHarmonyForSection(currentSectionLetterToDefine)">
+                                   Generate Harmony Suggestion for '{{ currentSectionLetterToDefine }}'
+                               </button>
+                          </div>
+
+                          <div v-if="structure.progressions[currentSectionLetterToDefine] && !harmonyConfirmed[currentSectionLetterToDefine]">
+                                <p>Suggested harmony pattern for Section '{{ currentSectionLetterToDefine }}':</p>
+                                <p class="alert alert-info progression-display">
+                                    <strong>Progression {{ currentSectionLetterToDefine }}:</strong>
+                                    <span class="chord-progression">{{ structure.progressions[currentSectionLetterToDefine] }}</span>
+                                    <br><small>(This is a Roman numeral pattern placeholder based on {{ framework.key }} {{ framework.scale }}. Actual chord implementation needed.)</small>
+                                </p>
+                                <button class="btn btn-success me-2" @click="confirmHarmony(currentSectionLetterToDefine)">
+                                    Confirm Harmony for '{{ currentSectionLetterToDefine }}'
+                                </button>
+                                <button class="btn btn-secondary" @click="generateHarmonyForSection(currentSectionLetterToDefine)">
+                                   Regenerate Suggestion
+                                </button>
+                          </div>
+
+                          <div v-if="harmonyConfirmed[currentSectionLetterToDefine]">
+                                <p class="text-success">Harmony confirmed for Section '{{ currentSectionLetterToDefine }}'.</p>
+                                </div>
+                      </div>
+                      <div v-else>
+                          <p class="alert alert-success">All required section harmonies defined!</p>
+                          <button class="btn btn-info" @click="startLengthDefinition">Next: Define Section Lengths</button>
+                      </div>
+                 </div>
+             </div> <div class="card step-card" v-if="currentStep === 2.3">
+                <div class="card-body">
+                    <h5 class="card-title">Step 2.3: Define Section Lengths</h5>
+
+                     <div v-if="!structure.lengthsGenerated">
+                         <p>Let's determine the length (in bars) for each unique section type.</p>
+                         <button class="btn btn-primary" @click="generateSectionLengths">Generate Section Lengths</button>
+                     </div>
+
+                     <div v-if="structure.lengthsGenerated && !structure.lengthsConfirmed">
+                         <p>Suggested Section Lengths:</p>
+                         <ul class="list-group mb-3">
+                             <li v-for="(length, section) in structure.lengths" :key="section" class="list-group-item length-display">
+                                 Section <strong>'{{ section }}'</strong>: <span>{{ length }} bars</span>
+                             </li>
+                         </ul>
+                          <button class="btn btn-success me-2" @click="confirmSectionLengths">Confirm Lengths</button>
+                          <button class="btn btn-secondary" @click="generateSectionLengths">Regenerate Lengths</button>
+                     </div>
+
+                     <div v-if="structure.lengthsConfirmed">
+                         <p class="alert alert-success">Structure Map fully defined!</p>
+                         <button class="btn btn-info" @click="startPhase3">Proceed to Phase 3: Arrangement Forge</button>
+                     </div>
+
+                </div>
+            </div> </div> <div v-if="currentPhase === 3">
+             <h2 class="phase-title">Phase 3: Arrangement Forge (Work in Progress)</h2>
               <div class="card step-card">
                   <div class="card-body">
-                       <p>Define song structure, harmony for sections, and lengths.</p>
-                       <p>Key: {{ framework.key }}, Scale: {{ framework.scale }}, Tempo: {{ framework.tempo }}</p>
-                       <p>Progression A: {{ structure.progressions.A }}</p>
-                       <button class="btn btn-secondary" @click="goBackToPhase1Post">Back (Debug)</button>
+                       <p>Build the song section by section according to the map.</p>
+                       <p>Structure: {{ structure.templateSequence.join(' - ') }}</p>
+                       <button class="btn btn-secondary" @click="goBackToPhase2Lengths">Back (Debug)</button>
                   </div>
               </div>
-        </div></div> <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+        </div> </div> <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
 
     <script>
-        const { createApp, ref, reactive, computed } = Vue; // Added computed
+        const { createApp, ref, reactive, computed } = Vue;
 
         createApp({
             data() {
                 return {
                     // --- Core State ---
                     currentPhase: 1,
-                    currentStep: 1.1, // Start at step 1.1
-                    framework: reactive({
-                        key: null,
-                        scale: null,
-                        tempo: null
-                    }),
+                    currentStep: 1.1,
+                    framework: reactive({ key: null, scale: null, tempo: null }),
                     contextGenerated: false,
                     contextConfirmed: false,
 
                     // --- Phase 1 State ---
-                    currentLayerIndex: 0, // 0 means not started, 1-4 for current layer
-                    layers: reactive([ // Array will hold 4 layer objects
-                        // Example: { id: 1, type: 'Main Chords', modifier: 'Warm/Analog', suggested: true, confirmed: true }
-                    ]),
-                    // Progression A will be stored here after Layer 4
+                    currentLayerIndex: 0,
+                    layers: reactive([]), // Holds { id, type, modifier, suggested, confirmed }
+
+                    // --- Phase 2 State ---
                     structure: reactive({
-                        template: [],
-                        progressions: { A: null }, // Store progressions here, starting with A
-                        lengths: {}
+                        templateName: null,
+                        templateSequence: [], // e.g., ['Intro', 'A', 'B', 'A', 'B', 'Outro']
+                        progressions: { A: null }, // Map: { A: 'pattern', B: 'pattern', ... }
+                        lengths: {}, // Map: { A: 16, B: 12, Intro: 8, ... }
+                        templateGenerated: false,
+                        templateConfirmed: false,
+                        lengthsGenerated: false,
+                        lengthsConfirmed: false,
                     }),
+                    sectionsToDefineHarmony: [], // e.g., ['B', 'Intro', 'Outro'] (unique letters needing definition)
+                    currentSectionIndexToDefine: -1, // Index for sectionsToDefineHarmony array
+                    // harmonySuggestionGenerated: reactive({}), // Map: { B: true, C: true } - Can check structure.progressions directly
+                    harmonyConfirmed: reactive({}), // Map: { B: true, C: true }
 
 
-                    // --- Data Lists (from specifications) ---
+                    // --- Data Lists ---
                     musicalKeys: ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'],
-                    musicalScales: [ // Added type for progression logic later
+                    musicalScales: [ /* ... (same as before, with 'type') ... */
                         { name: 'Major', type: 'major', definition: 'Standard happy/bright scale' },
                         { name: 'Natural Minor', type: 'minor', definition: 'Standard sad/dark scale' },
                         { name: 'Harmonic Minor', type: 'minor', definition: 'Minor scale with a raised 7th, exotic feel' },
@@ -192,176 +219,247 @@
                         { name: 'Pentatonic Major', type: 'major', definition: 'Simple 5-note major scale' },
                         { name: 'Pentatonic Minor', type: 'minor', definition: 'Simple 5-note minor scale' },
                         { name: 'Blues Scale', type: 'minor', definition: 'Pentatonic minor + flat 5th' }
-                    ],
-                    instrumentTypes: [
+                     ],
+                    instrumentTypes: [ /* ... (same as before) ... */
                         'Foundation Rhythm', 'Groove Bass', 'Main Chords', 'Arpeggio/Sequence',
                         'Percussive Texture High', 'Simple Lead/Hook', 'Atmospheric Pad/Drone',
                         'Rhythmic FX/Stab', 'Counter Melody', 'Tuned Percussion'
                     ],
-                    stylisticModifiers: [
+                    stylisticModifiers: [ /* ... (same as before) ... */
                         'Filtered', 'Reverby/Dreamy', 'Wobbly/Detuned', 'Minimal/Dry', 'Warm/Analog',
                         'Glitchy/Fragmented', 'Compressed/Pumpy', 'Delayed/Spatial', 'Lo-Fi/Gritty',
                         'Bright/Crispy', 'Dark/Mellow', 'Wide Stereo'
                     ],
                     tempoRange: { min: 70, max: 125 },
-
-                    // --- Progression Data (Simplified for TODO) ---
-                    // TODO: Implement robust diatonic chord generation and Roman numeral conversion
-                    // Placeholder patterns for Progression A generation
-                    commonProgressions: {
+                    structureTemplates: [ // Added from Spec
+                        { name: 'Simple A/B Repeat', sequence: ['A', 'B', 'A', 'B'] },
+                        { name: 'Compact Intro/Outro', sequence: ['Intro', 'A', 'B', 'Outro'] },
+                        { name: 'Classic Structure', sequence: ['Intro', 'A', 'B', 'A', 'B', 'Outro'] },
+                        { name: 'Verse Emphasis', sequence: ['Intro', 'A', 'A', 'B', 'Outro'] },
+                        { name: 'Bridge Structure', sequence: ['Intro', 'A', 'B', 'C', 'B', 'Outro'] },
+                        { name: 'Pre-Chorus Feel', sequence: ['Intro', 'A', 'C', 'B', 'A', 'C', 'B', 'Outro'] }, // C as Pre-Chorus
+                        { name: 'Extended A/B', sequence: ['Intro', 'A', 'B', 'A', 'B', 'C', 'B', 'Outro'] },
+                        { name: 'Instrumental Break', sequence: ['Intro', 'A', 'B', 'Instrumental', 'B', 'Outro'] },
+                        { name: 'Minimal Loop', sequence: ['A', 'A', 'B', 'A'] },
+                        { name: 'Developing Loop', sequence: ['Intro', 'A', 'A+', 'B', 'B+'] }
+                    ],
+                    commonProgressions: { // Same as before
                         major: ['I-V-vi-IV', 'IV-I-V-vi', 'I-IV-V-I', 'vi-IV-I-V', 'I-vi-IV-V', 'ii-V-I', 'I-iii-IV-V', 'I-V-IV-I'],
                         minor: ['i-VI-III-VII', 'i-iv-v-i', 'i-VII-VI-V', 'vi-iv-i-v', 'i-iv-III-VI', 'ii°-V-i', 'i-VI-iv-v', 'i-v-VI-VII']
                     }
-
                 }
             },
             computed: {
-                 // Helper to get only confirmed layers for display
-                 confirmedLayers() {
-                      return this.layers.filter(layer => layer.confirmed);
+                 confirmedLayers() { /* ... (same as before) ... */ return this.layers.filter(layer => layer.confirmed); },
+                 // Computed property to get the current section letter needing harmony definition
+                 currentSectionLetterToDefine() {
+                      if (this.currentStep !== 2.2 || this.currentSectionIndexToDefine < 0 || this.currentSectionIndexToDefine >= this.sectionsToDefineHarmony.length) {
+                           return null; // Not in the right step or index out of bounds
+                      }
+                      return this.sectionsToDefineHarmony[this.currentSectionIndexToDefine];
                  }
             },
             methods: {
-                // --- Helper Methods ---
-                getRandomInt(min, max) {
-                    min = Math.ceil(min);
-                    max = Math.floor(max);
-                    return Math.floor(Math.random() * (max - min + 1)) + min;
-                },
-                getRandomElement(arr) {
-                    if (!arr || arr.length === 0) return null;
-                    const randomIndex = Math.floor(Math.random() * arr.length);
-                    return arr[randomIndex];
-                },
-                getScaleDefinition(scaleName) {
-                    const scaleObj = this.musicalScales.find(s => s.name === scaleName);
-                    return scaleObj ? scaleObj.definition : 'Unknown scale';
-                },
-                getScaleType(scaleName) {
-                     const scaleObj = this.musicalScales.find(s => s.name === scaleName);
-                     return scaleObj ? scaleObj.type : 'major'; // Default to major if not found
-                },
-                getConfirmedLayers() { // Method version if computed causes issues
-                     return this.layers.filter(layer => layer.confirmed);
-                },
+                // --- Helper Methods --- (getRandomInt, getRandomElement, getScaleDefinition, getScaleType, getConfirmedLayers) - Same as before
+                getRandomInt(min, max) { min = Math.ceil(min); max = Math.floor(max); return Math.floor(Math.random() * (max - min + 1)) + min; },
+                getRandomElement(arr) { if (!arr || arr.length === 0) return null; const randomIndex = Math.floor(Math.random() * arr.length); return arr[randomIndex]; },
+                getScaleDefinition(scaleName) { const scaleObj = this.musicalScales.find(s => s.name === scaleName); return scaleObj ? scaleObj.definition : 'Unknown scale'; },
+                getScaleType(scaleName) { const scaleObj = this.musicalScales.find(s => s.name === scaleName); return scaleObj ? scaleObj.type : 'major'; },
+                getConfirmedLayers() { return this.layers.filter(layer => layer.confirmed); },
 
-                // --- Step 1.1 Methods ---
-                generateContext() {
-                    console.log("Generating context...");
-                    const selectedScaleObject = this.getRandomElement(this.musicalScales);
+                // --- Phase 1 Methods --- (generateContext, confirmContext, startLayerGeneration, initializeLayerData, generateLayerSuggestion, confirmLayerCreated, generateInitialProgressionA) - Same as before
+                 generateContext() { console.log("Generating context..."); const selectedScaleObject = this.getRandomElement(this.musicalScales); this.framework.key = this.getRandomElement(this.musicalKeys); this.framework.scale = selectedScaleObject ? selectedScaleObject.name : null; this.framework.tempo = this.getRandomInt(this.tempoRange.min, this.tempoRange.max); this.contextGenerated = true; this.contextConfirmed = false; this.currentLayerIndex = 0; this.layers.length = 0; this.resetPhase2State(); }, // Reset Phase 2 if context changes
+                 confirmContext() { console.log("Context confirmed:", this.framework); this.contextConfirmed = true; },
+                 startLayerGeneration() { if (!this.contextConfirmed) return; console.log("Starting layer generation..."); this.currentStep = 1.2; this.currentLayerIndex = 1; this.initializeLayerData(4); },
+                 initializeLayerData(count) { this.layers.length = 0; for (let i = 1; i <= count; i++) { this.layers.push(reactive({ id: i, type: null, modifier: null, suggested: false, confirmed: false })); } console.log("Initialized layers:", this.layers); },
+                 generateLayerSuggestion(layerIndex) { if (layerIndex < 1 || layerIndex > 4) return; console.log(`Generating suggestion for Layer ${layerIndex}`); const layer = this.layers[layerIndex - 1]; if (!layer) return; layer.type = this.getRandomElement(this.instrumentTypes); layer.modifier = this.getRandomElement(this.stylisticModifiers); layer.suggested = true; layer.confirmed = false; console.log(`Suggestion: ${layer.modifier} ${layer.type}`); },
+                 confirmLayerCreated(layerIndex) { if (layerIndex < 1 || layerIndex > 4) return; console.log(`Confirming Layer ${layerIndex} created.`); const layer = this.layers[layerIndex - 1]; if (!layer || !layer.suggested) return; layer.confirmed = true; if (layerIndex === 4) { console.log("All 4 layers confirmed!"); this.generateInitialProgressionA(); this.currentStep = '1.post'; } else { this.currentLayerIndex++; } },
+                 generateInitialProgressionA() { console.log("Generating Progression A..."); const scaleType = this.getScaleType(this.framework.scale); let pattern = 'I-IV-V-I'; if (scaleType === 'minor') { pattern = this.getRandomElement(this.commonProgressions.minor); } else { pattern = this.getRandomElement(this.commonProgressions.major); } this.structure.progressions.A = `${pattern}`; console.log("Progression A generated (placeholder):", this.structure.progressions.A); }, // Simplified output
 
-                    this.framework.key = this.getRandomElement(this.musicalKeys);
-                    this.framework.scale = selectedScaleObject ? selectedScaleObject.name : null;
-                    this.framework.tempo = this.getRandomInt(this.tempoRange.min, this.tempoRange.max);
-
-                    this.contextGenerated = true;
-                    this.contextConfirmed = false;
-                    this.currentLayerIndex = 0; // Reset layers if context changes
-                    this.layers.length = 0; // Clear existing layers array
+                // --- Phase 2 Methods ---
+                resetPhase2State() {
+                    this.structure.templateName = null;
+                    this.structure.templateSequence.length = 0;
+                    // Keep Progression A if context regenerated? Maybe clear it.
+                    // this.structure.progressions = { A: this.structure.progressions.A }; // Keep A
+                    this.structure.progressions = { A: null }; // Clear A too if context changes
+                    this.structure.lengths = {};
+                    this.structure.templateGenerated = false;
+                    this.structure.templateConfirmed = false;
+                    this.structure.lengthsGenerated = false;
+                    this.structure.lengthsConfirmed = false;
+                    this.sectionsToDefineHarmony.length = 0;
+                    this.currentSectionIndexToDefine = -1;
+                    this.harmonyConfirmed = reactive({});
                 },
-                confirmContext() {
-                    console.log("Context confirmed:", this.framework);
-                    this.contextConfirmed = true;
-                    // State is ready to start Layer 1 generation, waiting for user click
+                startPhase2() {
+                    if (this.currentStep === '1.post') {
+                        this.currentPhase = 2;
+                        this.currentStep = 2.1; // Start at Step 2.1
+                        console.log("Moving to Phase 2, Step 2.1");
+                    }
                 },
+                 // Step 2.1 Methods
+                generateStructureTemplate() {
+                    console.log("Generating structure template...");
+                    const selectedTemplate = this.getRandomElement(this.structureTemplates);
+                    this.structure.templateName = selectedTemplate.name;
+                    this.structure.templateSequence = [...selectedTemplate.sequence]; // Copy sequence
+                    this.structure.templateGenerated = true;
+                    this.structure.templateConfirmed = false; // Reset confirmation
 
-                // --- Step 1.2 Methods ---
-                startLayerGeneration() {
-                    if (!this.contextConfirmed) return; // Safety check
-                    console.log("Starting layer generation...");
-                    this.currentStep = 1.2;
-                    this.currentLayerIndex = 1;
-                    this.initializeLayerData(4); // Create placeholder objects for 4 layers
+                    // Identify unique sections needing harmony (excluding 'A')
+                    const uniqueSections = [...new Set(this.structure.templateSequence)];
+                    this.sectionsToDefineHarmony = uniqueSections.filter(s => s !== 'A');
+
+                    // Clear any previously defined non-A progressions and confirmations
+                    Object.keys(this.structure.progressions).forEach(key => {
+                        if (key !== 'A') delete this.structure.progressions[key];
+                    });
+                    this.harmonyConfirmed = reactive({}); // Reset confirmations
+
+                    console.log("Template:", this.structure.templateName);
+                    console.log("Sections needing harmony:", this.sectionsToDefineHarmony);
                 },
-                initializeLayerData(count) {
-                    this.layers.length = 0; // Clear previous layers if any
-                     for (let i = 1; i <= count; i++) {
-                          this.layers.push(reactive({ // Ensure layer objects are reactive
-                               id: i,
-                               type: null,
-                               modifier: null,
-                               suggested: false,
-                               confirmed: false
-                          }));
-                     }
-                     console.log("Initialized layers:", this.layers);
+                confirmStructureTemplate() {
+                    if (!this.structure.templateGenerated) return;
+                    console.log("Structure template confirmed.");
+                    this.structure.templateConfirmed = true;
+                    // Prepare for Step 2.2 if needed, otherwise handled by button click
+                     this.currentSectionIndexToDefine = this.sectionsToDefineHarmony.length > 0 ? 0 : -1; // Start at index 0 if needed
                 },
-                generateLayerSuggestion(layerIndex) {
-                     if (layerIndex < 1 || layerIndex > 4) return;
-                     console.log(`Generating suggestion for Layer ${layerIndex}`);
-                     const layer = this.layers[layerIndex - 1];
-                     if (!layer) return;
-
-                     // TODO: Add complementary logic based on previous layers (N-1) later
-                     // For now, always random:
-                     layer.type = this.getRandomElement(this.instrumentTypes);
-                     layer.modifier = this.getRandomElement(this.stylisticModifiers);
-                     layer.suggested = true;
-                     layer.confirmed = false; // Reset confirmation if regenerating
-                     console.log(`Suggestion: ${layer.modifier} ${layer.type}`);
-                },
-                confirmLayerCreated(layerIndex) {
-                     if (layerIndex < 1 || layerIndex > 4) return;
-                     console.log(`Confirming Layer ${layerIndex} created.`);
-                     const layer = this.layers[layerIndex - 1];
-                      if (!layer || !layer.suggested) return; // Can only confirm if suggestion exists
-
-                     layer.confirmed = true;
-
-                     // Check if all layers are done
-                     if (layerIndex === 4) {
-                          console.log("All 4 layers confirmed!");
-                          this.generateInitialProgressionA(); // Generate Progression A
-                          this.currentStep = '1.post'; // Move to the post-layer summary step
+                 // Step 2.2 Methods
+                 startHarmonyDefinition() {
+                     if (!this.structure.templateConfirmed) return;
+                     if (this.sectionsToDefineHarmony.length === 0) {
+                          console.log("No new sections need harmony definition. Skipping to Lengths.");
+                          this.currentStep = 2.3; // Skip 2.2 if only 'A' sections
                      } else {
-                          // Move to the next layer
-                          this.currentLayerIndex++;
-                           // Optional: Automatically generate next suggestion or wait for user
-                           // this.generateLayerSuggestion(this.currentLayerIndex);
+                          this.currentStep = 2.2;
+                          this.currentSectionIndexToDefine = 0; // Ensure we start at the first section
+                           console.log("Starting harmony definition for:", this.sectionsToDefineHarmony[0]);
                      }
-                },
-                generateInitialProgressionA() {
-                     // TODO: Implement robust chord generation based on key/scale/layers
-                     // Simple Placeholder Logic:
-                     console.log("Generating Progression A...");
-                     const scaleType = this.getScaleType(this.framework.scale);
-                     let pattern = 'I-IV-V-I'; // Default Major
+                 },
+                generateHarmonyForSection(sectionLetter) {
+                    if (!sectionLetter) return;
+                    console.log(`Generating harmony pattern for Section '${sectionLetter}'...`);
+                    const scaleType = this.getScaleType(this.framework.scale);
+                    let availablePatterns = [];
                      if (scaleType === 'minor') {
-                           pattern = this.getRandomElement(this.commonProgressions.minor);
+                         availablePatterns = [...this.commonProgressions.minor];
                      } else {
-                            pattern = this.getRandomElement(this.commonProgressions.major);
+                         availablePatterns = [...this.commonProgressions.major];
                      }
-                     // This currently just stores the Roman numeral pattern.
-                     // A real implementation needs to convert this to actual chords (e.g., "Cm - Fm - Gm - Cm")
-                     this.structure.progressions.A = `${pattern} (in ${this.framework.key} ${this.framework.scale})`; // Store placeholder string
-                     console.log("Progression A generated (placeholder):", this.structure.progressions.A);
+
+                    // Try not to repeat Progression A pattern immediately (simple check)
+                     if (availablePatterns.length > 1 && this.structure.progressions.A && availablePatterns.includes(this.structure.progressions.A)) {
+                         availablePatterns = availablePatterns.filter(p => p !== this.structure.progressions.A);
+                     }
+
+                     const pattern = this.getRandomElement(availablePatterns);
+
+                     // Store the Roman numeral pattern placeholder
+                     this.structure.progressions[sectionLetter] = pattern;
+                     this.harmonyConfirmed[sectionLetter] = false; // Reset confirmation on regenerate
+                     console.log(`Suggested pattern for ${sectionLetter}: ${pattern}`);
+
+                     // TODO: Implement actual chord generation from pattern + key/scale here
                 },
+                confirmHarmony(sectionLetter) {
+                     if (!sectionLetter || !this.structure.progressions[sectionLetter]) return;
+                     console.log(`Harmony confirmed for Section '${sectionLetter}'.`);
+                     this.harmonyConfirmed[sectionLetter] = true;
 
+                     // Move to next section or finish step 2.2
+                     const nextIndex = this.currentSectionIndexToDefine + 1;
+                     if (nextIndex < this.sectionsToDefineHarmony.length) {
+                          this.currentSectionIndexToDefine = nextIndex;
+                          console.log("Moving to define harmony for:", this.sectionsToDefineHarmony[nextIndex]);
+                     } else {
+                          console.log("All section harmonies defined.");
+                          this.currentSectionIndexToDefine = -1; // Indicate completion
+                          // User will click button to proceed to 2.3
+                     }
+                },
+                 // Step 2.3 Methods
+                startLengthDefinition() {
+                    if (this.currentStep === 2.2 && this.currentSectionLetterToDefine === null) {
+                        this.currentStep = 2.3;
+                         console.log("Starting Section Length definition.");
+                    } else if (this.currentStep === 2.1 && this.sectionsToDefineHarmony.length === 0) {
+                         // Case where only 'A' sections existed, skipped 2.2
+                          this.currentStep = 2.3;
+                          console.log("Starting Section Length definition (skipped harmony).");
+                    }
+                 },
+                generateSectionLengths() {
+                     console.log("Generating section lengths...");
+                     const uniqueSectionsInTemplate = [...new Set(this.structure.templateSequence)];
+                     const newLengths = {};
 
-                // --- Navigation ---
-                 startPhase2() {
-                      if (this.currentStep === '1.post') {
-                          this.currentPhase = 2;
-                          this.currentStep = 2.1; // Set to the first step of Phase 2
-                           console.log("Moving to Phase 2, Step 2.1");
+                     uniqueSectionsInTemplate.forEach(section => {
+                         let length = 8; // Default
+                         const roll = this.getRandomInt(1, 6); // d6
+
+                         if (['A', 'B', 'A+', 'B+'].includes(section)) { // d6 roll logic from spec
+                             if (roll <= 2) length = 8;
+                             else if (roll <= 4) length = 12;
+                             else length = 16;
+                         } else { // d4 roll logic for Intro, Outro, C, Instrumental
+                              const roll4 = this.getRandomInt(1, 4); // d4
+                              if (roll4 === 1) length = 4;
+                              else if (roll4 <= 3) length = 8;
+                              else length = 12;
+                         }
+                         newLengths[section] = length;
+                     });
+
+                     this.structure.lengths = reactive(newLengths); // Ensure reactivity
+                     this.structure.lengthsGenerated = true;
+                     this.structure.lengthsConfirmed = false;
+                     console.log("Generated lengths:", this.structure.lengths);
+                },
+                confirmSectionLengths() {
+                     if (!this.structure.lengthsGenerated) return;
+                     console.log("Section lengths confirmed.");
+                     this.structure.lengthsConfirmed = true;
+                     // Ready to move to Phase 3, waiting for user click
+                },
+                 startPhase3() {
+                      if (this.currentStep === 2.3 && this.structure.lengthsConfirmed) {
+                           this.currentPhase = 3;
+                           this.currentStep = 3.1; // First step of Phase 3
+                           console.log("Moving to Phase 3, Step 3.1");
                       }
                  },
+
+
+                // --- Navigation/Debug ---
+                skipToPhase2Debug() { // Debug helper
+                    // Simulate confirmed context and layers
+                    this.framework = reactive({ key: 'C', scale: 'Natural Minor', tempo: 100 });
+                    this.contextConfirmed = true;
+                     this.layers = reactive([
+                          { id: 1, type: 'Foundation Rhythm', modifier: 'Minimal/Dry', suggested: true, confirmed: true },
+                          { id: 2, type: 'Groove Bass', modifier: 'Warm/Analog', suggested: true, confirmed: true },
+                          { id: 3, type: 'Main Chords', modifier: 'Reverby/Dreamy', suggested: true, confirmed: true },
+                          { id: 4, type: 'Arpeggio/Sequence', modifier: 'Filtered', suggested: true, confirmed: true },
+                     ]);
+                     this.generateInitialProgressionA(); // Generate A based on debug context
+                     this.currentPhase = 1; // Go to post-1 first
+                     this.currentStep = '1.post';
+                },
                  goBackToPhase1Post() { // Debug/Nav helper
                     this.currentPhase = 1;
                     this.currentStep = '1.post';
                  },
-                 goBackToContext() { // Debug/Nav helper
-                     this.currentStep = 1.1;
-                     // Decide how to handle state reset, e.g., require reconfirmation?
-                     // this.contextConfirmed = false;
-                     // this.contextGenerated = false; // or keep generated visible?
-                     this.currentLayerIndex = 0;
-                     // this.layers.length = 0;
+                 goBackToPhase2Lengths() { // Debug/Nav helper
+                     this.currentPhase = 2;
+                     this.currentStep = 2.3;
                  }
             },
             mounted() {
                 console.log("Vue App Mounted!");
-                 // Initialize reactive objects if needed, though Vue 3 often handles this automatically
             }
         }).mount('#app');
     </script>
