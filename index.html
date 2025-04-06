@@ -54,7 +54,7 @@
         <hr>
 
         <div v-if="currentPhase === 1">
-            <h2 class="phase-title">Phase 1: Sonic Core Definition</h2>
+             <h2 class="phase-title">Phase 1: Sonic Core Definition</h2>
             <div class="card step-card" v-if="currentStep === 1.1">
                 <div class="card-body"> <h5 class="card-title">Step 1.1: Generate Musical Context</h5> <div v-if="!contextGenerated && !contextConfirmed"> <p>Let's define the musical foundation...</p><button class="btn btn-primary" @click="generateContext">Generate Key, Scale & Tempo</button> </div> <div v-if="contextGenerated && !contextConfirmed"> <p>Suggested context:</p> <ul class="list-group mb-3"> <li class="list-group-item">Key: <span>{{ framework.key }}</span></li> <li class="list-group-item">Scale/Mode: <span>{{ framework.scale }}</span> <small>({{ getScaleDefinition(framework.scale) }})</small></li> <li class="list-group-item">Tempo: <span>{{ framework.tempo }} BPM</span></li> </ul> <button class="btn btn-success me-2" @click="confirmContext">Confirm Context</button> <button class="btn btn-secondary" @click="generateContext">Generate Again</button> </div> <div v-if="contextConfirmed"> <p class="alert alert-success">Context confirmed: <strong>{{ framework.key }} {{ framework.scale }}</strong> @ <strong>{{ framework.tempo }} BPM</strong>.</p> <button class="btn btn-info" @click="startLayerGeneration">Start Creating Layer 1</button> </div> </div>
             </div>
@@ -68,13 +68,13 @@
 
         <div v-if="currentPhase === 2">
             <h2 class="phase-title">Phase 2: Structure Map Definition</h2>
-             <div class="card step-card" v-if="currentStep === 2.1">
+            <div class="card step-card" v-if="currentStep === 2.1">
                  <div class="card-body"> <h5 class="card-title">Step 2.1: Generate Structure Template</h5> <div v-if="!structure.templateGenerated"> <p>Let's choose a structure...</p><button class="btn btn-primary" @click="generateStructureTemplate">Generate Structure</button> </div> <div v-if="structure.templateGenerated && !structure.templateConfirmed"> <p>Suggested Structure:</p> <div class="structure-display mb-3"> <h6>Name: <span>{{ structure.templateName }}</span></h6> <p>Sequence:</p> <p class="structure-sequence"><span v-for="(section, index) in structure.templateSequence" :key="index" class="badge bg-dark">{{ section }}</span></p> <p class="section-roles"><small>Roles: A=Verse/Main, B=Chorus/Contrast, C=Bridge, etc.</small></p> </div> <button class="btn btn-success me-2" @click="confirmStructureTemplate">Confirm</button> <button class="btn btn-secondary" @click="generateStructureTemplate">Regenerate</button> </div> <div v-if="structure.templateConfirmed"> <p class="alert alert-success">Structure confirmed: <strong>{{ structure.templateName }}</strong></p> <button class="btn btn-info" @click="startHarmonyDefinition">{{ sectionsToDefineHarmony.length > 0 ? 'Next: Define Harmony' : 'Next: Define Lengths' }}</button> </div> </div>
             </div>
-             <div class="card step-card" v-if="currentStep === 2.2">
+            <div class="card step-card" v-if="currentStep === 2.2">
                  <div class="card-body"> <h5 class="card-title">Step 2.2: Define Harmony ({{ currentSectionIndexToDefine + 1 }} / {{ sectionsToDefineHarmony.length }})</h5> <div v-if="currentSectionLetterToDefine"> <p>Define harmony for section: <strong style="font-size: 1.5em;">'{{ currentSectionLetterToDefine }}'</strong></p> <p>Ref - Prog A: <code class="chord-progression">{{ structure.progressions.A }}</code></p> <hr> <div v-if="!structure.progressions[currentSectionLetterToDefine]"> <button class="btn btn-primary" @click="generateHarmonyForSection(currentSectionLetterToDefine)">Generate Suggestion for '{{ currentSectionLetterToDefine }}'</button> </div> <div v-if="structure.progressions[currentSectionLetterToDefine] && !harmonyConfirmed[currentSectionLetterToDefine]"> <p>Suggested pattern for '{{ currentSectionLetterToDefine }}' (Roman Numerals):</p> <p class="alert alert-info progression-display"><strong>Prog {{ currentSectionLetterToDefine }}:</strong> <span class="chord-progression">{{ structure.progressions[currentSectionLetterToDefine] }}</span> <br><small>(Note: Actual chords depend on key {{ framework.key }} {{ framework.scale }}. Implementation uses Roman numerals for now.)</small> </p> <button class="btn btn-success me-2" @click="confirmHarmony(currentSectionLetterToDefine)">Confirm Harmony</button> <button class="btn btn-secondary" @click="generateHarmonyForSection(currentSectionLetterToDefine)">Regenerate</button> </div> <div v-if="harmonyConfirmed[currentSectionLetterToDefine]"> </div> </div> <div v-else> <p class="alert alert-success">All section harmonies defined!</p> <button class="btn btn-info" @click="startLengthDefinition">Next: Define Lengths</button> </div> </div>
             </div>
-             <div class="card step-card" v-if="currentStep === 2.3">
+            <div class="card step-card" v-if="currentStep === 2.3">
                  <div class="card-body"> <h5 class="card-title">Step 2.3: Define Section Lengths</h5> <div v-if="!structure.lengthsGenerated"> <p>Determine length (in bars) for each unique section type...</p><button class="btn btn-primary" @click="generateSectionLengths">Generate Lengths</button> </div> <div v-if="structure.lengthsGenerated && !structure.lengthsConfirmed"> <p>Suggested Lengths:</p> <ul class="list-group mb-3"> <li v-for="(length, section) in structure.lengths" :key="section" class="list-group-item length-display"> Section <strong>'{{ section }}'</strong>: <span>{{ length }} bars</span> </li> </ul> <button class="btn btn-success me-2" @click="confirmSectionLengths">Confirm Lengths</button> <button class="btn btn-secondary" @click="generateSectionLengths">Regenerate</button> </div> <div v-if="structure.lengthsConfirmed"> <p class="alert alert-success">Structure Map defined!</p> <button class="btn btn-info" @click="startPhase3">Proceed to Phase 3: Arrangement Forge</button> </div> </div>
             </div>
         </div>
@@ -95,7 +95,7 @@
                         </p>
                         <hr>
                          <div>
-                             <div class="arrangement-step" :class="{ active: !currentInstanceLogEntry.adaptationConfirmed, completed: currentInstanceLogEntry.adaptationConfirmed }">
+                            <div class="arrangement-step" :class="{ active: !currentInstanceLogEntry.adaptationConfirmed, completed: currentInstanceLogEntry.adaptationConfirmed }">
                                 <h6>Step 3.2: Harmonic Adaptation</h6>
                                 <div v-if="!currentInstanceLogEntry.adaptationConfirmed">
                                     <p v-if="currentArrangementInstance.progression === currentArrangementInstance.previousProgression && currentArrangementIndex > 0">Progression is the same as the previous section. Focus on arrangement variations below.</p>
@@ -132,7 +132,7 @@
                                 </div>
                                 <div v-else><p class="text-success mb-0"><small><i class="bi bi-check-lg"></i> Variations Confirmed.</small></p></div>
                             </div>
-                             <div class="arrangement-step" :class="{ active: currentInstanceLogEntry.variationsConfirmed && !currentInstanceLogEntry.transitionConfirmed && !isLastSection, completed: currentInstanceLogEntry.transitionConfirmed, 'd-none': !currentInstanceLogEntry.variationsConfirmed || isLastSection }">
+                            <div class="arrangement-step" :class="{ active: currentInstanceLogEntry.variationsConfirmed && !currentInstanceLogEntry.transitionConfirmed && !isLastSection, completed: currentInstanceLogEntry.transitionConfirmed, 'd-none': !currentInstanceLogEntry.variationsConfirmed || isLastSection }">
                                 <h6>Step 3.4: Transition Out</h6>
                                 <div v-if="!currentInstanceLogEntry.transitionConfirmed">
                                     <div v-if="!currentInstanceLogEntry.transition">
@@ -183,8 +183,7 @@
                     </div>
                     <div v-if="breakConfirmed">
                          <p class="alert alert-success">Break complete. Ready for final checks!</p>
-                         <button class="btn btn-info" @click="startCheck('flow')">Start Check 1: Flow & Structure</button>
-                    </div>
+                         </div>
                 </div>
             </div>
 
@@ -208,8 +207,7 @@
                     </div>
                      <div v-if="finalChecksLog['flow']">
                         <p class="alert alert-success">Flow & Structure Check logged.</p>
-                        <button class="btn btn-info" @click="startCheck('harmony')">Start Check 2: Harmony & Melody</button>
-                    </div>
+                        </div>
                 </div>
             </div>
 
@@ -233,8 +231,7 @@
                     </div>
                      <div v-if="finalChecksLog['harmony']">
                         <p class="alert alert-success">Harmonic/Melodic Check logged.</p>
-                        <button class="btn btn-info" @click="startCheck('balance')">Start Check 3: Rhythm & Balance</button>
-                    </div>
+                         </div>
                  </div>
             </div>
 
@@ -256,14 +253,22 @@
                          <p v-else class="check-result">No specific change needed based on this check.</p>
                          <button class="btn btn-success" @click="confirmCheckComplete('balance')">Confirm Balance Check Complete</button>
                     </div>
-                    <div v-if="finalChecksLog['balance'] && currentStep === '4.post'">
-                        <p class="alert alert-success">Rhythm & Balance Check logged.</p>
-                        <hr>
-                        <p class="alert alert-info"><strong>Final Polish Complete! Your song recipe is ready.</strong></p>
-                        <button class="btn btn-primary" @click="startPhase5">Show Final Summary</button>
-                    </div>
+                    <div v-if="finalChecksLog['balance'] && currentStep === 4.4">
+                        <p class="alert alert-success">Rhythm & Balance Check logged. Preparing summary...</p>
+                     </div>
                  </div>
                  <div class="card-footer bg-transparent border-0 text-end">
+                     <button class="btn btn-sm btn-outline-secondary mt-0" @click="goBackToPhase3">Back to Arrangement (Debug)</button>
+                 </div>
+            </div>
+
+            <div class="card step-card" v-if="currentStep === '4.post'">
+                 <div class="card-body text-center">
+                     <h5 class="card-title">Final Polish Complete!</h5>
+                      <p class="alert alert-info"><strong>Your song recipe is ready.</strong></p>
+                      <button class="btn btn-primary" @click="startPhase5">Show Final Summary</button>
+                 </div>
+                  <div class="card-footer bg-transparent border-0 text-end">
                      <button class="btn btn-sm btn-outline-secondary mt-0" @click="goBackToPhase3">Back to Arrangement (Debug)</button>
                  </div>
             </div>
@@ -373,7 +378,7 @@
         const { createApp, ref, reactive, computed } = Vue;
 
         createApp({
-            // --- DATA ---
+            // --- DATA --- (Identico a prima)
             data() {
                 return {
                     // Core & Phase 1 & 2 State
@@ -458,8 +463,8 @@
                         { name: 'Minimal Loop', sequence: ['A', 'A', 'B', 'A'] },
                         { name: 'Developing Loop', sequence: ['Intro', 'A', 'A+', 'B', 'B+'] }
                     ],
-                    densityOptions: ['Sparse', 'Medium', 'Dense'], // Derived from (d6 roll)
-                    variationPromptOptions: [ // Example prompts
+                    densityOptions: ['Sparse', 'Medium', 'Dense'],
+                    variationPromptOptions: [
                         "Simplify one layer's rhythm.", "Add filter movement.", "Introduce subtle background FX.",
                         "Double main rhythm element briefly.", "Drop out the bass for 2 bars.", "Make chords more staccato.",
                         "Add a simple counter-melody.", "Use panning/volume automation.", "Introduce a delay throw.",
@@ -471,502 +476,100 @@
                     ],
                 }
             },
-            // --- COMPUTED ---
+            // --- COMPUTED --- (Identico a prima)
             computed: {
-                // Phase 1 & 2 Computed
                 confirmedLayers() { return this.layers.filter(layer => layer.confirmed); },
                 currentSectionLetterToDefine() { if (this.currentStep !== 2.2 || this.currentSectionIndexToDefine < 0 || this.currentSectionIndexToDefine >= this.sectionsToDefineHarmony.length) { return null; } return this.sectionsToDefineHarmony[this.currentSectionIndexToDefine]; },
-
-                // Phase 3 Computed
                 currentArrangementInstance() {
                     if (this.currentPhase !== 3 || this.currentArrangementIndex < 0 || !this.structure.templateSequence || this.currentArrangementIndex >= this.structure.templateSequence.length) { return null; }
-                    const index = this.currentArrangementIndex;
-                    const sectionLetter = this.structure.templateSequence[index];
-                    const instanceNumber = this.calculateInstanceNumber(index, sectionLetter);
-                    const progression = this.structure.progressions[sectionLetter] || 'N/A'; // Use Roman Numeral prog
-                    const length = this.structure.lengths[sectionLetter] || 'N/A';
-                    const logKey = this.getInstanceLogKey(index);
-                    let previousProgression = null;
-                    if (index > 0) { const prevLetter = this.structure.templateSequence[index - 1]; previousProgression = this.structure.progressions[prevLetter] || 'N/A'; }
-                    // Determine display name based on section letter
-                    let baseName = 'Section'; // Default
-                    if (sectionLetter === 'A') baseName = 'Verse';
-                    else if (sectionLetter === 'B') baseName = 'Chorus';
-                    else if (sectionLetter === 'C') baseName = 'Bridge';
-                    else if (sectionLetter === 'Intro') baseName = 'Intro';
-                    else if (sectionLetter === 'Outro') baseName = 'Outro';
-                    else if (sectionLetter === 'Instrumental') baseName = 'Instrumental';
-                    else if (sectionLetter.endsWith('+')) baseName = 'Variation'; // e.g., A+, B+
-                    const displayName = `${baseName} ${instanceNumber}`;
-                    return { index, logKey, sectionLetter, instanceNumber, displayName, progression, length, previousProgression };
+                    const index = this.currentArrangementIndex; const sectionLetter = this.structure.templateSequence[index];
+                    const instanceNumber = this.calculateInstanceNumber(index, sectionLetter); const progression = this.structure.progressions[sectionLetter] || 'N/A';
+                    const length = this.structure.lengths[sectionLetter] || 'N/A'; const logKey = this.getInstanceLogKey(index);
+                    let previousProgression = null; if (index > 0) { const prevLetter = this.structure.templateSequence[index - 1]; previousProgression = this.structure.progressions[prevLetter] || 'N/A'; }
+                    let baseName = 'Section'; if (sectionLetter === 'A') baseName = 'Verse'; else if (sectionLetter === 'B') baseName = 'Chorus'; else if (sectionLetter === 'C') baseName = 'Bridge'; else if (sectionLetter === 'Intro') baseName = 'Intro'; else if (sectionLetter === 'Outro') baseName = 'Outro'; else if (sectionLetter === 'Instrumental') baseName = 'Instrumental'; else if (sectionLetter.endsWith('+')) baseName = 'Variation';
+                    const displayName = `${baseName} ${instanceNumber}`; return { index, logKey, sectionLetter, instanceNumber, displayName, progression, length, previousProgression };
                 },
-                currentInstanceLogEntry() {
-                     if (!this.currentArrangementInstance) return {};
-                     const key = this.currentArrangementInstance.logKey;
-                     if (!this.arrangementLog[key]) { this.initializeLogEntry(key); }
-                     return this.arrangementLog[key];
-                },
-                isLastSection() {
-                    if (this.currentPhase !== 3 || !this.structure.templateSequence || this.structure.templateSequence.length === 0) return false;
-                    return this.currentArrangementIndex === this.structure.templateSequence.length - 1;
-                 },
-                 canCompleteInstance() { // Checks if all required steps for the current arrangement instance are done
-                     if (!this.currentArrangementInstance || !this.currentInstanceLogEntry) return false;
-                     const logEntry = this.currentInstanceLogEntry;
-                     const transitionNeeded = !this.isLastSection; // Transition step is skipped for the last section
-                     // Ensure adaptation confirmed, variations suggested & confirmed, and transition confirmed (if needed)
-                     return logEntry.adaptationConfirmed && logEntry.variationsConfirmed && (logEntry.transitionConfirmed || !transitionNeeded);
-                 }
+                currentInstanceLogEntry() { if (!this.currentArrangementInstance) return {}; const key = this.currentArrangementInstance.logKey; if (!this.arrangementLog[key]) { this.initializeLogEntry(key); } return this.arrangementLog[key]; },
+                isLastSection() { if (this.currentPhase !== 3 || !this.structure.templateSequence || this.structure.templateSequence.length === 0) return false; return this.currentArrangementIndex === this.structure.templateSequence.length - 1; },
+                canCompleteInstance() { if (!this.currentArrangementInstance || !this.currentInstanceLogEntry) return false; const logEntry = this.currentInstanceLogEntry; const transitionNeeded = !this.isLastSection; return logEntry.adaptationConfirmed && logEntry.variationsConfirmed && (logEntry.transitionConfirmed || !transitionNeeded); }
             },
-            // --- METHODS ---
-            methods: {
+            // --- METHODS --- (Identico a prima, inclusa la correzione in confirmCheckComplete)
+             methods: {
                  // --- General Helpers ---
                 getRandomInt(min, max) { min = Math.ceil(min); max = Math.floor(max); return Math.floor(Math.random() * (max - min + 1)) + min; },
                 getRandomElement(arr) { if (!arr || arr.length === 0) return null; const randomIndex = Math.floor(Math.random() * arr.length); return arr[randomIndex]; },
                 getScaleDefinition(scaleName) { const scaleObj = this.musicalScales.find(s => s.name === scaleName); return scaleObj ? scaleObj.definition : 'Unknown scale'; },
-                getScaleType(scaleName) { const scaleObj = this.musicalScales.find(s => s.name === scaleName); return scaleObj ? scaleObj.type : 'major'; }, // Default to major if not found
+                getScaleType(scaleName) { const scaleObj = this.musicalScales.find(s => s.name === scaleName); return scaleObj ? scaleObj.type : 'major'; },
                 getConfirmedLayers() { return this.layers.filter(layer => layer.confirmed); },
 
                 // --- Phase Reset Methods ---
-                resetPhase1State() {
-                    console.log("Resetting Phase 1 State");
-                    this.framework = reactive({ key: null, scale: null, tempo: null });
-                    this.contextGenerated = false; this.contextConfirmed = false;
-                    this.currentLayerIndex = 0; this.layers.length = 0;
-                },
-                resetPhase2State() {
-                    console.log("Resetting Phase 2 State");
-                    this.structure.templateName = null;
-                    this.structure.templateSequence.length = 0;
-                    // Keep Prog A if context hasn't changed, otherwise reset it too (handled in generateContext)
-                    this.structure.progressions = { A: this.structure.progressions.A };
-                    this.structure.lengths = {};
-                    this.structure.templateGenerated = false; this.structure.templateConfirmed = false;
-                    this.structure.lengthsGenerated = false; this.structure.lengthsConfirmed = false;
-                    this.sectionsToDefineHarmony.length = 0;
-                    this.currentSectionIndexToDefine = -1;
-                    this.harmonyConfirmed = reactive({});
-                },
-                resetPhase3State() {
-                      console.log("Resetting Phase 3 State");
-                      this.currentArrangementIndex = -1;
-                      this.arrangementLog = reactive({});
-                 },
-                 resetPhase4State() {
-                      console.log("Resetting Phase 4 State");
-                      this.breakDuration = null;
-                      this.breakConfirmed = false;
-                      this.currentCheckType = null;
-                      this.checkOutcome = reactive({ flow: null, harmony: null, balance: null });
-                      this.adjustmentMade = reactive({ flow: false, harmony: false, balance: false });
-                      this.finalChecksLog = reactive({ flow: null, harmony: null, balance: null });
-                 },
-                 // Phase 5 doesn't have its own state to reset, it just displays existing data.
+                resetPhase1State() { console.log("Resetting Phase 1 State"); this.framework = reactive({ key: null, scale: null, tempo: null }); this.contextGenerated = false; this.contextConfirmed = false; this.currentLayerIndex = 0; this.layers.length = 0; },
+                resetPhase2State() { console.log("Resetting Phase 2 State"); this.structure.templateName = null; this.structure.templateSequence.length = 0; this.structure.progressions = { A: this.structure.progressions.A }; this.structure.lengths = {}; this.structure.templateGenerated = false; this.structure.templateConfirmed = false; this.structure.lengthsGenerated = false; this.structure.lengthsConfirmed = false; this.sectionsToDefineHarmony.length = 0; this.currentSectionIndexToDefine = -1; this.harmonyConfirmed = reactive({}); },
+                resetPhase3State() { console.log("Resetting Phase 3 State"); this.currentArrangementIndex = -1; this.arrangementLog = reactive({}); },
+                resetPhase4State() { console.log("Resetting Phase 4 State"); this.breakDuration = null; this.breakConfirmed = false; this.currentCheckType = null; this.checkOutcome = reactive({ flow: null, harmony: null, balance: null }); this.adjustmentMade = reactive({ flow: false, harmony: false, balance: false }); this.finalChecksLog = reactive({ flow: null, harmony: null, balance: null }); },
 
                  // --- Phase 1 Methods ---
-                generateContext() {
-                    console.log("Generating context...");
-                    const selectedScaleObject = this.getRandomElement(this.musicalScales);
-                    this.framework.key = this.getRandomElement(this.musicalKeys);
-                    this.framework.scale = selectedScaleObject ? selectedScaleObject.name : this.getRandomElement(this.musicalScales).name;
-                    this.framework.tempo = this.getRandomInt(this.tempoRange.min, this.tempoRange.max);
-                    this.contextGenerated = true;
-                    this.contextConfirmed = false;
-                    this.currentLayerIndex = 0;
-                    this.layers.length = 0; // Clear layers on new context
-                    this.structure.progressions.A = null; // Reset Prog A
-                    // Reset subsequent phases
-                    this.resetPhase2State();
-                    this.resetPhase3State();
-                    this.resetPhase4State();
-                    // Ensure we are back at the start
-                    this.currentPhase = 1;
-                    this.currentStep = 1.1;
-                },
-                confirmContext() {
-                    console.log("Context confirmed:", this.framework);
-                    this.contextConfirmed = true;
-                 },
-                startLayerGeneration() {
-                    if (!this.contextConfirmed) return;
-                    console.log("Starting layer generation...");
-                    this.currentStep = 1.2;
-                    this.currentLayerIndex = 1; // Start with Layer 1
-                    this.initializeLayerData(4); // Setup for 4 layers
-                },
-                initializeLayerData(count) {
-                    this.layers.length = 0; // Clear existing
-                    for (let i = 1; i <= count; i++) {
-                        this.layers.push(reactive({
-                            id: i, type: null, modifier: null,
-                            suggested: false, confirmed: false
-                        }));
-                    }
-                    console.log("Initialized layers:", this.layers);
-                },
-                generateLayerSuggestion(layerIndex) {
-                    if (layerIndex < 1 || layerIndex > this.layers.length) return;
-                    console.log(`Generating suggestion for Layer ${layerIndex}`);
-                    const layer = this.layers[layerIndex - 1]; if (!layer) return;
-                    // TODO: Implement complementary logic based on existing layers
-                    layer.type = this.getRandomElement(this.instrumentTypes);
-                    layer.modifier = this.getRandomElement(this.stylisticModifiers);
-                    layer.suggested = true; layer.confirmed = false;
-                    console.log(`Suggestion L${layerIndex}: ${layer.modifier} ${layer.type}`);
-                },
-                confirmLayerCreated(layerIndex) {
-                    if (layerIndex < 1 || layerIndex > this.layers.length) return;
-                    const layer = this.layers[layerIndex - 1];
-                    if (!layer || !layer.suggested) return;
-                    console.log(`Confirming Layer ${layerIndex} created.`);
-                    layer.confirmed = true;
-                    if (layerIndex === this.layers.length) { // If it's the last layer
-                        console.log("All 4 layers confirmed!");
-                        this.generateInitialProgressionA(); // Generate the base progression
-                        this.currentStep = '1.post'; // Move to post-layer step
-                    } else {
-                        this.currentLayerIndex++; // Move to the next layer index
-                        console.log("Moving to Layer", this.currentLayerIndex);
-                    }
-                },
-                generateInitialProgressionA() {
-                    // Generates a Roman numeral progression based on scale type.
-                    console.log("Generating Progression A...");
-                    const scaleType = this.getScaleType(this.framework.scale);
-                    let pattern = this.getRandomElement(this.commonProgressions[scaleType] || this.commonProgressions.major);
-                    this.structure.progressions.A = pattern;
-                    console.log("Progression A generated (Roman numerals):", this.structure.progressions.A);
-                },
+                generateContext() { console.log("Generating context..."); const selectedScaleObject = this.getRandomElement(this.musicalScales); this.framework.key = this.getRandomElement(this.musicalKeys); this.framework.scale = selectedScaleObject ? selectedScaleObject.name : this.getRandomElement(this.musicalScales).name; this.framework.tempo = this.getRandomInt(this.tempoRange.min, this.tempoRange.max); this.contextGenerated = true; this.contextConfirmed = false; this.currentLayerIndex = 0; this.layers.length = 0; this.structure.progressions.A = null; this.resetPhase2State(); this.resetPhase3State(); this.resetPhase4State(); this.currentPhase = 1; this.currentStep = 1.1; },
+                confirmContext() { console.log("Context confirmed:", this.framework); this.contextConfirmed = true; },
+                startLayerGeneration() { if (!this.contextConfirmed) return; console.log("Starting layer generation..."); this.currentStep = 1.2; this.currentLayerIndex = 1; this.initializeLayerData(4); },
+                initializeLayerData(count) { this.layers.length = 0; for (let i = 1; i <= count; i++) { this.layers.push(reactive({ id: i, type: null, modifier: null, suggested: false, confirmed: false })); } console.log("Initialized layers:", this.layers); },
+                generateLayerSuggestion(layerIndex) { if (layerIndex < 1 || layerIndex > this.layers.length) return; console.log(`Generating suggestion for Layer ${layerIndex}`); const layer = this.layers[layerIndex - 1]; if (!layer) return; layer.type = this.getRandomElement(this.instrumentTypes); layer.modifier = this.getRandomElement(this.stylisticModifiers); layer.suggested = true; layer.confirmed = false; console.log(`Suggestion L${layerIndex}: ${layer.modifier} ${layer.type}`); },
+                confirmLayerCreated(layerIndex) { if (layerIndex < 1 || layerIndex > this.layers.length) return; const layer = this.layers[layerIndex - 1]; if (!layer || !layer.suggested) return; console.log(`Confirming Layer ${layerIndex} created.`); layer.confirmed = true; if (layerIndex === this.layers.length) { console.log("All 4 layers confirmed!"); this.generateInitialProgressionA(); this.currentStep = '1.post'; } else { this.currentLayerIndex++; console.log("Moving to Layer", this.currentLayerIndex); } },
+                generateInitialProgressionA() { console.log("Generating Progression A..."); const scaleType = this.getScaleType(this.framework.scale); let pattern = this.getRandomElement(this.commonProgressions[scaleType] || this.commonProgressions.major); this.structure.progressions.A = pattern; console.log("Progression A generated (Roman numerals):", this.structure.progressions.A); },
 
                 // --- Phase 2 Methods ---
-                startPhase2() { // Transition from Phase 1 post-layer step
-                    if (this.currentStep === '1.post') {
-                        this.currentPhase = 2;
-                        this.currentStep = 2.1; // Start with structure template generation
-                        console.log("Moving to Phase 2, Step 2.1");
-                    }
-                },
-                generateStructureTemplate() {
-                    console.log("Generating structure template...");
-                    const selectedTemplate = this.getRandomElement(this.structureTemplates);
-                    this.structure.templateName = selectedTemplate.name;
-                    this.structure.templateSequence = [...selectedTemplate.sequence]; // Copy sequence
-                    this.structure.templateGenerated = true; this.structure.templateConfirmed = false;
-                    // Reset dependent parts of Phase 2 state
-                    const uniqueSections = [...new Set(this.structure.templateSequence)];
-                    this.sectionsToDefineHarmony = uniqueSections.filter(s => s !== 'A'); // Get sections needing harmony
-                    // Clear old progressions except 'A'
-                    Object.keys(this.structure.progressions).forEach(key => { if (key !== 'A') delete this.structure.progressions[key]; });
-                    this.harmonyConfirmed = reactive({}); // Reset harmony confirmations
-                    this.structure.lengths = {}; // Clear lengths
-                    this.structure.lengthsGenerated = false; this.structure.lengthsConfirmed = false;
-                    console.log("Template:", this.structure.templateName, "Sections needing harmony:", this.sectionsToDefineHarmony);
-                },
-                confirmStructureTemplate() {
-                    if (!this.structure.templateGenerated) return;
-                    console.log("Structure template confirmed.");
-                    this.structure.templateConfirmed = true;
-                    // Prepare for harmony definition if needed
-                    this.currentSectionIndexToDefine = this.sectionsToDefineHarmony.length > 0 ? 0 : -1;
-                },
-                startHarmonyDefinition() {
-                    if (!this.structure.templateConfirmed) return;
-                    if (this.sectionsToDefineHarmony.length === 0) {
-                        console.log("Skipping Harmony Definition (Only Section A needed).");
-                        this.currentStep = 2.3; // Move directly to length definition
-                    } else {
-                        this.currentStep = 2.2; // Start harmony definition step
-                        this.currentSectionIndexToDefine = 0; // Start with the first section in the list
-                        console.log("Starting harmony definition for:", this.sectionsToDefineHarmony[0]);
-                    }
-                },
-                generateHarmonyForSection(sectionLetter) {
-                    if (!sectionLetter) return;
-                    console.log(`Generating harmony pattern for Section '${sectionLetter}'...`);
-                    const scaleType = this.getScaleType(this.framework.scale);
-                    let availablePatterns = [...(this.commonProgressions[scaleType] || this.commonProgressions.major)];
-                    // Try to pick a pattern different from already used ones
-                    const usedPatterns = Object.values(this.structure.progressions).filter(p => p !== null);
-                    if (availablePatterns.length > usedPatterns.length) {
-                        availablePatterns = availablePatterns.filter(p => !usedPatterns.includes(p));
-                    }
-                    const pattern = this.getRandomElement(availablePatterns.length > 0 ? availablePatterns : (this.commonProgressions[scaleType] || this.commonProgressions.major));
-                    // Store the Roman numeral pattern
-                    this.structure.progressions[sectionLetter] = pattern;
-                     // TODO: Convert Roman numerals to actual chords here if desired.
-                    this.harmonyConfirmed[sectionLetter] = false; // Mark as suggested
-                    console.log(`Suggested pattern for ${sectionLetter}: ${pattern}`);
-                },
-                confirmHarmony(sectionLetter) {
-                    if (!sectionLetter || !this.structure.progressions[sectionLetter]) return;
-                    console.log(`Harmony confirmed for Section '${sectionLetter}'.`);
-                    this.harmonyConfirmed[sectionLetter] = true;
-                    // Move to the next section needing harmony, or finish
-                    const nextIndex = this.currentSectionIndexToDefine + 1;
-                    if (nextIndex < this.sectionsToDefineHarmony.length) {
-                        this.currentSectionIndexToDefine = nextIndex;
-                        console.log("Moving to define harmony for:", this.sectionsToDefineHarmony[nextIndex]);
-                    } else {
-                        console.log("All required section harmonies defined.");
-                        this.currentSectionIndexToDefine = -1; // Mark harmony definition as complete
-                    }
-                },
-                startLengthDefinition() { // Transition to length definition step
-                    if( (this.currentStep === 2.2 && this.currentSectionIndexToDefine === -1) || (this.currentStep === 2.1 && this.sectionsToDefineHarmony.length === 0) ) {
-                        this.currentStep = 2.3;
-                        console.log("Starting Section Length definition.");
-                    } else {
-                        console.warn("Cannot start length definition yet. Harmony not confirmed.");
-                    }
-                },
-                generateSectionLengths() {
-                    console.log("Generating section lengths...");
-                    const uniqueSectionsInTemplate = [...new Set(this.structure.templateSequence)];
-                    const newLengths = {};
-                    uniqueSectionsInTemplate.forEach(section => {
-                        let length = 8; // Default
-                        if (['A', 'B', 'A+', 'B+'].includes(section)) { // d6 roll
-                           const roll = this.getRandomInt(1, 6);
-                           if (roll <= 2) length = 8; else if (roll <= 4) length = 12; else length = 16;
-                        } else { // d4 roll for Intro, Outro, C, Instrumental
-                           const roll = this.getRandomInt(1, 4);
-                           if (roll === 1) length = 4; else if (roll <= 3) length = 8; else length = 12;
-                        }
-                        newLengths[section] = length;
-                    });
-                    this.structure.lengths = reactive(newLengths); // Make reactive
-                    this.structure.lengthsGenerated = true; this.structure.lengthsConfirmed = false;
-                    console.log("Generated lengths:", this.structure.lengths);
-                },
-                confirmSectionLengths() {
-                    if (!this.structure.lengthsGenerated) return;
-                    console.log("Section lengths confirmed.");
-                    this.structure.lengthsConfirmed = true;
-                    // Phase 2 is complete
-                },
+                startPhase2() { if (this.currentStep === '1.post') { this.currentPhase = 2; this.currentStep = 2.1; console.log("Moving to Phase 2, Step 2.1"); } },
+                generateStructureTemplate() { console.log("Generating structure template..."); const selectedTemplate = this.getRandomElement(this.structureTemplates); this.structure.templateName = selectedTemplate.name; this.structure.templateSequence = [...selectedTemplate.sequence]; this.structure.templateGenerated = true; this.structure.templateConfirmed = false; const uniqueSections = [...new Set(this.structure.templateSequence)]; this.sectionsToDefineHarmony = uniqueSections.filter(s => s !== 'A'); Object.keys(this.structure.progressions).forEach(key => { if (key !== 'A') delete this.structure.progressions[key]; }); this.harmonyConfirmed = reactive({}); this.structure.lengths = {}; this.structure.lengthsGenerated = false; this.structure.lengthsConfirmed = false; console.log("Template:", this.structure.templateName, "Sections needing harmony:", this.sectionsToDefineHarmony); },
+                confirmStructureTemplate() { if (!this.structure.templateGenerated) return; console.log("Structure template confirmed."); this.structure.templateConfirmed = true; this.currentSectionIndexToDefine = this.sectionsToDefineHarmony.length > 0 ? 0 : -1; },
+                startHarmonyDefinition() { if (!this.structure.templateConfirmed) return; if (this.sectionsToDefineHarmony.length === 0) { console.log("Skipping Harmony Definition."); this.currentStep = 2.3; } else { this.currentStep = 2.2; this.currentSectionIndexToDefine = 0; console.log("Starting harmony definition for:", this.sectionsToDefineHarmony[0]); } },
+                generateHarmonyForSection(sectionLetter) { if (!sectionLetter) return; console.log(`Generating harmony pattern for Section '${sectionLetter}'...`); const scaleType = this.getScaleType(this.framework.scale); let availablePatterns = [...(this.commonProgressions[scaleType] || this.commonProgressions.major)]; const usedPatterns = Object.values(this.structure.progressions).filter(p => p !== null); if (availablePatterns.length > usedPatterns.length) { availablePatterns = availablePatterns.filter(p => !usedPatterns.includes(p)); } const pattern = this.getRandomElement(availablePatterns.length > 0 ? availablePatterns : (this.commonProgressions[scaleType] || this.commonProgressions.major)); this.structure.progressions[sectionLetter] = pattern; this.harmonyConfirmed[sectionLetter] = false; console.log(`Suggested pattern for ${sectionLetter}: ${pattern}`); },
+                confirmHarmony(sectionLetter) { if (!sectionLetter || !this.structure.progressions[sectionLetter]) return; console.log(`Harmony confirmed for Section '${sectionLetter}'.`); this.harmonyConfirmed[sectionLetter] = true; const nextIndex = this.currentSectionIndexToDefine + 1; if (nextIndex < this.sectionsToDefineHarmony.length) { this.currentSectionIndexToDefine = nextIndex; console.log("Moving to define harmony for:", this.sectionsToDefineHarmony[nextIndex]); } else { console.log("All required section harmonies defined."); this.currentSectionIndexToDefine = -1; } },
+                startLengthDefinition() { if( (this.currentStep === 2.2 && this.currentSectionIndexToDefine === -1) || (this.currentStep === 2.1 && this.sectionsToDefineHarmony.length === 0) ) { this.currentStep = 2.3; console.log("Starting Section Length definition."); } else { console.warn("Cannot start length definition yet."); } },
+                generateSectionLengths() { console.log("Generating section lengths..."); const uniqueSectionsInTemplate = [...new Set(this.structure.templateSequence)]; const newLengths = {}; uniqueSectionsInTemplate.forEach(section => { let length = 8; if (['A', 'B', 'A+', 'B+'].includes(section)) { const roll = this.getRandomInt(1, 6); if (roll <= 2) length = 8; else if (roll <= 4) length = 12; else length = 16; } else { const roll = this.getRandomInt(1, 4); if (roll === 1) length = 4; else if (roll <= 3) length = 8; else length = 12; } newLengths[section] = length; }); this.structure.lengths = reactive(newLengths); this.structure.lengthsGenerated = true; this.structure.lengthsConfirmed = false; console.log("Generated lengths:", this.structure.lengths); },
+                confirmSectionLengths() { if (!this.structure.lengthsGenerated) return; console.log("Section lengths confirmed."); this.structure.lengthsConfirmed = true; },
 
                 // --- Phase 3 Methods ---
-                startPhase3() { // Transition from Phase 2
-                    if (this.currentPhase === 2 && this.structure.lengthsConfirmed) {
-                        this.currentPhase = 3;
-                        this.currentStep = 3.1; // Use 3.1 to denote start of Phase 3 (setting context)
-                        this.currentArrangementIndex = 0; // Start arranging the first section instance
-                        this.initializeLogEntry(this.getInstanceLogKey(0)); // Initialize log for the first instance
-                        console.log("Moving to Phase 3, starting arrangement for instance 1.");
-                    } else {
-                        console.warn("Cannot start Phase 3: Phase 2 (Lengths) not complete.");
-                    }
-                },
-                 getInstanceLogKey(index) { // Generates unique key like 'A-1', 'B-2'
-                     if (index < 0 || !this.structure.templateSequence || index >= this.structure.templateSequence.length) return null;
-                     const sectionLetter = this.structure.templateSequence[index];
-                     const instanceNumber = this.calculateInstanceNumber(index, sectionLetter);
-                     return `${sectionLetter}-${instanceNumber}`;
-                 },
-                calculateInstanceNumber(targetIndex, sectionLetter) { // Counts occurrences up to the index
-                     let count = 0;
-                     if (!this.structure.templateSequence) return 0;
-                     for (let i = 0; i <= targetIndex; i++) { if (this.structure.templateSequence[i] === sectionLetter) count++; }
-                     return count;
-                 },
-                 initializeLogEntry(key) { // Sets up the log structure for a section instance
-                      if (key && !this.arrangementLog[key]) {
-                           console.log("Initializing log entry for:", key);
-                           this.arrangementLog[key] = reactive({
-                                adaptationConfirmed: false, density: null, variations: [],
-                                variationsConfirmed: false, transition: null, transitionConfirmed: false
-                            });
-                      }
-                 },
-                 confirmAdaptation() { // Step 3.2 Confirmation
-                      if (!this.currentArrangementInstance) return;
-                      const key = this.currentArrangementInstance.logKey;
-                      if (this.arrangementLog[key]) { this.arrangementLog[key].adaptationConfirmed = true; console.log(`Adaptation confirmed for instance: ${key}`); }
-                 },
-                 suggestVariations() { // Step 3.3 Suggestion
-                      if (!this.currentArrangementInstance) return;
-                      const key = this.currentArrangementInstance.logKey;
-                      if (!this.arrangementLog[key]) this.initializeLogEntry(key);
-                      console.log(`Suggesting variations for ${key}`);
-                      // Density
-                      const densityRoll = this.getRandomInt(1, 6);
-                      this.arrangementLog[key].density = (densityRoll <= 2) ? 'Sparse' : (densityRoll <= 4 ? 'Medium' : 'Dense');
-                      // Prompts
-                      const numPrompts = this.getRandomInt(1, 2); // 1 or 2 prompts
-                      const selectedPrompts = []; let availablePrompts = [...this.variationPromptOptions];
-                      for (let i = 0; i < numPrompts && availablePrompts.length > 0; i++) { const randomIndex = Math.floor(Math.random() * availablePrompts.length); selectedPrompts.push(availablePrompts.splice(randomIndex, 1)[0]); }
-                      this.arrangementLog[key].variations = selectedPrompts; this.arrangementLog[key].variationsConfirmed = false; // Reset confirmation
-                      console.log("Variation Suggestions:", this.arrangementLog[key].density, this.arrangementLog[key].variations);
-                 },
-                confirmVariations() { // Step 3.3 Confirmation
-                      if (!this.currentArrangementInstance || !this.arrangementLog[this.currentArrangementInstance.logKey]?.density) return;
-                      const key = this.currentArrangementInstance.logKey;
-                       if (this.arrangementLog[key]) { this.arrangementLog[key].variationsConfirmed = true; console.log(`Variations confirmed for instance: ${key}`); }
-                 },
-                 suggestTransition() { // Step 3.4 Suggestion
-                     if (!this.currentArrangementInstance || this.isLastSection) return;
-                     const key = this.currentArrangementInstance.logKey;
-                     if (!this.arrangementLog[key]) this.initializeLogEntry(key);
-                     console.log(`Suggesting transition out for ${key}`);
-                     this.arrangementLog[key].transition = this.getRandomElement(this.transitionTypes);
-                     this.arrangementLog[key].transitionConfirmed = false; // Reset confirmation
-                     console.log("Transition Suggestion:", this.arrangementLog[key].transition);
-                 },
-                confirmTransition() { // Step 3.4 Confirmation
-                     if (!this.currentArrangementInstance || this.isLastSection || !this.arrangementLog[this.currentArrangementInstance.logKey]?.transition) return;
-                     const key = this.currentArrangementInstance.logKey;
-                     if (this.arrangementLog[key]) { this.arrangementLog[key].transitionConfirmed = true; console.log(`Transition confirmed for instance: ${key}`); }
-                 },
-                 completeCurrentInstance() { // Step 3.5 / Transition to next instance or phase
-                     if (!this.canCompleteInstance) { console.warn("Cannot complete instance yet. Check confirmations."); return; }
-                     const completedKey = this.currentArrangementInstance.logKey;
-                     console.log(`Completing instance ${this.currentArrangementIndex + 1} (${completedKey})`);
-                     const nextIndex = this.currentArrangementIndex + 1;
-                     if (nextIndex < this.structure.templateSequence.length) { // More sections?
-                         this.currentArrangementIndex = nextIndex;
-                         this.initializeLogEntry(this.getInstanceLogKey(nextIndex)); // Setup log for next
-                         console.log("Moving to next instance:", this.currentArrangementIndex + 1);
-                         window.scrollTo(0, 0); // Scroll up
-                     } else { // Arrangement phase complete
-                         console.log("Arrangement Forge Complete!");
-                         this.startPhase4(); // Proceed to Final Polish
-                     }
-                 },
+                startPhase3() { if (this.currentPhase === 2 && this.structure.lengthsConfirmed) { this.currentPhase = 3; this.currentStep = 3.1; this.currentArrangementIndex = 0; this.initializeLogEntry(this.getInstanceLogKey(0)); console.log("Moving to Phase 3, starting arrangement for instance 1."); } else { console.warn("Cannot start Phase 3: Phase 2 (Lengths) not complete."); } },
+                getInstanceLogKey(index) { if (index < 0 || !this.structure.templateSequence || index >= this.structure.templateSequence.length) return null; const sectionLetter = this.structure.templateSequence[index]; const instanceNumber = this.calculateInstanceNumber(index, sectionLetter); return `${sectionLetter}-${instanceNumber}`; },
+                calculateInstanceNumber(targetIndex, sectionLetter) { let count = 0; if (!this.structure.templateSequence) return 0; for (let i = 0; i <= targetIndex; i++) { if (this.structure.templateSequence[i] === sectionLetter) count++; } return count; },
+                initializeLogEntry(key) { if (key && !this.arrangementLog[key]) { console.log("Initializing log entry for:", key); this.arrangementLog[key] = reactive({ adaptationConfirmed: false, density: null, variations: [], variationsConfirmed: false, transition: null, transitionConfirmed: false }); } },
+                confirmAdaptation() { if (!this.currentArrangementInstance) return; const key = this.currentArrangementInstance.logKey; if (this.arrangementLog[key]) { this.arrangementLog[key].adaptationConfirmed = true; console.log(`Adaptation confirmed for instance: ${key}`); } },
+                suggestVariations() { if (!this.currentArrangementInstance) return; const key = this.currentArrangementInstance.logKey; if (!this.arrangementLog[key]) this.initializeLogEntry(key); console.log(`Suggesting variations for ${key}`); const densityRoll = this.getRandomInt(1, 6); this.arrangementLog[key].density = (densityRoll <= 2) ? 'Sparse' : (densityRoll <= 4 ? 'Medium' : 'Dense'); const numPrompts = this.getRandomInt(1, 2); const selectedPrompts = []; let availablePrompts = [...this.variationPromptOptions]; for (let i = 0; i < numPrompts && availablePrompts.length > 0; i++) { const randomIndex = Math.floor(Math.random() * availablePrompts.length); selectedPrompts.push(availablePrompts.splice(randomIndex, 1)[0]); } this.arrangementLog[key].variations = selectedPrompts; this.arrangementLog[key].variationsConfirmed = false; console.log("Variation Suggestions:", this.arrangementLog[key].density, this.arrangementLog[key].variations); },
+                confirmVariations() { if (!this.currentArrangementInstance || !this.arrangementLog[this.currentArrangementInstance.logKey]?.density) return; const key = this.currentArrangementInstance.logKey; if (this.arrangementLog[key]) { this.arrangementLog[key].variationsConfirmed = true; console.log(`Variations confirmed for instance: ${key}`); } },
+                suggestTransition() { if (!this.currentArrangementInstance || this.isLastSection) return; const key = this.currentArrangementInstance.logKey; if (!this.arrangementLog[key]) this.initializeLogEntry(key); console.log(`Suggesting transition out for ${key}`); this.arrangementLog[key].transition = this.getRandomElement(this.transitionTypes); this.arrangementLog[key].transitionConfirmed = false; console.log("Transition Suggestion:", this.arrangementLog[key].transition); },
+                confirmTransition() { if (!this.currentArrangementInstance || this.isLastSection || !this.arrangementLog[this.currentArrangementInstance.logKey]?.transition) return; const key = this.currentArrangementInstance.logKey; if (this.arrangementLog[key]) { this.arrangementLog[key].transitionConfirmed = true; console.log(`Transition confirmed for instance: ${key}`); } },
+                completeCurrentInstance() { if (!this.canCompleteInstance) { console.warn("Cannot complete instance yet."); return; } const completedKey = this.currentArrangementInstance.logKey; console.log(`Completing instance ${this.currentArrangementIndex + 1} (${completedKey})`); const nextIndex = this.currentArrangementIndex + 1; if (nextIndex < this.structure.templateSequence.length) { this.currentArrangementIndex = nextIndex; this.initializeLogEntry(this.getInstanceLogKey(nextIndex)); console.log("Moving to next instance:", this.currentArrangementIndex + 1); window.scrollTo(0, 0); } else { console.log("Arrangement Forge Complete!"); this.startPhase4(); } },
 
                  // --- Phase 4 Methods ---
-                 startPhase4() { // Transition from Phase 3
-                      if (this.currentPhase !== 3) { console.warn("Cannot start Phase 4 from current phase:", this.currentPhase); return; }
-                      console.log("Moving to Phase 4: Final Polish");
-                      this.currentPhase = 4;
-                      this.currentStep = 4.1; // Start with mandatory break
-                      this.resetPhase4State(); // Initialize Phase 4 state variables
-                 },
-                 startBreak() { // Step 4.1 - Start Break
-                      this.breakDuration = this.getRandomInt(1, 6) * 5; // d6 * 5 minutes
-                      this.breakConfirmed = false;
-                      console.log("Starting mandatory break:", this.breakDuration, "minutes");
-                 },
-                 confirmBreakComplete() { // Step 4.1 - Confirm Break
-                     this.breakConfirmed = true; console.log("Break confirmed complete.");
-                     this.currentStep = 4.2; this.currentCheckType = 'flow'; // Move to first check
-                     this.checkOutcome.flow = null; this.adjustmentMade.flow = false; // Reset check state
-                 },
-                 startCheck(checkType) { // Prepares UI for a specific check
-                    console.log(`Starting Guided Check: ${checkType}`);
-                    if (checkType === 'flow') this.currentStep = 4.2;
-                    else if (checkType === 'harmony') this.currentStep = 4.3;
-                    else if (checkType === 'balance') this.currentStep = 4.4;
-                    else return;
-                    this.currentCheckType = checkType;
-                    this.checkOutcome[checkType] = null; this.adjustmentMade[checkType] = false; // Reset check state
-                 },
-                 getCheckFeedback(checkType) { // Step 4.2, 4.3, 4.4 - Get Suggestion
-                    if (!checkType || !['flow', 'harmony', 'balance'].includes(checkType)) return;
-                    console.log(`Getting feedback suggestion for: ${checkType}`);
-                    const roll = this.getRandomInt(1, 6); let suggestion = ""; let allowChange = false;
-                    if (checkType === 'flow') {
-                        if (roll <= 2) { suggestion = "Suggestion: Identify ONE transition that feels weakest and make ONE small adjustment."; allowChange = true; }
-                        else if (roll <= 4) { suggestion = "Suggestion: Evaluate energy difference between main sections (A vs B). Make ONE small adjustment to enhance contrast if needed."; allowChange = true; }
-                        else { suggestion = "Result: Flow seems adequate. No changes recommended for this check."; allowChange = false; }
-                    } else if (checkType === 'harmony') {
-                         if (roll <= 2) { suggestion = "Suggestion: Check the BASSLINE across sections. Fix ONE awkward note/timing issue if found."; allowChange = true; }
-                        else if (roll <= 4) { suggestion = "Suggestion: Check main CHORDS/PADS. Make ONE small level or sound parameter adjustment if needed."; allowChange = true; }
-                        else { suggestion = "Result: Harmonic/Melodic elements seem coherent. No changes recommended."; allowChange = false; }
-                    } else if (checkType === 'balance') {
-                        if (roll <= 2) { suggestion = "Suggestion: Check main DRUM (Kick/Snare) impact/level. Make ONE level adjustment if needed."; allowChange = true; }
-                        else if (roll <= 4) { suggestion = "Suggestion: Check BASS/KICK relationship. Make ONE bass level adjustment if needed."; allowChange = true; }
-                        else { suggestion = "Result: Rhythm and basic balance seem adequate. No changes recommended."; allowChange = false; }
-                    }
-                    this.checkOutcome[checkType] = { suggestion, allowChange };
-                    console.log("Feedback Suggestion:", this.checkOutcome[checkType]);
-                 },
-                 confirmCheckComplete(checkType) { // Step 4.2, 4.3, 4.4 - Confirm Completion
-                    if (!checkType || !this.checkOutcome[checkType]) { console.warn("Cannot confirm check - no outcome generated for", checkType); return; }
-                    // Log outcome string
-                    let outcomeString = this.checkOutcome[checkType].suggestion;
-                    if (this.checkOutcome[checkType].allowChange) { outcomeString += (this.adjustmentMade[checkType] ? " (User indicated ONE adjustment was made.)" : " (User indicated NO adjustment was made.)"); }
-                    this.finalChecksLog[checkType] = outcomeString;
-                    console.log(`Check complete and logged for ${checkType}`);
-                    // Advance state
+                startPhase4() { if (this.currentPhase !== 3) { console.warn("Cannot start P4"); return; } console.log("Moving to Phase 4: Final Polish"); this.currentPhase = 4; this.currentStep = 4.1; this.resetPhase4State(); },
+                startBreak() { this.breakDuration = this.getRandomInt(1, 6) * 5; this.breakConfirmed = false; console.log("Starting break:", this.breakDuration, "minutes"); },
+                confirmBreakComplete() { this.breakConfirmed = true; console.log("Break confirmed complete."); this.startCheck('flow'); }, // Passa direttamente al primo check
+                startCheck(checkType) { console.log(`Starting Guided Check: ${checkType}`); if (checkType === 'flow') this.currentStep = 4.2; else if (checkType === 'harmony') this.currentStep = 4.3; else if (checkType === 'balance') this.currentStep = 4.4; else return; this.currentCheckType = checkType; this.checkOutcome[checkType] = null; this.adjustmentMade[checkType] = false; },
+                getCheckFeedback(checkType) { if (!checkType || !['flow', 'harmony', 'balance'].includes(checkType)) return; console.log(`Getting feedback suggestion for: ${checkType}`); const roll = this.getRandomInt(1, 6); let suggestion = ""; let allowChange = false; if (checkType === 'flow') { if (roll <= 2) { suggestion = "Suggestion: Identify ONE transition that feels weakest and make ONE small adjustment."; allowChange = true; } else if (roll <= 4) { suggestion = "Suggestion: Evaluate energy difference between main sections (A vs B). Make ONE small adjustment to enhance contrast if needed."; allowChange = true; } else { suggestion = "Result: Flow seems adequate. No changes recommended."; allowChange = false; } } else if (checkType === 'harmony') { if (roll <= 2) { suggestion = "Suggestion: Check the BASSLINE across sections. Fix ONE awkward note/timing issue if found."; allowChange = true; } else if (roll <= 4) { suggestion = "Suggestion: Check main CHORDS/PADS. Make ONE small level or sound parameter adjustment if needed."; allowChange = true; } else { suggestion = "Result: Harmonic/Melodic elements seem coherent. No changes recommended."; allowChange = false; } } else if (checkType === 'balance') { if (roll <= 2) { suggestion = "Suggestion: Check main DRUM (Kick/Snare) impact/level. Make ONE level adjustment if needed."; allowChange = true; } else if (roll <= 4) { suggestion = "Suggestion: Check BASS/KICK relationship. Make ONE bass level adjustment if needed."; allowChange = true; } else { suggestion = "Result: Rhythm and basic balance seem adequate. No changes recommended."; allowChange = false; } } this.checkOutcome[checkType] = { suggestion, allowChange }; console.log("Feedback Suggestion:", this.checkOutcome[checkType]); },
+                confirmCheckComplete(checkType) { // CORRETTO: Imposta currentStep a '4.post' dopo l'ultimo check
+                    if (!checkType || !this.checkOutcome[checkType]) { console.warn("Cannot confirm check - no outcome for", checkType); return; }
+                    let outcomeString = this.checkOutcome[checkType].suggestion; if (this.checkOutcome[checkType].allowChange) { outcomeString += (this.adjustmentMade[checkType] ? " (User indicated ONE adjustment was made.)" : " (User indicated NO adjustment was made.)"); } this.finalChecksLog[checkType] = outcomeString; console.log(`Check complete and logged for ${checkType}`);
                     if (checkType === 'flow') this.startCheck('harmony');
                     else if (checkType === 'harmony') this.startCheck('balance');
-                    else if (checkType === 'balance') {
-                        console.log("All final checks complete!");
-                        this.currentStep = '4.post'; // Mark phase 4 checks as done
-                    }
+                    else if (checkType === 'balance') { console.log("All final checks complete!"); this.currentStep = '4.post'; } // <-- Imposta '4.post' qui
                  },
 
                  // --- Phase 5 Methods ---
-                 startPhase5() { // Transition from Phase 4
-                    if (this.currentPhase !== 4 || this.currentStep !== '4.post') { console.warn("Cannot start Phase 5 yet."); return; }
-                    console.log("Moving to Phase 5: Summary");
-                    this.currentPhase = 5;
-                    this.currentStep = 5.1; // Display summary step
-                    window.scrollTo(0, 0); // Scroll up
-                 },
-                 // getSummaryData() is implicitly used by the template now
-                 printSummary() {
-                     console.log("Triggering print...");
-                     // Could potentially hide non-summary elements before printing if needed
-                     window.print();
-                 },
-                 resetGame() { // Start over
-                     console.log("Resetting game state...");
-                     if (confirm("Are you sure you want to discard this song and start a new one?")) {
-                        this.generateContext(); // Easiest way to reset everything
-                     }
-                 },
+                 startPhase5() { if (this.currentPhase !== 4 || this.currentStep !== '4.post') { console.warn("Cannot start Phase 5 yet."); return; } console.log("Moving to Phase 5: Summary"); this.currentPhase = 5; this.currentStep = 5.1; window.scrollTo(0, 0); },
+                 printSummary() { console.log("Triggering print..."); window.print(); },
+                 resetGame() { console.log("Resetting game state..."); if (confirm("Are you sure you want to discard this song and start a new one?")) { this.generateContext(); } },
 
                 // --- Debug/Navigation Helpers ---
-                skipToPhase3Debug() {
-                    console.warn("DEBUG: Skipping to Phase 3");
-                    // Minimal P1/P2 state
-                    this.framework = reactive({ key: 'A', scale: 'Major', tempo: 110 }); this.contextGenerated = true; this.contextConfirmed = true;
-                    this.layers = reactive([ { id: 1, type: 'Rhythm', modifier: 'Dry', confirmed: true }, { id: 2, type: 'Bass', modifier: 'Warm', confirmed: true }, { id: 3, type: 'Chords', modifier: 'Reverby', confirmed: true }, { id: 4, type: 'Lead', modifier: 'Filtered', confirmed: true }]);
-                    this.structure.progressions.A = 'I-V-vi-IV';
-                    this.structure.templateName = 'Classic Structure'; this.structure.templateSequence = ['Intro', 'A', 'B', 'A', 'B', 'Outro'];
-                    this.structure.progressions = { A: 'I-V-vi-IV', B: 'vi-IV-I-V', Intro: 'IV-I', Outro: 'I-V' };
-                    this.structure.lengths = { A: 16, B: 12, Intro: 8, Outro: 8 };
-                    this.structure.templateGenerated = true; this.structure.templateConfirmed = true; this.structure.lengthsGenerated = true; this.structure.lengthsConfirmed = true;
-                    this.sectionsToDefineHarmony = ['Intro', 'B', 'Outro']; this.harmonyConfirmed = { Intro: true, B: true, Outro: true };
-                    this.resetPhase3State(); this.resetPhase4State();
-                    this.currentPhase = 2; this.currentStep = 2.3; // Ensure P2 is 'complete'
-                    this.startPhase3();
-                },
-                skipToPhase4Debug() {
-                     console.warn("DEBUG: Skipping to Phase 4");
-                     this.skipToPhase3Debug(); // Setup P1-P3 first
-                     if(this.currentPhase === 3 && this.structure.templateSequence?.length > 0) {
-                         // Simulate completing all instances
-                         this.structure.templateSequence.forEach((_, index) => {
-                             const key = this.getInstanceLogKey(index); if (!this.arrangementLog[key]) this.initializeLogEntry(key);
-                             this.arrangementLog[key].adaptationConfirmed = true; this.arrangementLog[key].density = 'Medium';
-                             this.arrangementLog[key].variations = ['Debug Variation']; this.arrangementLog[key].variationsConfirmed = true;
-                             if (index < this.structure.templateSequence.length - 1) { this.arrangementLog[key].transition = 'Abrupt Cut'; this.arrangementLog[key].transitionConfirmed = true; }
-                         });
-                         this.currentArrangementIndex = this.structure.templateSequence.length - 1;
-                         this.startPhase4(); // Trigger transition
-                     } else { console.warn("Cannot skip to P4 - Phase 3 setup failed."); }
-                 },
+                skipToPhase3Debug() { console.warn("DEBUG: Skipping to Phase 3"); this.framework = reactive({ key: 'A', scale: 'Major', tempo: 110 }); this.contextGenerated = true; this.contextConfirmed = true; this.layers = reactive([ { id: 1, type: 'Rhythm', modifier: 'Dry', confirmed: true }, { id: 2, type: 'Bass', modifier: 'Warm', confirmed: true }, { id: 3, type: 'Chords', modifier: 'Reverby', confirmed: true }, { id: 4, type: 'Lead', modifier: 'Filtered', confirmed: true }]); this.structure.progressions.A = 'I-V-vi-IV'; this.structure.templateName = 'Classic Structure'; this.structure.templateSequence = ['Intro', 'A', 'B', 'A', 'B', 'Outro']; this.structure.progressions = { A: 'I-V-vi-IV', B: 'vi-IV-I-V', Intro: 'IV-I', Outro: 'I-V' }; this.structure.lengths = { A: 16, B: 12, Intro: 8, Outro: 8 }; this.structure.templateGenerated = true; this.structure.templateConfirmed = true; this.structure.lengthsGenerated = true; this.structure.lengthsConfirmed = true; this.sectionsToDefineHarmony = ['Intro', 'B', 'Outro']; this.harmonyConfirmed = { Intro: true, B: true, Outro: true }; this.resetPhase3State(); this.resetPhase4State(); this.currentPhase = 2; this.currentStep = 2.3; this.startPhase3(); },
+                skipToPhase4Debug() { console.warn("DEBUG: Skipping to Phase 4"); this.skipToPhase3Debug(); if(this.currentPhase === 3 && this.structure.templateSequence?.length > 0) { this.structure.templateSequence.forEach((_, index) => { const key = this.getInstanceLogKey(index); if (!this.arrangementLog[key]) this.initializeLogEntry(key); this.arrangementLog[key].adaptationConfirmed = true; this.arrangementLog[key].density = 'Medium'; this.arrangementLog[key].variations = ['Debug Variation']; this.arrangementLog[key].variationsConfirmed = true; if (index < this.structure.templateSequence.length - 1) { this.arrangementLog[key].transition = 'Abrupt Cut'; this.arrangementLog[key].transitionConfirmed = true; } }); this.currentArrangementIndex = this.structure.templateSequence.length - 1; this.startPhase4(); } else { console.warn("Cannot skip to P4 - Phase 3 setup failed."); } },
                 goBackToPhase1Post() { this.currentPhase = 1; this.currentStep = '1.post'; },
                 goBackToContext() { this.currentPhase = 1; this.currentStep = 1.1; this.currentLayerIndex = 0; },
                 goBackToPhase2Lengths() { this.currentPhase = 2; this.currentStep = 2.3; },
-                goBackToPhase3() { // Navigate back from P4 or P5 to end of P3
-                    if (this.currentPhase >= 4) {
-                        this.currentPhase = 3; this.currentStep = 3.1; // Go back to arrangement view
-                        if (this.structure.templateSequence?.length > 0) {
-                            this.currentArrangementIndex = this.structure.templateSequence.length - 1; // Show last instance
-                             this.initializeLogEntry(this.getInstanceLogKey(this.currentArrangementIndex));
-                        } else { this.currentArrangementIndex = -1; this.currentPhase = 2; this.currentStep = 2.3; } // Fallback
-                    } else { this.currentPhase = 2; this.currentStep = 2.3; } // If already in P3 or earlier
-                 },
-
+                goBackToPhase3() { if (this.currentPhase >= 4) { this.currentPhase = 3; this.currentStep = 3.1; if (this.structure.templateSequence?.length > 0) { this.currentArrangementIndex = this.structure.templateSequence.length - 1; this.initializeLogEntry(this.getInstanceLogKey(this.currentArrangementIndex)); } else { this.currentArrangementIndex = -1; this.currentPhase = 2; this.currentStep = 2.3; } } else { this.currentPhase = 2; this.currentStep = 2.3; } },
             },
             // --- MOUNTED ---
             mounted() {
                 console.log("Vue App Mounted!");
-                // Optional: Automatically generate context on load?
-                // this.generateContext();
             }
         }).mount('#app');
     </script>
