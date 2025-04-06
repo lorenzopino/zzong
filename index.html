@@ -6,27 +6,40 @@
     <title>The Songwriting Game</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <style>
-        /* Optional: Add minimal custom styles if needed */
         body {
-            background-color: #f8f9fa; /* Light grey background */
+            background-color: #f8f9fa;
         }
         .phase-title {
             margin-bottom: 1.5rem;
-            color: #6c757d; /* Muted color */
+            color: #6c757d;
         }
         .step-card {
             margin-bottom: 1.5rem;
         }
-         .list-group-item span {
+         .list-group-item span, .layer-suggestion span {
             font-weight: bold;
-            color: #fd5f00; /* Accent color from spec */
+            color: #fd5f00; /* Accent color */
+         }
+         .layer-suggestion {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+         }
+         .previous-layers {
+            margin-top: 1.5rem;
+            font-size: 0.9rem;
+         }
+         .previous-layers .badge {
+             margin-right: 5px;
+         }
+         /* Add some spacing for buttons */
+         .btn {
+             margin-top: 0.5rem;
          }
     </style>
 </head>
 <body>
 
-    <div id="app" class="container mt-4">
-        <h1 class="mb-3">The Songwriting Game</h1>
+    <div id="app" class="container mt-4 mb-5"> <h1 class="mb-3">The Songwriting Game</h1>
         <hr>
 
         <div v-if="currentPhase === 1">
@@ -64,68 +77,172 @@
                              Musical context confirmed:
                              <strong>{{ framework.key }} {{ framework.scale }}</strong> at <strong>{{ framework.tempo }} BPM</strong>.
                          </p>
-                         <p>Now, let's create the first instrument layer.</p>
-                         <button class="btn btn-info" disabled>Next: Create Layer 1 (WIP)</button>
+                         <p>Now, let's create the first four core instrument layers.</p>
+                         <button class="btn btn-info" @click="startLayerGeneration">
+                            Start Creating Layer 1
+                         </button>
                     </div>
                 </div>
-            </div>
-
-            <div class="card step-card" v-if="currentStep === 1.2">
+            </div> <div class="card step-card" v-if="currentStep === 1.2">
                  <div class="card-body">
-                     <h5 class="card-title">Step 1.2: Generate Initial Layers (Work in Progress)</h5>
-                     <p>Display Layer 1 generation options here...</p>
-                     <p>Context: {{ framework.key }} {{ framework.scale }}, {{ framework.tempo }} BPM</p>
-                      <button class="btn btn-secondary" @click="goBackToContext">Back to Context</button> </div>
-            </div>
-            </div> </div> <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+                     <h5 class="card-title">Step 1.2: Create Initial Layers ({{ currentLayerIndex }} / 4)</h5>
+                     <p>Follow the prompts to build your core sound palette. Implement each layer in your DAW/music app.</p>
+                     <p><strong>Context:</strong> {{ framework.key }} {{ framework.scale }}, {{ framework.tempo }} BPM</p>
+                     <hr>
+
+                     <div v-if="layers[currentLayerIndex - 1]">
+                        <div v-if="!layers[currentLayerIndex - 1].suggested">
+                             <p>Ready to create <strong>Layer {{ currentLayerIndex }}</strong>?</p>
+                             <button class="btn btn-primary" @click="generateLayerSuggestion(currentLayerIndex)">
+                                Generate Suggestion for Layer {{ currentLayerIndex }}
+                             </button>
+                        </div>
+
+                        <div v-if="layers[currentLayerIndex - 1].suggested && !layers[currentLayerIndex - 1].confirmed">
+                            <p>Suggestion for <strong>Layer {{ currentLayerIndex }}</strong>:</p>
+                            <p class="alert alert-info layer-suggestion">
+                                Create a <span>{{ layers[currentLayerIndex - 1].modifier }}</span> <span>{{ layers[currentLayerIndex - 1].type }}</span>.
+                            </p>
+                            <p>Go ahead and create this in your DAW. Once you're happy with it, confirm below.</p>
+                            <button class="btn btn-success" @click="confirmLayerCreated(currentLayerIndex)">
+                                Confirm Layer {{ currentLayerIndex }} Created
+                            </button>
+                             <button class="btn btn-secondary ms-2" @click="generateLayerSuggestion(currentLayerIndex)">
+                                Regenerate Suggestion
+                             </button>
+                        </div>
+
+                        </div>
+
+                     <div class="previous-layers" v-if="getConfirmedLayers().length > 0">
+                         <h6>Confirmed Layers:</h6>
+                         <p>
+                            <span v-for="layer in getConfirmedLayers()" :key="layer.id" class="badge bg-secondary text-light">
+                                L{{ layer.id }}: {{ layer.modifier }} {{ layer.type }}
+                            </span>
+                         </p>
+                     </div>
+
+                     </div>
+            </div> <div class="card step-card" v-if="currentStep === '1.post'">
+                 <div class="card-body">
+                     <h5 class="card-title">Sonic Core Complete!</h5>
+                     <p class="alert alert-success">All 4 initial layers created.</p>
+                     <p>Based on these layers and the context, here's a suggested initial chord progression (Progression A) for your main sections:</p>
+                     <p class="alert alert-info"><strong>Progression A:</strong> <span>{{ structure.progressions.A || 'Not generated yet' }}</span></p>
+                     <button class="btn btn-info" @click="startPhase2">Proceed to Phase 2: Structure Map</button>
+                 </div>
+             </div>
+
+
+        </div> <div v-if="currentPhase === 2">
+             <h2 class="phase-title">Phase 2: Structure Map Definition (Work in Progress)</h2>
+              <div class="card step-card">
+                  <div class="card-body">
+                       <p>Define song structure, harmony for sections, and lengths.</p>
+                       <p>Key: {{ framework.key }}, Scale: {{ framework.scale }}, Tempo: {{ framework.tempo }}</p>
+                       <p>Progression A: {{ structure.progressions.A }}</p>
+                       <button class="btn btn-secondary" @click="goBackToPhase1Post">Back (Debug)</button>
+                  </div>
+              </div>
+        </div></div> <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
 
     <script>
-        const { createApp, ref, reactive } = Vue;
+        const { createApp, ref, reactive, computed } = Vue; // Added computed
 
         createApp({
             data() {
                 return {
+                    // --- Core State ---
                     currentPhase: 1,
                     currentStep: 1.1, // Start at step 1.1
-                    framework: reactive({ // Use reactive for nested object changes
+                    framework: reactive({
                         key: null,
                         scale: null,
                         tempo: null
                     }),
                     contextGenerated: false,
                     contextConfirmed: false,
+
+                    // --- Phase 1 State ---
+                    currentLayerIndex: 0, // 0 means not started, 1-4 for current layer
+                    layers: reactive([ // Array will hold 4 layer objects
+                        // Example: { id: 1, type: 'Main Chords', modifier: 'Warm/Analog', suggested: true, confirmed: true }
+                    ]),
+                    // Progression A will be stored here after Layer 4
+                    structure: reactive({
+                        template: [],
+                        progressions: { A: null }, // Store progressions here, starting with A
+                        lengths: {}
+                    }),
+
+
                     // --- Data Lists (from specifications) ---
                     musicalKeys: ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'],
-                    musicalScales: [
-                        { name: 'Major', definition: 'Standard happy/bright scale' },
-                        { name: 'Natural Minor', definition: 'Standard sad/dark scale' },
-                        { name: 'Harmonic Minor', definition: 'Minor scale with a raised 7th, gives an exotic feel' },
-                        { name: 'Melodic Minor', definition: 'Minor scale with raised 6th and 7th ascending' },
-                        { name: 'Dorian', definition: 'Minor-like mode, often jazzy or melancholic' },
-                        { name: 'Phrygian', definition: 'Minor-like mode, Spanish/dark feel' },
-                        { name: 'Lydian', definition: 'Major-like mode, dreamy/ethereal feel' },
-                        { name: 'Mixolydian', definition: 'Major-like mode, bluesy/dominant feel' },
-                        { name: 'Pentatonic Major', definition: 'Simple 5-note major scale, common in folk/rock' },
-                        { name: 'Pentatonic Minor', definition: 'Simple 5-note minor scale, common in blues/rock' },
-                        { name: 'Blues Scale', definition: 'Pentatonic minor with an added flat 5th, very bluesy' }
+                    musicalScales: [ // Added type for progression logic later
+                        { name: 'Major', type: 'major', definition: 'Standard happy/bright scale' },
+                        { name: 'Natural Minor', type: 'minor', definition: 'Standard sad/dark scale' },
+                        { name: 'Harmonic Minor', type: 'minor', definition: 'Minor scale with a raised 7th, exotic feel' },
+                        { name: 'Melodic Minor', type: 'minor', definition: 'Minor scale with raised 6th/7th ascending' },
+                        { name: 'Dorian', type: 'minor', definition: 'Minor-like mode, jazzy/melancholic' },
+                        { name: 'Phrygian', type: 'minor', definition: 'Minor-like mode, Spanish/dark feel' },
+                        { name: 'Lydian', type: 'major', definition: 'Major-like mode, dreamy/ethereal feel' },
+                        { name: 'Mixolydian', type: 'major', definition: 'Major-like mode, bluesy/dominant feel' },
+                        { name: 'Pentatonic Major', type: 'major', definition: 'Simple 5-note major scale' },
+                        { name: 'Pentatonic Minor', type: 'minor', definition: 'Simple 5-note minor scale' },
+                        { name: 'Blues Scale', type: 'minor', definition: 'Pentatonic minor + flat 5th' }
+                    ],
+                    instrumentTypes: [
+                        'Foundation Rhythm', 'Groove Bass', 'Main Chords', 'Arpeggio/Sequence',
+                        'Percussive Texture High', 'Simple Lead/Hook', 'Atmospheric Pad/Drone',
+                        'Rhythmic FX/Stab', 'Counter Melody', 'Tuned Percussion'
+                    ],
+                    stylisticModifiers: [
+                        'Filtered', 'Reverby/Dreamy', 'Wobbly/Detuned', 'Minimal/Dry', 'Warm/Analog',
+                        'Glitchy/Fragmented', 'Compressed/Pumpy', 'Delayed/Spatial', 'Lo-Fi/Gritty',
+                        'Bright/Crispy', 'Dark/Mellow', 'Wide Stereo'
                     ],
                     tempoRange: { min: 70, max: 125 },
-                    // --- State for future steps (example) ---
-                    layers: reactive([]) // Array to hold layer objects
+
+                    // --- Progression Data (Simplified for TODO) ---
+                    // TODO: Implement robust diatonic chord generation and Roman numeral conversion
+                    // Placeholder patterns for Progression A generation
+                    commonProgressions: {
+                        major: ['I-V-vi-IV', 'IV-I-V-vi', 'I-IV-V-I', 'vi-IV-I-V', 'I-vi-IV-V', 'ii-V-I', 'I-iii-IV-V', 'I-V-IV-I'],
+                        minor: ['i-VI-III-VII', 'i-iv-v-i', 'i-VII-VI-V', 'vi-iv-i-v', 'i-iv-III-VI', 'ii°-V-i', 'i-VI-iv-v', 'i-v-VI-VII']
+                    }
+
                 }
+            },
+            computed: {
+                 // Helper to get only confirmed layers for display
+                 confirmedLayers() {
+                      return this.layers.filter(layer => layer.confirmed);
+                 }
             },
             methods: {
                 // --- Helper Methods ---
                 getRandomInt(min, max) {
                     min = Math.ceil(min);
                     max = Math.floor(max);
-                    return Math.floor(Math.random() * (max - min + 1)) + min; // Inclusive
+                    return Math.floor(Math.random() * (max - min + 1)) + min;
                 },
                 getRandomElement(arr) {
                     if (!arr || arr.length === 0) return null;
                     const randomIndex = Math.floor(Math.random() * arr.length);
                     return arr[randomIndex];
+                },
+                getScaleDefinition(scaleName) {
+                    const scaleObj = this.musicalScales.find(s => s.name === scaleName);
+                    return scaleObj ? scaleObj.definition : 'Unknown scale';
+                },
+                getScaleType(scaleName) {
+                     const scaleObj = this.musicalScales.find(s => s.name === scaleName);
+                     return scaleObj ? scaleObj.type : 'major'; // Default to major if not found
+                },
+                getConfirmedLayers() { // Method version if computed causes issues
+                     return this.layers.filter(layer => layer.confirmed);
                 },
 
                 // --- Step 1.1 Methods ---
@@ -134,48 +251,117 @@
                     const selectedScaleObject = this.getRandomElement(this.musicalScales);
 
                     this.framework.key = this.getRandomElement(this.musicalKeys);
-                    this.framework.scale = selectedScaleObject ? selectedScaleObject.name : null; // Store only the name
+                    this.framework.scale = selectedScaleObject ? selectedScaleObject.name : null;
                     this.framework.tempo = this.getRandomInt(this.tempoRange.min, this.tempoRange.max);
 
                     this.contextGenerated = true;
-                    this.contextConfirmed = false; // Reset confirmation status if regenerating
+                    this.contextConfirmed = false;
+                    this.currentLayerIndex = 0; // Reset layers if context changes
+                    this.layers.length = 0; // Clear existing layers array
                 },
                 confirmContext() {
                     console.log("Context confirmed:", this.framework);
                     this.contextConfirmed = true;
-                     // --- Advance State ---
-                     // In a real app you might have more complex logic here
-                     // For now, let's just enable moving to the next conceptual step
-                     // We will change currentStep when the user explicitly starts Layer 1 generation
-                     // this.currentStep = 1.2; // Let's trigger this later
-                },
-                getScaleDefinition(scaleName) {
-                    const scaleObj = this.musicalScales.find(s => s.name === scaleName);
-                    return scaleObj ? scaleObj.definition : 'Unknown scale';
+                    // State is ready to start Layer 1 generation, waiting for user click
                 },
 
-                 // --- Navigation/Debugging Methods ---
-                goToNextStep() { // Example function to manually advance step if needed
-                   if (this.currentStep === 1.1 && this.contextConfirmed) {
-                       this.currentStep = 1.2;
-                   }
-                   // Add logic for other steps later
+                // --- Step 1.2 Methods ---
+                startLayerGeneration() {
+                    if (!this.contextConfirmed) return; // Safety check
+                    console.log("Starting layer generation...");
+                    this.currentStep = 1.2;
+                    this.currentLayerIndex = 1;
+                    this.initializeLayerData(4); // Create placeholder objects for 4 layers
                 },
-                goBackToContext() { // Example function to go back
-                    if (this.currentStep === 1.2) {
-                        this.currentStep = 1.1;
-                        // Decide if you want to reset confirmation status or allow re-confirmation
-                        // this.contextConfirmed = false;
-                        // this.contextGenerated = false; // Or keep generated context visible?
-                    }
-                }
+                initializeLayerData(count) {
+                    this.layers.length = 0; // Clear previous layers if any
+                     for (let i = 1; i <= count; i++) {
+                          this.layers.push(reactive({ // Ensure layer objects are reactive
+                               id: i,
+                               type: null,
+                               modifier: null,
+                               suggested: false,
+                               confirmed: false
+                          }));
+                     }
+                     console.log("Initialized layers:", this.layers);
+                },
+                generateLayerSuggestion(layerIndex) {
+                     if (layerIndex < 1 || layerIndex > 4) return;
+                     console.log(`Generating suggestion for Layer ${layerIndex}`);
+                     const layer = this.layers[layerIndex - 1];
+                     if (!layer) return;
 
-                // --- Methods for Step 1.2 (Layers) will go here ---
+                     // TODO: Add complementary logic based on previous layers (N-1) later
+                     // For now, always random:
+                     layer.type = this.getRandomElement(this.instrumentTypes);
+                     layer.modifier = this.getRandomElement(this.stylisticModifiers);
+                     layer.suggested = true;
+                     layer.confirmed = false; // Reset confirmation if regenerating
+                     console.log(`Suggestion: ${layer.modifier} ${layer.type}`);
+                },
+                confirmLayerCreated(layerIndex) {
+                     if (layerIndex < 1 || layerIndex > 4) return;
+                     console.log(`Confirming Layer ${layerIndex} created.`);
+                     const layer = this.layers[layerIndex - 1];
+                      if (!layer || !layer.suggested) return; // Can only confirm if suggestion exists
 
+                     layer.confirmed = true;
+
+                     // Check if all layers are done
+                     if (layerIndex === 4) {
+                          console.log("All 4 layers confirmed!");
+                          this.generateInitialProgressionA(); // Generate Progression A
+                          this.currentStep = '1.post'; // Move to the post-layer summary step
+                     } else {
+                          // Move to the next layer
+                          this.currentLayerIndex++;
+                           // Optional: Automatically generate next suggestion or wait for user
+                           // this.generateLayerSuggestion(this.currentLayerIndex);
+                     }
+                },
+                generateInitialProgressionA() {
+                     // TODO: Implement robust chord generation based on key/scale/layers
+                     // Simple Placeholder Logic:
+                     console.log("Generating Progression A...");
+                     const scaleType = this.getScaleType(this.framework.scale);
+                     let pattern = 'I-IV-V-I'; // Default Major
+                     if (scaleType === 'minor') {
+                           pattern = this.getRandomElement(this.commonProgressions.minor);
+                     } else {
+                            pattern = this.getRandomElement(this.commonProgressions.major);
+                     }
+                     // This currently just stores the Roman numeral pattern.
+                     // A real implementation needs to convert this to actual chords (e.g., "Cm - Fm - Gm - Cm")
+                     this.structure.progressions.A = `${pattern} (in ${this.framework.key} ${this.framework.scale})`; // Store placeholder string
+                     console.log("Progression A generated (placeholder):", this.structure.progressions.A);
+                },
+
+
+                // --- Navigation ---
+                 startPhase2() {
+                      if (this.currentStep === '1.post') {
+                          this.currentPhase = 2;
+                          this.currentStep = 2.1; // Set to the first step of Phase 2
+                           console.log("Moving to Phase 2, Step 2.1");
+                      }
+                 },
+                 goBackToPhase1Post() { // Debug/Nav helper
+                    this.currentPhase = 1;
+                    this.currentStep = '1.post';
+                 },
+                 goBackToContext() { // Debug/Nav helper
+                     this.currentStep = 1.1;
+                     // Decide how to handle state reset, e.g., require reconfirmation?
+                     // this.contextConfirmed = false;
+                     // this.contextGenerated = false; // or keep generated visible?
+                     this.currentLayerIndex = 0;
+                     // this.layers.length = 0;
+                 }
             },
             mounted() {
                 console.log("Vue App Mounted!");
-                // You could potentially load saved state here in the future
+                 // Initialize reactive objects if needed, though Vue 3 often handles this automatically
             }
         }).mount('#app');
     </script>
