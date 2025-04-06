@@ -7,19 +7,19 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <style>
         /* Combined Styles */
-        body { background-color: #f8f9fa; }
+        body { background-color: #f8f9fa; font-family: sans-serif; }
         .phase-title { margin-bottom: 1.5rem; color: #6c757d; }
         .step-card { margin-bottom: 1.5rem; }
         .list-group-item span, .layer-suggestion span, .structure-display span,
         .progression-display span, .length-display span, .arrangement-value span,
-        .check-suggestion span, .break-duration span { font-weight: bold; color: #fd5f00; }
+        .check-suggestion span, .break-duration span, .summary-value span { font-weight: bold; color: #fd5f00; }
         .layer-suggestion { font-size: 1.1rem; margin-bottom: 1rem; }
         .previous-layers { margin-top: 1.5rem; font-size: 0.9rem; }
         .previous-layers .badge { margin-right: 5px; }
         .btn { margin-top: 0.5rem; }
         .structure-sequence .badge { font-size: 1rem; margin: 2px; padding: 0.5em 0.7em; }
         .section-roles { font-size: 0.9em; color: #6c757d; }
-        .chord-progression { font-family: monospace; font-size: 1.1em; }
+        .chord-progression { font-family: monospace; font-size: 1.1em; background-color: #e9ecef; padding: 0.1em 0.3em; border-radius: 0.2rem;}
 
         /* Phase 3 Styles */
         .arrangement-step { padding: 1rem; border-left: 3px solid #dee2e6; margin-bottom: 1rem; background-color: #fff; }
@@ -35,6 +35,16 @@
         .check-result { font-weight: bold; }
         .form-check-input:checked { background-color: #fd5f00; border-color: #fd5f00; }
         .mandatory-break { font-size: 1.1em; }
+
+        /* Phase 5 Styles */
+        .summary-section h5 { border-bottom: 1px solid #dee2e6; padding-bottom: 0.5rem; margin-bottom: 1rem; color: #495057;}
+        .summary-section { margin-bottom: 1.5rem; }
+        .summary-label { font-weight: bold; color: #343a40; min-width: 100px; display: inline-block;}
+        .summary-list li { margin-bottom: 0.3rem; }
+        .arrangement-log-item { margin-bottom: 1rem; padding-left: 1rem; border-left: 2px solid #eee; }
+        .arrangement-log-item strong { color: #6c757d; }
+        .final-check-item { background-color: #f8f9fa; padding: 0.5rem; border-radius: 0.25rem; margin-bottom: 0.5rem; font-size: 0.9em;}
+
     </style>
 </head>
 <body>
@@ -52,20 +62,20 @@
                  <div class="card-body"> <h5 class="card-title">Step 1.2: Create Initial Layers ({{ currentLayerIndex }} / 4)</h5> <p><strong>Context:</strong> {{ framework.key }} {{ framework.scale }}, {{ framework.tempo }} BPM</p> <hr> <div v-if="layers[currentLayerIndex - 1]"> <div v-if="!layers[currentLayerIndex - 1].suggested"> <p>Ready for <strong>Layer {{ currentLayerIndex }}</strong>?</p> <button class="btn btn-primary" @click="generateLayerSuggestion(currentLayerIndex)">Generate Suggestion L{{currentLayerIndex}}</button> </div> <div v-if="layers[currentLayerIndex - 1].suggested && !layers[currentLayerIndex - 1].confirmed"> <p>Suggestion for <strong>Layer {{ currentLayerIndex }}</strong>:</p> <p class="alert alert-info layer-suggestion">Create a <span>{{ layers[currentLayerIndex - 1].modifier }}</span> <span>{{ layers[currentLayerIndex - 1].type }}</span>.</p> <button class="btn btn-success" @click="confirmLayerCreated(currentLayerIndex)">Confirm L{{currentLayerIndex}} Created</button> <button class="btn btn-secondary ms-2" @click="generateLayerSuggestion(currentLayerIndex)">Regenerate</button> </div> </div> <div class="previous-layers" v-if="getConfirmedLayers().length > 0"> <h6>Confirmed Layers:</h6> <p><span v-for="layer in getConfirmedLayers()" :key="layer.id" class="badge bg-secondary text-light">L{{ layer.id }}: {{ layer.modifier }} {{ layer.type }}</span></p> </div> </div>
             </div>
             <div class="card step-card" v-if="currentStep === '1.post'">
-                 <div class="card-body"> <h5 class="card-title">Sonic Core Complete!</h5> <p class="alert alert-success">All 4 initial layers created.</p> <p>Suggested initial chord progression (Progression A):</p> <p class="alert alert-info progression-display"><strong>Progression A:</strong> <span class="chord-progression">{{ structure.progressions.A }}</span></p> <button class="btn btn-info" @click="startPhase2">Proceed to Phase 2</button> </div>
+                 <div class="card-body"> <h5 class="card-title">Sonic Core Complete!</h5> <p class="alert alert-success">All 4 initial layers created.</p> <p>Suggested initial chord progression (Progression A - Roman Numerals):</p> <p class="alert alert-info progression-display"><strong>Progression A:</strong> <span class="chord-progression">{{ structure.progressions.A }}</span></p> <button class="btn btn-info" @click="startPhase2">Proceed to Phase 2</button> </div>
             </div>
         </div>
 
         <div v-if="currentPhase === 2">
             <h2 class="phase-title">Phase 2: Structure Map Definition</h2>
-            <div class="card step-card" v-if="currentStep === 2.1">
-                 <div class="card-body"> <h5 class="card-title">Step 2.1: Generate Structure Template</h5> <div v-if="!structure.templateGenerated"> <p>Let's choose a structure...</p><button class="btn btn-primary" @click="generateStructureTemplate">Generate Structure</button> </div> <div v-if="structure.templateGenerated && !structure.templateConfirmed"> <p>Suggested Structure:</p> <div class="structure-display mb-3"> <h6>Name: <span>{{ structure.templateName }}</span></h6> <p>Sequence:</p> <p class="structure-sequence"><span v-for="(section, index) in structure.templateSequence" :key="index" class="badge bg-dark">{{ section }}</span></p> <p class="section-roles"><small>Roles: A=Verse, B=Chorus...</small></p> </div> <button class="btn btn-success me-2" @click="confirmStructureTemplate">Confirm</button> <button class="btn btn-secondary" @click="generateStructureTemplate">Regenerate</button> </div> <div v-if="structure.templateConfirmed"> <p class="alert alert-success">Structure confirmed: <strong>{{ structure.templateName }}</strong></p> <button class="btn btn-info" @click="startHarmonyDefinition">{{ sectionsToDefineHarmony.length > 0 ? 'Define Harmony' : 'Define Lengths' }}</button> </div> </div>
+             <div class="card step-card" v-if="currentStep === 2.1">
+                 <div class="card-body"> <h5 class="card-title">Step 2.1: Generate Structure Template</h5> <div v-if="!structure.templateGenerated"> <p>Let's choose a structure...</p><button class="btn btn-primary" @click="generateStructureTemplate">Generate Structure</button> </div> <div v-if="structure.templateGenerated && !structure.templateConfirmed"> <p>Suggested Structure:</p> <div class="structure-display mb-3"> <h6>Name: <span>{{ structure.templateName }}</span></h6> <p>Sequence:</p> <p class="structure-sequence"><span v-for="(section, index) in structure.templateSequence" :key="index" class="badge bg-dark">{{ section }}</span></p> <p class="section-roles"><small>Roles: A=Verse/Main, B=Chorus/Contrast, C=Bridge, etc.</small></p> </div> <button class="btn btn-success me-2" @click="confirmStructureTemplate">Confirm</button> <button class="btn btn-secondary" @click="generateStructureTemplate">Regenerate</button> </div> <div v-if="structure.templateConfirmed"> <p class="alert alert-success">Structure confirmed: <strong>{{ structure.templateName }}</strong></p> <button class="btn btn-info" @click="startHarmonyDefinition">{{ sectionsToDefineHarmony.length > 0 ? 'Next: Define Harmony' : 'Next: Define Lengths' }}</button> </div> </div>
             </div>
-            <div class="card step-card" v-if="currentStep === 2.2">
-                 <div class="card-body"> <h5 class="card-title">Step 2.2: Define Harmony ({{ currentSectionIndexToDefine + 1 }} / {{ sectionsToDefineHarmony.length }})</h5> <div v-if="currentSectionLetterToDefine"> <p>Define harmony for: <strong style="font-size: 1.5em;">'{{ currentSectionLetterToDefine }}'</strong></p> <p>Ref - Prog A: <code class="chord-progression">{{ structure.progressions.A }}</code></p> <div v-if="!structure.progressions[currentSectionLetterToDefine]"> <button class="btn btn-primary" @click="generateHarmonyForSection(currentSectionLetterToDefine)">Generate Suggestion for '{{ currentSectionLetterToDefine }}'</button> </div> <div v-if="structure.progressions[currentSectionLetterToDefine] && !harmonyConfirmed[currentSectionLetterToDefine]"> <p>Suggested pattern for '{{ currentSectionLetterToDefine }}':</p> <p class="alert alert-info progression-display"><strong>Prog {{ currentSectionLetterToDefine }}:</strong> <span class="chord-progression">{{ structure.progressions[currentSectionLetterToDefine] }}</span> <br><small>(Roman numeral placeholder)</small> </p> <button class="btn btn-success me-2" @click="confirmHarmony(currentSectionLetterToDefine)">Confirm Harmony</button> <button class="btn btn-secondary" @click="generateHarmonyForSection(currentSectionLetterToDefine)">Regenerate</button> </div> <div v-if="harmonyConfirmed[currentSectionLetterToDefine]"> </div> </div> <div v-else> <p class="alert alert-success">All harmonies defined!</p> <button class="btn btn-info" @click="startLengthDefinition">Next: Define Lengths</button> </div> </div>
+             <div class="card step-card" v-if="currentStep === 2.2">
+                 <div class="card-body"> <h5 class="card-title">Step 2.2: Define Harmony ({{ currentSectionIndexToDefine + 1 }} / {{ sectionsToDefineHarmony.length }})</h5> <div v-if="currentSectionLetterToDefine"> <p>Define harmony for section: <strong style="font-size: 1.5em;">'{{ currentSectionLetterToDefine }}'</strong></p> <p>Ref - Prog A: <code class="chord-progression">{{ structure.progressions.A }}</code></p> <hr> <div v-if="!structure.progressions[currentSectionLetterToDefine]"> <button class="btn btn-primary" @click="generateHarmonyForSection(currentSectionLetterToDefine)">Generate Suggestion for '{{ currentSectionLetterToDefine }}'</button> </div> <div v-if="structure.progressions[currentSectionLetterToDefine] && !harmonyConfirmed[currentSectionLetterToDefine]"> <p>Suggested pattern for '{{ currentSectionLetterToDefine }}' (Roman Numerals):</p> <p class="alert alert-info progression-display"><strong>Prog {{ currentSectionLetterToDefine }}:</strong> <span class="chord-progression">{{ structure.progressions[currentSectionLetterToDefine] }}</span> <br><small>(Note: Actual chords depend on key {{ framework.key }} {{ framework.scale }}. Implementation uses Roman numerals for now.)</small> </p> <button class="btn btn-success me-2" @click="confirmHarmony(currentSectionLetterToDefine)">Confirm Harmony</button> <button class="btn btn-secondary" @click="generateHarmonyForSection(currentSectionLetterToDefine)">Regenerate</button> </div> <div v-if="harmonyConfirmed[currentSectionLetterToDefine]"> </div> </div> <div v-else> <p class="alert alert-success">All section harmonies defined!</p> <button class="btn btn-info" @click="startLengthDefinition">Next: Define Lengths</button> </div> </div>
             </div>
-            <div class="card step-card" v-if="currentStep === 2.3">
-                 <div class="card-body"> <h5 class="card-title">Step 2.3: Define Section Lengths</h5> <div v-if="!structure.lengthsGenerated"> <p>Determine length for sections...</p><button class="btn btn-primary" @click="generateSectionLengths">Generate Lengths</button> </div> <div v-if="structure.lengthsGenerated && !structure.lengthsConfirmed"> <p>Suggested Lengths:</p> <ul class="list-group mb-3"> <li v-for="(length, section) in structure.lengths" :key="section" class="list-group-item length-display"> Section <strong>'{{ section }}'</strong>: <span>{{ length }} bars</span> </li> </ul> <button class="btn btn-success me-2" @click="confirmSectionLengths">Confirm Lengths</button> <button class="btn btn-secondary" @click="generateSectionLengths">Regenerate</button> </div> <div v-if="structure.lengthsConfirmed"> <p class="alert alert-success">Structure Map defined!</p> <button class="btn btn-info" @click="startPhase3">Proceed to Phase 3: Arrangement Forge</button> </div> </div>
+             <div class="card step-card" v-if="currentStep === 2.3">
+                 <div class="card-body"> <h5 class="card-title">Step 2.3: Define Section Lengths</h5> <div v-if="!structure.lengthsGenerated"> <p>Determine length (in bars) for each unique section type...</p><button class="btn btn-primary" @click="generateSectionLengths">Generate Lengths</button> </div> <div v-if="structure.lengthsGenerated && !structure.lengthsConfirmed"> <p>Suggested Lengths:</p> <ul class="list-group mb-3"> <li v-for="(length, section) in structure.lengths" :key="section" class="list-group-item length-display"> Section <strong>'{{ section }}'</strong>: <span>{{ length }} bars</span> </li> </ul> <button class="btn btn-success me-2" @click="confirmSectionLengths">Confirm Lengths</button> <button class="btn btn-secondary" @click="generateSectionLengths">Regenerate</button> </div> <div v-if="structure.lengthsConfirmed"> <p class="alert alert-success">Structure Map defined!</p> <button class="btn btn-info" @click="startPhase3">Proceed to Phase 3: Arrangement Forge</button> </div> </div>
             </div>
         </div>
 
@@ -79,36 +89,39 @@
                             {{ currentArrangementInstance.displayName }}
                             <small class="text-muted">({{ currentArrangementInstance.sectionLetter }}, Instance {{ currentArrangementInstance.instanceNumber }})</small>
                         </h4>
-                        <p><strong>Length:</strong> {{ currentArrangementInstance.length }} bars | <strong>Progression:</strong> <code class="chord-progression">{{ currentArrangementInstance.progression }}</code></p>
+                        <p>
+                            <strong>Length:</strong> <span class="summary-value">{{ currentArrangementInstance.length }} bars</span> |
+                            <strong>Progression:</strong> <code class="chord-progression">{{ currentArrangementInstance.progression }}</code>
+                        </p>
                         <hr>
                          <div>
-                            <div class="arrangement-step" :class="{ active: !currentInstanceLogEntry.adaptationConfirmed, completed: currentInstanceLogEntry.adaptationConfirmed }">
+                             <div class="arrangement-step" :class="{ active: !currentInstanceLogEntry.adaptationConfirmed, completed: currentInstanceLogEntry.adaptationConfirmed }">
                                 <h6>Step 3.2: Harmonic Adaptation</h6>
                                 <div v-if="!currentInstanceLogEntry.adaptationConfirmed">
                                     <p v-if="currentArrangementInstance.progression === currentArrangementInstance.previousProgression && currentArrangementIndex > 0">Progression is the same as the previous section. Focus on arrangement variations below.</p>
                                     <p v-else>
-                                        <span v-if="currentArrangementIndex === 0">Use your initial 4 layers as the basis for this first section.</span>
+                                        <span v-if="currentArrangementIndex === 0">Use your initial 4 layers as the basis for this first section, playing the progression: <code class="chord-progression">{{ currentArrangementInstance.progression }}</code></span>
                                         <span v-else>Progression changed! Adapt your core harmonic/melodic layers to fit: <code class="chord-progression">{{ currentArrangementInstance.progression }}</code></span>
-                                        <br><span v-if="layers.length > 0">Focus on layers like:</span>
-                                        <ul class="mt-2 initial-layers-list" v-if="layers.length > 0">
-                                            <li v-for="layer in layers">{{ layer.modifier }} {{ layer.type }}</li>
+                                        <br><span v-if="layers.length > 0" class="mt-2 d-block"><small>Initial Layers Reference:</small></span>
+                                        <ul class="list-inline initial-layers-list" v-if="layers.length > 0">
+                                            <li v-for="layer in layers" class="list-inline-item"><span class="badge bg-light text-dark">{{ layer.modifier }} {{ layer.type }}</span></li>
                                         </ul>
                                     </p>
                                     <button class="btn btn-success btn-sm" @click="confirmAdaptation">
                                         {{ (currentArrangementInstance.progression === currentArrangementInstance.previousProgression && currentArrangementIndex > 0) ? 'Continue to Variations' : 'Confirm Layers Adapted / Applied' }}
                                     </button>
                                 </div>
-                                <div v-else><p class="text-success mb-0"><small>Adaptation Confirmed.</small></p></div>
+                                <div v-else><p class="text-success mb-0"><small><i class="bi bi-check-lg"></i> Adaptation Confirmed.</small></p></div>
                             </div>
                             <div class="arrangement-step" :class="{ active: currentInstanceLogEntry.adaptationConfirmed && !currentInstanceLogEntry.variationsConfirmed, completed: currentInstanceLogEntry.variationsConfirmed, 'd-none': !currentInstanceLogEntry.adaptationConfirmed }">
                                 <h6>Step 3.3: Arrangement Variations</h6>
                                 <div v-if="!currentInstanceLogEntry.variationsConfirmed">
                                     <div v-if="!currentInstanceLogEntry.density">
-                                        <p>Ready to add unique character?</p>
+                                        <p>Ready to add unique character to this section instance?</p>
                                         <button class="btn btn-primary btn-sm" @click="suggestVariations">Suggest Variations</button>
                                     </div>
                                     <div v-else>
-                                        <p>Suggestions:</p>
+                                        <p>Suggestions for this instance:</p>
                                         <ul class="list-unstyled">
                                             <li><strong>Density:</strong> <span class="arrangement-value">{{ currentInstanceLogEntry.density }}</span></li>
                                             <li v-for="(prompt, pIdx) in currentInstanceLogEntry.variations" :key="pIdx"><strong>Prompt {{ pIdx + 1 }}:</strong> <span class="variation-prompt">{{ prompt }}</span></li>
@@ -117,30 +130,31 @@
                                         <button class="btn btn-secondary btn-sm" @click="suggestVariations">Regenerate Suggestions</button>
                                     </div>
                                 </div>
-                                <div v-else><p class="text-success mb-0"><small>Variations Confirmed.</small></p></div>
+                                <div v-else><p class="text-success mb-0"><small><i class="bi bi-check-lg"></i> Variations Confirmed.</small></p></div>
                             </div>
-                            <div class="arrangement-step" :class="{ active: currentInstanceLogEntry.variationsConfirmed && !currentInstanceLogEntry.transitionConfirmed && !isLastSection, completed: currentInstanceLogEntry.transitionConfirmed, 'd-none': !currentInstanceLogEntry.variationsConfirmed || isLastSection }">
+                             <div class="arrangement-step" :class="{ active: currentInstanceLogEntry.variationsConfirmed && !currentInstanceLogEntry.transitionConfirmed && !isLastSection, completed: currentInstanceLogEntry.transitionConfirmed, 'd-none': !currentInstanceLogEntry.variationsConfirmed || isLastSection }">
                                 <h6>Step 3.4: Transition Out</h6>
                                 <div v-if="!currentInstanceLogEntry.transitionConfirmed">
                                     <div v-if="!currentInstanceLogEntry.transition">
-                                        <p>Suggest transition to next section?</p>
+                                        <p>Suggest how to transition into the <em>next</em> section?</p>
                                         <button class="btn btn-primary btn-sm" @click="suggestTransition">Suggest Transition</button>
                                     </div>
                                     <div v-else>
-                                        <p>Suggested Transition: <span class="arrangement-value">{{ currentInstanceLogEntry.transition }}</span></p>
+                                        <p>Suggested Transition Out: <span class="arrangement-value">{{ currentInstanceLogEntry.transition }}</span></p>
                                         <button class="btn btn-success btn-sm me-2" @click="confirmTransition">Confirm Transition Implemented</button>
                                         <button class="btn btn-secondary btn-sm" @click="suggestTransition">Regenerate Suggestion</button>
                                     </div>
                                 </div>
-                                <div v-else><p class="text-success mb-0"><small>Transition Confirmed.</small></p></div>
+                                <div v-else><p class="text-success mb-0"><small><i class="bi bi-check-lg"></i> Transition Confirmed.</small></p></div>
                             </div>
                              <div class="arrangement-step completed" v-if="isLastSection && currentInstanceLogEntry.variationsConfirmed">
-                                <h6>Step 3.4: Transition Out</h6> <p class="mb-0"><small>N/A (Last Section)</small></p>
+                                <h6>Step 3.4: Transition Out</h6> <p class="mb-0 text-muted"><small>N/A (This is the final section)</small></p>
                             </div>
                             <div class="mt-4 text-center">
                                 <button class="btn btn-info" @click="completeCurrentInstance" :disabled="!canCompleteInstance">
                                    {{ isLastSection ? 'Complete Final Section & Proceed to Polish' : 'Complete Section & Move to Next' }}
                                 </button>
+                                <p v-if="!canCompleteInstance" class="text-muted small mt-2">Complete all steps above to proceed.</p>
                             </div>
                         </div>
                     </div>
@@ -159,12 +173,12 @@
                 <div class="card-body">
                     <h5 class="card-title">Step 4.1: Mandatory Break</h5>
                     <div v-if="!breakDuration">
-                        <p class="mandatory-break">Time for a short break to refresh your ears!</p>
+                        <p class="mandatory-break">Time for a short break to refresh your ears before the final checks!</p>
                         <button class="btn btn-primary" @click="startBreak">Start Break Timer</button>
                     </div>
                     <div v-if="breakDuration && !breakConfirmed">
                         <p class="mandatory-break">Take a break for <span class="break-duration">{{ breakDuration }} minutes</span>.</p>
-                        <p>Come back when the time is up and confirm below.</p>
+                        <p>Step away, relax, then come back and confirm below.</p>
                         <button class="btn btn-success" @click="confirmBreakComplete">Confirm Break Complete</button>
                     </div>
                     <div v-if="breakConfirmed">
@@ -178,7 +192,7 @@
                  <div class="card-body">
                     <h5 class="card-title">Step 4.2: Check 1 - Flow & Structure</h5>
                     <div v-if="!checkOutcome['flow']">
-                        <p class="check-instruction">Listen to the entire track, focusing on how the sections connect and the overall energy flow.</p>
+                        <p class="check-instruction">Listen to the entire track from beginning to end. Pay attention to the transitions between sections and the overall energy level changes.</p>
                         <button class="btn btn-primary" @click="getCheckFeedback('flow')">Get Feedback Suggestion</button>
                     </div>
                     <div v-if="checkOutcome['flow'] && !finalChecksLog['flow']">
@@ -186,14 +200,14 @@
                          <div class="form-check mb-3" v-if="checkOutcome['flow'].allowChange">
                             <input class="form-check-input" type="checkbox" v-model="adjustmentMade['flow']" id="flowAdjustCheck">
                             <label class="form-check-label" for="flowAdjustCheck">
-                                I made ONE suggested adjustment based on the feedback.
+                                I made ONE small adjustment based on this feedback.
                             </label>
                          </div>
                          <p v-else class="check-result">No specific change needed based on this check.</p>
                          <button class="btn btn-success" @click="confirmCheckComplete('flow')">Confirm Flow Check Complete</button>
                     </div>
                      <div v-if="finalChecksLog['flow']">
-                        <p class="alert alert-success">Flow & Structure Check logged: <em>{{ finalChecksLog['flow'] }}</em></p>
+                        <p class="alert alert-success">Flow & Structure Check logged.</p>
                         <button class="btn btn-info" @click="startCheck('harmony')">Start Check 2: Harmony & Melody</button>
                     </div>
                 </div>
@@ -203,7 +217,7 @@
                  <div class="card-body">
                     <h5 class="card-title">Step 4.3: Check 2 - Harmonic/Melodic Cohesion</h5>
                      <div v-if="!checkOutcome['harmony']">
-                        <p class="check-instruction">Listen again, focusing on how the main melodic and harmonic elements (bass, chords, lead lines) fit together.</p>
+                        <p class="check-instruction">Listen again, focusing on how the main melodic and harmonic elements (like basslines, chord voicings, lead lines) fit together. Do any notes sound out of place or clash awkwardly?</p>
                         <button class="btn btn-primary" @click="getCheckFeedback('harmony')">Get Feedback Suggestion</button>
                     </div>
                      <div v-if="checkOutcome['harmony'] && !finalChecksLog['harmony']">
@@ -211,14 +225,14 @@
                          <div class="form-check mb-3" v-if="checkOutcome['harmony'].allowChange">
                             <input class="form-check-input" type="checkbox" v-model="adjustmentMade['harmony']" id="harmonyAdjustCheck">
                             <label class="form-check-label" for="harmonyAdjustCheck">
-                                I made ONE suggested adjustment based on the feedback.
+                                I made ONE small adjustment based on this feedback.
                             </label>
                          </div>
                           <p v-else class="check-result">No specific change needed based on this check.</p>
                          <button class="btn btn-success" @click="confirmCheckComplete('harmony')">Confirm Harmony Check Complete</button>
                     </div>
                      <div v-if="finalChecksLog['harmony']">
-                        <p class="alert alert-success">Harmonic/Melodic Check logged: <em>{{ finalChecksLog['harmony'] }}</em></p>
+                        <p class="alert alert-success">Harmonic/Melodic Check logged.</p>
                         <button class="btn btn-info" @click="startCheck('balance')">Start Check 3: Rhythm & Balance</button>
                     </div>
                  </div>
@@ -228,7 +242,7 @@
                  <div class="card-body">
                      <h5 class="card-title">Step 4.4: Check 3 - Rhythm & Basic Balance</h5>
                      <div v-if="!checkOutcome['balance']">
-                        <p class="check-instruction">Listen a final time, focusing on the core rhythm elements (kick, snare/clap) and their balance with the bass.</p>
+                        <p class="check-instruction">Listen a final time, focusing on the core rhythm (kick, snare/clap) and its relationship with the bassline. Is the low end clear? Does the main beat feel solid?</p>
                         <button class="btn btn-primary" @click="getCheckFeedback('balance')">Get Feedback Suggestion</button>
                     </div>
                     <div v-if="checkOutcome['balance'] && !finalChecksLog['balance']">
@@ -236,22 +250,23 @@
                          <div class="form-check mb-3" v-if="checkOutcome['balance'].allowChange">
                             <input class="form-check-input" type="checkbox" v-model="adjustmentMade['balance']" id="balanceAdjustCheck">
                             <label class="form-check-label" for="balanceAdjustCheck">
-                                I made ONE suggested adjustment based on the feedback.
+                                I made ONE small adjustment based on this feedback.
                             </label>
                          </div>
                          <p v-else class="check-result">No specific change needed based on this check.</p>
                          <button class="btn btn-success" @click="confirmCheckComplete('balance')">Confirm Balance Check Complete</button>
                     </div>
-                    <div v-if="finalChecksLog['balance']">
-                        <p class="alert alert-success">Rhythm & Balance Check logged: <em>{{ finalChecksLog['balance'] }}</em></p>
+                    <div v-if="finalChecksLog['balance'] && currentStep === '4.post'">
+                        <p class="alert alert-success">Rhythm & Balance Check logged.</p>
                         <hr>
-                        <p class="alert alert-info"><strong>Final Polish Complete!</strong></p>
+                        <p class="alert alert-info"><strong>Final Polish Complete! Your song recipe is ready.</strong></p>
                         <button class="btn btn-primary" @click="startPhase5">Show Final Summary</button>
                     </div>
                  </div>
+                 <div class="card-footer bg-transparent border-0 text-end">
+                     <button class="btn btn-sm btn-outline-secondary mt-0" @click="goBackToPhase3">Back to Arrangement (Debug)</button>
+                 </div>
             </div>
-
-            <button class="btn btn-sm btn-outline-secondary mt-3" @click="goBackToPhase3">Back to Arrangement (Debug)</button>
 
         </div>
 
@@ -260,16 +275,98 @@
              <div class="card">
                  <div class="card-body">
                      <h5 class="card-title">Your Song Recipe</h5>
-                     <p><i>(Summary content will be displayed here...)</i></p>
-                     <pre>{{ JSON.stringify(getSummaryData(), null, 2) }}</pre>
+                     <p>This is the blueprint generated during your Songwriting Game session.</p>
                      <hr>
-                     <button class="btn btn-secondary me-2" @click="printSummary">Print Summary</button>
-                     <button class="btn btn-warning" @click="resetGame">Start New Song</button>
+
+                     <div class="summary-section">
+                         <h5>1. Musical Framework</h5>
+                         <ul class="list-unstyled summary-list">
+                             <li><span class="summary-label">Key:</span> <span class="summary-value">{{ framework.key }}</span></li>
+                             <li><span class="summary-label">Scale/Mode:</span> <span class="summary-value">{{ framework.scale }}</span> <small class="text-muted">({{ getScaleDefinition(framework.scale) }})</small></li>
+                             <li><span class="summary-label">Tempo:</span> <span class="summary-value">{{ framework.tempo }} BPM</span></li>
+                         </ul>
+                     </div>
+
+                     <div class="summary-section">
+                          <h5>2. Initial Sonic Core</h5>
+                          <h6>Layers:</h6>
+                          <ul class="list-group list-group-flush mb-3">
+                              <li v-for="layer in layers" :key="layer.id" class="list-group-item ps-0">
+                                  L{{ layer.id }}: <span class="summary-value">{{ layer.modifier }} {{ layer.type }}</span>
+                              </li>
+                          </ul>
+                          <h6>Initial Progression (Progression 'A'):</h6>
+                          <p><code class="chord-progression">{{ structure.progressions.A }}</code> <small>(Roman Numerals)</small></p>
+                     </div>
+
+                     <div class="summary-section">
+                        <h5>3. Structure Map</h5>
+                        <p><span class="summary-label">Template:</span> <span class="summary-value">{{ structure.templateName }}</span></p>
+                        <h6>Sequence:</h6>
+                        <p class="structure-sequence mb-3">
+                            <span v-for="(section, index) in structure.templateSequence" :key="index" class="badge bg-dark">{{ section }}</span>
+                        </p>
+                        <h6>Progressions per Section Type <small>(Roman Numerals)</small>:</h6>
+                        <ul class="list-unstyled summary-list mb-3">
+                            <li v-for="(prog, letter) in structure.progressions" :key="letter">
+                                <span class="summary-label">Prog '{{ letter }}':</span> <code class="chord-progression">{{ prog }}</code>
+                            </li>
+                        </ul>
+                        <h6>Lengths per Section Type:</h6>
+                         <ul class="list-unstyled summary-list">
+                            <li v-for="(length, letter) in structure.lengths" :key="letter">
+                                <span class="summary-label">Section '{{ letter }}':</span> <span class="summary-value">{{ length }} bars</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                     <div class="summary-section">
+                         <h5>4. Arrangement Log</h5>
+                         <div v-if="Object.keys(arrangementLog).length > 0">
+                            <p><small>Decisions made for each section instance during Phase 3:</small></p>
+                            <div v-for="(log, key) in arrangementLog" :key="key" class="arrangement-log-item">
+                                 <strong>Instance {{ key }}:</strong>
+                                 <ul class="list-unstyled summary-list mt-1">
+                                     <li><span class="summary-label">Density:</span> <span class="summary-value">{{ log.density || 'N/A' }}</span></li>
+                                     <li><span class="summary-label">Variations:</span>
+                                         <span v-if="log.variations && log.variations.length > 0">
+                                            <span v-for="(variation, vIndex) in log.variations" :key="vIndex" class="d-block ps-2">- "{{ variation }}"</span>
+                                         </span>
+                                         <span v-else>None Suggested</span>
+                                    </li>
+                                     <li><span class="summary-label">Transition Out:</span> <span class="summary-value">{{ log.transition || 'N/A (or Last Section)' }}</span></li>
+                                 </ul>
+                            </div>
+                         </div>
+                         <div v-else>
+                            <p class="text-muted">No arrangement log entries found.</p>
+                         </div>
+                     </div>
+
+                     <div class="summary-section">
+                         <h5>5. Final Polish Checks</h5>
+                         <div v-if="Object.values(finalChecksLog).some(v => v)">
+                              <p><small>Outcomes of the guided checks in Phase 4:</small></p>
+                              <div class="final-check-item" v-if="finalChecksLog.flow"><strong>Flow/Structure:</strong> {{ finalChecksLog.flow }}</div>
+                              <div class="final-check-item" v-if="finalChecksLog.harmony"><strong>Harmony/Melody:</strong> {{ finalChecksLog.harmony }}</div>
+                              <div class="final-check-item" v-if="finalChecksLog.balance"><strong>Rhythm/Balance:</strong> {{ finalChecksLog.balance }}</div>
+                         </div>
+                           <div v-else>
+                            <p class="text-muted">No final check results logged.</p>
+                         </div>
+                     </div>
+
+                     <hr>
+                     <div class="text-center">
+                        <button class="btn btn-secondary me-2" @click="printSummary"><i class="bi bi-printer"></i> Print Summary</button>
+                        <button class="btn btn-warning" @click="resetGame"><i class="bi bi-arrow-clockwise"></i> Start New Song</button>
+                     </div>
                  </div>
              </div>
         </div>
 
-    </div> <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    </div> <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
 
     <script>
@@ -281,13 +378,13 @@
                 return {
                     // Core & Phase 1 & 2 State
                     currentPhase: 1,
-                    currentStep: 1.1, // String or Number (e.g., '1.post', 2.1, 4.1)
+                    currentStep: 1.1, // String or Number (e.g., '1.post', 2.1, 4.1, '4.post', 5.1)
                     framework: reactive({ key: null, scale: null, tempo: null }),
                     contextGenerated: false, contextConfirmed: false,
                     currentLayerIndex: 0, layers: reactive([]),
                     structure: reactive({
                         templateName: null, templateSequence: [],
-                        progressions: { A: null }, // Holds chord strings like 'Cm-G-Ab-Eb'
+                        progressions: { A: null }, // Holds Roman Numeral strings like 'i-VI-III-VII'
                         lengths: {}, // { A: 8, B: 16 ... }
                         templateGenerated: false, templateConfirmed: false,
                         lengthsGenerated: false, lengthsConfirmed: false,
@@ -299,7 +396,7 @@
                     currentArrangementIndex: -1, // Index for structure.templateSequence instance
                     arrangementLog: reactive({}), // Log for arrangement decisions per instance { 'A-1': { density, variations, transition }, 'B-1': {...} }
 
-                    // ADDED: Phase 4 State
+                    // Phase 4 State
                     breakDuration: null, // In minutes
                     breakConfirmed: false,
                     currentCheckType: null, // 'flow', 'harmony', 'balance'
@@ -313,15 +410,15 @@
                          harmony: false,
                          balance: false
                     }),
-                    finalChecksLog: reactive({ // Final logged outcome strings [cite: 103]
+                    finalChecksLog: reactive({ // Final logged outcome strings
                         flow: null,
                         harmony: null,
                         balance: null
                     }),
 
-                    // --- DATA LISTS (Combined & Checked with Spec) ---
-                    musicalKeys: ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'], // [cite: 12]
-                    musicalScales: [ // [cite: 13, 14]
+                    // --- DATA LISTS (Checked with Spec) ---
+                    musicalKeys: ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'],
+                    musicalScales: [
                         { name: 'Major', type: 'major', definition: 'Standard happy/bright scale' },
                         { name: 'Natural Minor', type: 'minor', definition: 'Standard sad/dark scale' },
                         { name: 'Harmonic Minor', type: 'minor', definition: 'Minor scale, raised 7th, exotic' },
@@ -334,22 +431,22 @@
                         { name: 'Pentatonic Minor', type: 'minor', definition: 'Simple 5-note minor' },
                         { name: 'Blues Scale', type: 'minor', definition: 'Pentatonic minor + flat 5th' }
                     ],
-                    instrumentTypes: [ // [cite: 18, 19, 20]
+                    instrumentTypes: [
                         'Foundation Rhythm', 'Groove Bass', 'Main Chords', 'Arpeggio/Sequence',
                         'Percussive Texture High', 'Simple Lead/Hook', 'Atmospheric Pad/Drone',
                         'Rhythmic FX/Stab', 'Counter Melody', 'Tuned Percussion'
                     ],
-                    stylisticModifiers: [ // [cite: 20, 21, 22, 23]
+                    stylisticModifiers: [
                         'Filtered', 'Reverby/Dreamy', 'Wobbly/Detuned', 'Minimal/Dry', 'Warm/Analog',
                         'Glitchy/Fragmented', 'Compressed/Pumpy', 'Delayed/Spatial', 'Lo-Fi/Gritty',
                         'Bright/Crispy', 'Dark/Mellow', 'Wide Stereo'
                     ],
-                    tempoRange: { min: 70, max: 125 }, // [cite: 14]
-                    commonProgressions: { // [cite: 41]
+                    tempoRange: { min: 70, max: 125 },
+                    commonProgressions: {
                          major: ['I-V-vi-IV', 'IV-I-V-vi', 'I-IV-V-I', 'vi-IV-I-V', 'I-vi-IV-V', 'ii-V-I', 'I-iii-IV-V', 'I-V-IV-I'],
                          minor: ['i-VI-III-VII', 'i-iv-v-i', 'i-VII-VI-V', 'vi-iv-i-v', 'i-iv-III-VI', 'ii°-V-i', 'i-VI-iv-v', 'i-v-VI-VII']
                     },
-                    structureTemplates: [ // [cite: 31, 32, 33]
+                    structureTemplates: [
                         { name: 'Simple A/B Repeat', sequence: ['A', 'B', 'A', 'B'] },
                         { name: 'Compact Intro/Outro', sequence: ['Intro', 'A', 'B', 'Outro'] },
                         { name: 'Classic Structure', sequence: ['Intro', 'A', 'B', 'A', 'B', 'Outro'] },
@@ -361,14 +458,14 @@
                         { name: 'Minimal Loop', sequence: ['A', 'A', 'B', 'A'] },
                         { name: 'Developing Loop', sequence: ['Intro', 'A', 'A+', 'B', 'B+'] }
                     ],
-                    densityOptions: ['Sparse', 'Medium', 'Dense'], // Derived from [cite: 59] (d6 roll)
-                    variationPromptOptions: [ // Example prompts, can be refined
+                    densityOptions: ['Sparse', 'Medium', 'Dense'], // Derived from (d6 roll)
+                    variationPromptOptions: [ // Example prompts
                         "Simplify one layer's rhythm.", "Add filter movement.", "Introduce subtle background FX.",
                         "Double main rhythm element briefly.", "Drop out the bass for 2 bars.", "Make chords more staccato.",
                         "Add a simple counter-melody.", "Use panning/volume automation.", "Introduce a delay throw.",
                         "Slightly detune a melodic element."
                     ],
-                    transitionTypes: [ // [cite: 62, 63, 64]
+                    transitionTypes: [
                         'Drop Out', 'Filter Sweep Out', 'Rhythmic Fill', 'Sustained Element',
                         'FX Swell/Riser', 'Abrupt Cut', 'Delayed Echo Out', 'Silence Gap (1 beat)'
                     ],
@@ -386,13 +483,13 @@
                     const index = this.currentArrangementIndex;
                     const sectionLetter = this.structure.templateSequence[index];
                     const instanceNumber = this.calculateInstanceNumber(index, sectionLetter);
-                    const progression = this.structure.progressions[sectionLetter] || 'N/A'; // Use actual chords
+                    const progression = this.structure.progressions[sectionLetter] || 'N/A'; // Use Roman Numeral prog
                     const length = this.structure.lengths[sectionLetter] || 'N/A';
                     const logKey = this.getInstanceLogKey(index);
                     let previousProgression = null;
                     if (index > 0) { const prevLetter = this.structure.templateSequence[index - 1]; previousProgression = this.structure.progressions[prevLetter] || 'N/A'; }
-                    // Determine display name based on section letter [cite: 34, 53]
-                    let baseName = 'Section';
+                    // Determine display name based on section letter
+                    let baseName = 'Section'; // Default
                     if (sectionLetter === 'A') baseName = 'Verse';
                     else if (sectionLetter === 'B') baseName = 'Chorus';
                     else if (sectionLetter === 'C') baseName = 'Bridge';
@@ -413,10 +510,10 @@
                     if (this.currentPhase !== 3 || !this.structure.templateSequence || this.structure.templateSequence.length === 0) return false;
                     return this.currentArrangementIndex === this.structure.templateSequence.length - 1;
                  },
-                 canCompleteInstance() { // Checks if all required steps for the current arrangement instance are done [cite: 66]
+                 canCompleteInstance() { // Checks if all required steps for the current arrangement instance are done
                      if (!this.currentArrangementInstance || !this.currentInstanceLogEntry) return false;
                      const logEntry = this.currentInstanceLogEntry;
-                     const transitionNeeded = !this.isLastSection; // Transition step is skipped for the last section [cite: 65]
+                     const transitionNeeded = !this.isLastSection; // Transition step is skipped for the last section
                      // Ensure adaptation confirmed, variations suggested & confirmed, and transition confirmed (if needed)
                      return logEntry.adaptationConfirmed && logEntry.variationsConfirmed && (logEntry.transitionConfirmed || !transitionNeeded);
                  }
@@ -455,7 +552,7 @@
                       this.currentArrangementIndex = -1;
                       this.arrangementLog = reactive({});
                  },
-                 resetPhase4State() { // ADDED Phase 4 Reset
+                 resetPhase4State() {
                       console.log("Resetting Phase 4 State");
                       this.breakDuration = null;
                       this.breakConfirmed = false;
@@ -464,30 +561,33 @@
                       this.adjustmentMade = reactive({ flow: false, harmony: false, balance: false });
                       this.finalChecksLog = reactive({ flow: null, harmony: null, balance: null });
                  },
+                 // Phase 5 doesn't have its own state to reset, it just displays existing data.
 
                  // --- Phase 1 Methods ---
-                generateContext() { // [cite: 12, 13, 14]
+                generateContext() {
                     console.log("Generating context...");
                     const selectedScaleObject = this.getRandomElement(this.musicalScales);
                     this.framework.key = this.getRandomElement(this.musicalKeys);
-                    this.framework.scale = selectedScaleObject ? selectedScaleObject.name : this.getRandomElement(this.musicalScales).name; // Ensure scale is always set
+                    this.framework.scale = selectedScaleObject ? selectedScaleObject.name : this.getRandomElement(this.musicalScales).name;
                     this.framework.tempo = this.getRandomInt(this.tempoRange.min, this.tempoRange.max);
                     this.contextGenerated = true;
                     this.contextConfirmed = false;
                     this.currentLayerIndex = 0;
                     this.layers.length = 0; // Clear layers on new context
                     this.structure.progressions.A = null; // Reset Prog A
-                    this.resetPhase2State(); // Reset subsequent phases
+                    // Reset subsequent phases
+                    this.resetPhase2State();
                     this.resetPhase3State();
                     this.resetPhase4State();
-                    this.currentPhase = 1; // Ensure we are in Phase 1
+                    // Ensure we are back at the start
+                    this.currentPhase = 1;
                     this.currentStep = 1.1;
                 },
-                confirmContext() { // [cite: 15]
+                confirmContext() {
                     console.log("Context confirmed:", this.framework);
                     this.contextConfirmed = true;
                  },
-                startLayerGeneration() { // [cite: 16]
+                startLayerGeneration() {
                     if (!this.contextConfirmed) return;
                     console.log("Starting layer generation...");
                     this.currentStep = 1.2;
@@ -498,32 +598,27 @@
                     this.layers.length = 0; // Clear existing
                     for (let i = 1; i <= count; i++) {
                         this.layers.push(reactive({
-                            id: i,
-                            type: null, // e.g., 'Groove Bass'
-                            modifier: null, // e.g., 'Filtered'
-                            suggested: false,
-                            confirmed: false
+                            id: i, type: null, modifier: null,
+                            suggested: false, confirmed: false
                         }));
                     }
                     console.log("Initialized layers:", this.layers);
                 },
-                generateLayerSuggestion(layerIndex) { // [cite: 17, 18, 19, 20, 21, 22, 23]
+                generateLayerSuggestion(layerIndex) {
                     if (layerIndex < 1 || layerIndex > this.layers.length) return;
                     console.log(`Generating suggestion for Layer ${layerIndex}`);
-                    const layer = this.layers[layerIndex - 1];
-                    if (!layer) return;
-                    // TODO: Implement complementary logic based on existing layers [cite: 17]
+                    const layer = this.layers[layerIndex - 1]; if (!layer) return;
+                    // TODO: Implement complementary logic based on existing layers
                     layer.type = this.getRandomElement(this.instrumentTypes);
                     layer.modifier = this.getRandomElement(this.stylisticModifiers);
-                    layer.suggested = true;
-                    layer.confirmed = false;
+                    layer.suggested = true; layer.confirmed = false;
                     console.log(`Suggestion L${layerIndex}: ${layer.modifier} ${layer.type}`);
                 },
-                confirmLayerCreated(layerIndex) { // [cite: 26, 27]
+                confirmLayerCreated(layerIndex) {
                     if (layerIndex < 1 || layerIndex > this.layers.length) return;
-                    console.log(`Confirming Layer ${layerIndex} created.`);
                     const layer = this.layers[layerIndex - 1];
                     if (!layer || !layer.suggested) return;
+                    console.log(`Confirming Layer ${layerIndex} created.`);
                     layer.confirmed = true;
                     if (layerIndex === this.layers.length) { // If it's the last layer
                         console.log("All 4 layers confirmed!");
@@ -534,21 +629,13 @@
                         console.log("Moving to Layer", this.currentLayerIndex);
                     }
                 },
-                generateInitialProgressionA() { // [cite: 28, 41]
-                    // Generates a placeholder Roman numeral progression based on scale type.
-                    // Actual chord conversion should happen later if needed or just use the Roman numerals.
+                generateInitialProgressionA() {
+                    // Generates a Roman numeral progression based on scale type.
                     console.log("Generating Progression A...");
                     const scaleType = this.getScaleType(this.framework.scale);
-                    let pattern = 'I-IV-V-I'; // Default for major
-                    if (scaleType === 'minor') {
-                        pattern = this.getRandomElement(this.commonProgressions.minor);
-                    } else {
-                        pattern = this.getRandomElement(this.commonProgressions.major);
-                    }
-                    // Store the Roman numeral pattern directly for Phase 2 use
+                    let pattern = this.getRandomElement(this.commonProgressions[scaleType] || this.commonProgressions.major);
                     this.structure.progressions.A = pattern;
                     console.log("Progression A generated (Roman numerals):", this.structure.progressions.A);
-                    // TODO: Optionally convert Progression A to actual chords here if needed immediately. [cite: 42]
                 },
 
                 // --- Phase 2 Methods ---
@@ -559,33 +646,30 @@
                         console.log("Moving to Phase 2, Step 2.1");
                     }
                 },
-                generateStructureTemplate() { // [cite: 31, 32, 33]
+                generateStructureTemplate() {
                     console.log("Generating structure template...");
                     const selectedTemplate = this.getRandomElement(this.structureTemplates);
                     this.structure.templateName = selectedTemplate.name;
                     this.structure.templateSequence = [...selectedTemplate.sequence]; // Copy sequence
-                    this.structure.templateGenerated = true;
-                    this.structure.templateConfirmed = false;
+                    this.structure.templateGenerated = true; this.structure.templateConfirmed = false;
                     // Reset dependent parts of Phase 2 state
                     const uniqueSections = [...new Set(this.structure.templateSequence)];
-                    this.sectionsToDefineHarmony = uniqueSections.filter(s => s !== 'A'); // Get sections needing harmony (B, C, Intro, etc.) [cite: 36]
+                    this.sectionsToDefineHarmony = uniqueSections.filter(s => s !== 'A'); // Get sections needing harmony
                     // Clear old progressions except 'A'
-                    Object.keys(this.structure.progressions).forEach(key => {
-                        if (key !== 'A') delete this.structure.progressions[key];
-                    });
+                    Object.keys(this.structure.progressions).forEach(key => { if (key !== 'A') delete this.structure.progressions[key]; });
                     this.harmonyConfirmed = reactive({}); // Reset harmony confirmations
                     this.structure.lengths = {}; // Clear lengths
                     this.structure.lengthsGenerated = false; this.structure.lengthsConfirmed = false;
                     console.log("Template:", this.structure.templateName, "Sections needing harmony:", this.sectionsToDefineHarmony);
                 },
-                confirmStructureTemplate() { // [cite: 35]
+                confirmStructureTemplate() {
                     if (!this.structure.templateGenerated) return;
                     console.log("Structure template confirmed.");
                     this.structure.templateConfirmed = true;
                     // Prepare for harmony definition if needed
-                    this.currentSectionIndexToDefine = this.sectionsToDefineHarmony.length > 0 ? 0 : -1; // Set index or -1 if no sections need harmony
+                    this.currentSectionIndexToDefine = this.sectionsToDefineHarmony.length > 0 ? 0 : -1;
                 },
-                startHarmonyDefinition() { // [cite: 37]
+                startHarmonyDefinition() {
                     if (!this.structure.templateConfirmed) return;
                     if (this.sectionsToDefineHarmony.length === 0) {
                         console.log("Skipping Harmony Definition (Only Section A needed).");
@@ -596,26 +680,24 @@
                         console.log("Starting harmony definition for:", this.sectionsToDefineHarmony[0]);
                     }
                 },
-                generateHarmonyForSection(sectionLetter) { // [cite: 38, 40, 41]
+                generateHarmonyForSection(sectionLetter) {
                     if (!sectionLetter) return;
                     console.log(`Generating harmony pattern for Section '${sectionLetter}'...`);
                     const scaleType = this.getScaleType(this.framework.scale);
-                    // Get available patterns for the scale type
-                    let availablePatterns = (scaleType === 'minor') ? [...this.commonProgressions.minor] : [...this.commonProgressions.major];
+                    let availablePatterns = [...(this.commonProgressions[scaleType] || this.commonProgressions.major)];
                     // Try to pick a pattern different from already used ones
                     const usedPatterns = Object.values(this.structure.progressions).filter(p => p !== null);
-                    if (availablePatterns.length > usedPatterns.length) { // Only filter if there are alternatives
+                    if (availablePatterns.length > usedPatterns.length) {
                         availablePatterns = availablePatterns.filter(p => !usedPatterns.includes(p));
                     }
-                    const pattern = this.getRandomElement(availablePatterns.length > 0 ? availablePatterns : (scaleType === 'minor' ? this.commonProgressions.minor : this.commonProgressions.major)); // Fallback if filtering removed all options
+                    const pattern = this.getRandomElement(availablePatterns.length > 0 ? availablePatterns : (this.commonProgressions[scaleType] || this.commonProgressions.major));
                     // Store the Roman numeral pattern
                     this.structure.progressions[sectionLetter] = pattern;
-                    // TODO: Convert Roman numerals to actual chords here [cite: 39, 42, 43]
-                    // Placeholder: For now, we just show the Roman numerals. Implementation would need a chord generation helper.
-                    this.harmonyConfirmed[sectionLetter] = false; // Mark as suggested but not confirmed
+                     // TODO: Convert Roman numerals to actual chords here if desired.
+                    this.harmonyConfirmed[sectionLetter] = false; // Mark as suggested
                     console.log(`Suggested pattern for ${sectionLetter}: ${pattern}`);
                 },
-                confirmHarmony(sectionLetter) { // [cite: 44]
+                confirmHarmony(sectionLetter) {
                     if (!sectionLetter || !this.structure.progressions[sectionLetter]) return;
                     console.log(`Harmony confirmed for Section '${sectionLetter}'.`);
                     this.harmonyConfirmed[sectionLetter] = true;
@@ -627,11 +709,9 @@
                     } else {
                         console.log("All required section harmonies defined.");
                         this.currentSectionIndexToDefine = -1; // Mark harmony definition as complete
-                        // Can now proceed to length definition
                     }
                 },
                 startLengthDefinition() { // Transition to length definition step
-                     // Check if we are done with harmony definition (index is -1) OR if no harmony was needed
                     if( (this.currentStep === 2.2 && this.currentSectionIndexToDefine === -1) || (this.currentStep === 2.1 && this.sectionsToDefineHarmony.length === 0) ) {
                         this.currentStep = 2.3;
                         console.log("Starting Section Length definition.");
@@ -639,40 +719,34 @@
                         console.warn("Cannot start length definition yet. Harmony not confirmed.");
                     }
                 },
-                generateSectionLengths() { // [cite: 45, 46, 47]
+                generateSectionLengths() {
                     console.log("Generating section lengths...");
                     const uniqueSectionsInTemplate = [...new Set(this.structure.templateSequence)];
                     const newLengths = {};
                     uniqueSectionsInTemplate.forEach(section => {
-                        let length = 8; // Default length
-                        // Determine length based on section type using dice rolls per spec
-                        if (['A', 'B', 'A+', 'B+'].includes(section)) { // d6 roll [cite: 46]
+                        let length = 8; // Default
+                        if (['A', 'B', 'A+', 'B+'].includes(section)) { // d6 roll
                            const roll = this.getRandomInt(1, 6);
-                           if (roll <= 2) length = 8;
-                           else if (roll <= 4) length = 12;
-                           else length = 16;
-                        } else { // d4 roll for Intro, Outro, C, Instrumental [cite: 47]
+                           if (roll <= 2) length = 8; else if (roll <= 4) length = 12; else length = 16;
+                        } else { // d4 roll for Intro, Outro, C, Instrumental
                            const roll = this.getRandomInt(1, 4);
-                           if (roll === 1) length = 4;
-                           else if (roll <= 3) length = 8;
-                           else length = 12;
+                           if (roll === 1) length = 4; else if (roll <= 3) length = 8; else length = 12;
                         }
                         newLengths[section] = length;
                     });
-                    this.structure.lengths = reactive(newLengths); // Make the lengths reactive
-                    this.structure.lengthsGenerated = true;
-                    this.structure.lengthsConfirmed = false;
+                    this.structure.lengths = reactive(newLengths); // Make reactive
+                    this.structure.lengthsGenerated = true; this.structure.lengthsConfirmed = false;
                     console.log("Generated lengths:", this.structure.lengths);
                 },
-                confirmSectionLengths() { // [cite: 48, 49]
+                confirmSectionLengths() {
                     if (!this.structure.lengthsGenerated) return;
                     console.log("Section lengths confirmed.");
                     this.structure.lengthsConfirmed = true;
-                    // Phase 2 is complete, ready to move to Phase 3
+                    // Phase 2 is complete
                 },
 
                 // --- Phase 3 Methods ---
-                startPhase3() { // Transition from Phase 2 [cite: 50]
+                startPhase3() { // Transition from Phase 2
                     if (this.currentPhase === 2 && this.structure.lengthsConfirmed) {
                         this.currentPhase = 3;
                         this.currentStep = 3.1; // Use 3.1 to denote start of Phase 3 (setting context)
@@ -683,7 +757,7 @@
                         console.warn("Cannot start Phase 3: Phase 2 (Lengths) not complete.");
                     }
                 },
-                 getInstanceLogKey(index) { // Generates unique key like 'A-1', 'B-2' [cite: 67]
+                 getInstanceLogKey(index) { // Generates unique key like 'A-1', 'B-2'
                      if (index < 0 || !this.structure.templateSequence || index >= this.structure.templateSequence.length) return null;
                      const sectionLetter = this.structure.templateSequence[index];
                      const instanceNumber = this.calculateInstanceNumber(index, sectionLetter);
@@ -692,301 +766,206 @@
                 calculateInstanceNumber(targetIndex, sectionLetter) { // Counts occurrences up to the index
                      let count = 0;
                      if (!this.structure.templateSequence) return 0;
-                     for (let i = 0; i <= targetIndex; i++) {
-                         if (this.structure.templateSequence[i] === sectionLetter) {
-                             count++;
-                         }
-                     }
+                     for (let i = 0; i <= targetIndex; i++) { if (this.structure.templateSequence[i] === sectionLetter) count++; }
                      return count;
                  },
                  initializeLogEntry(key) { // Sets up the log structure for a section instance
                       if (key && !this.arrangementLog[key]) {
                            console.log("Initializing log entry for:", key);
                            this.arrangementLog[key] = reactive({
-                                adaptationConfirmed: false,
-                                density: null, // 'Sparse', 'Medium', 'Dense'
-                                variations: [], // Array of prompt strings
-                                variationsConfirmed: false,
-                                transition: null, // Transition type string
-                                transitionConfirmed: false
+                                adaptationConfirmed: false, density: null, variations: [],
+                                variationsConfirmed: false, transition: null, transitionConfirmed: false
                             });
                       }
                  },
-                 confirmAdaptation() { // Step 3.2 Confirmation [cite: 58]
+                 confirmAdaptation() { // Step 3.2 Confirmation
                       if (!this.currentArrangementInstance) return;
                       const key = this.currentArrangementInstance.logKey;
-                      if (this.arrangementLog[key]) {
-                          this.arrangementLog[key].adaptationConfirmed = true;
-                           console.log(`Adaptation confirmed for instance: ${key}`);
-                           // Automatically move to suggesting variations if this step is confirmed
-                      }
+                      if (this.arrangementLog[key]) { this.arrangementLog[key].adaptationConfirmed = true; console.log(`Adaptation confirmed for instance: ${key}`); }
                  },
-                 suggestVariations() { // Step 3.3 Suggestion [cite: 59, 60]
+                 suggestVariations() { // Step 3.3 Suggestion
                       if (!this.currentArrangementInstance) return;
                       const key = this.currentArrangementInstance.logKey;
-                      if (!this.arrangementLog[key]) this.initializeLogEntry(key); // Ensure log exists
-
+                      if (!this.arrangementLog[key]) this.initializeLogEntry(key);
                       console.log(`Suggesting variations for ${key}`);
-                      // Determine Density [cite: 59]
+                      // Density
                       const densityRoll = this.getRandomInt(1, 6);
                       this.arrangementLog[key].density = (densityRoll <= 2) ? 'Sparse' : (densityRoll <= 4 ? 'Medium' : 'Dense');
-
-                      // Generate 1 or 2 Variation Prompts [cite: 60]
-                      const numPrompts = this.getRandomInt(1, 2); // Simplified: 1 or 2 prompts
-                      const selectedPrompts = [];
-                      let availablePrompts = [...this.variationPromptOptions]; // Use predefined list
-                      for (let i = 0; i < numPrompts && availablePrompts.length > 0; i++) {
-                          const randomIndex = Math.floor(Math.random() * availablePrompts.length);
-                          selectedPrompts.push(availablePrompts.splice(randomIndex, 1)[0]); // Select and remove
-                      }
-                      this.arrangementLog[key].variations = selectedPrompts;
-                      this.arrangementLog[key].variationsConfirmed = false; // Reset confirmation
+                      // Prompts
+                      const numPrompts = this.getRandomInt(1, 2); // 1 or 2 prompts
+                      const selectedPrompts = []; let availablePrompts = [...this.variationPromptOptions];
+                      for (let i = 0; i < numPrompts && availablePrompts.length > 0; i++) { const randomIndex = Math.floor(Math.random() * availablePrompts.length); selectedPrompts.push(availablePrompts.splice(randomIndex, 1)[0]); }
+                      this.arrangementLog[key].variations = selectedPrompts; this.arrangementLog[key].variationsConfirmed = false; // Reset confirmation
                       console.log("Variation Suggestions:", this.arrangementLog[key].density, this.arrangementLog[key].variations);
                  },
-                confirmVariations() { // Step 3.3 Confirmation [cite: 62]
-                      if (!this.currentArrangementInstance || !this.arrangementLog[this.currentArrangementInstance.logKey]?.density) return; // Must have suggestions first
+                confirmVariations() { // Step 3.3 Confirmation
+                      if (!this.currentArrangementInstance || !this.arrangementLog[this.currentArrangementInstance.logKey]?.density) return;
                       const key = this.currentArrangementInstance.logKey;
-                       if (this.arrangementLog[key]) {
-                            this.arrangementLog[key].variationsConfirmed = true;
-                            console.log(`Variations confirmed for instance: ${key}`);
-                            // Automatically move to transition suggestion if needed
-                       }
+                       if (this.arrangementLog[key]) { this.arrangementLog[key].variationsConfirmed = true; console.log(`Variations confirmed for instance: ${key}`); }
                  },
-                 suggestTransition() { // Step 3.4 Suggestion [cite: 62, 63, 64]
-                     if (!this.currentArrangementInstance || this.isLastSection) return; // No transition for last section [cite: 65]
+                 suggestTransition() { // Step 3.4 Suggestion
+                     if (!this.currentArrangementInstance || this.isLastSection) return;
                      const key = this.currentArrangementInstance.logKey;
-                     if (!this.arrangementLog[key]) this.initializeLogEntry(key); // Ensure log exists
-
+                     if (!this.arrangementLog[key]) this.initializeLogEntry(key);
                      console.log(`Suggesting transition out for ${key}`);
-                     this.arrangementLog[key].transition = this.getRandomElement(this.transitionTypes); // Select random type
+                     this.arrangementLog[key].transition = this.getRandomElement(this.transitionTypes);
                      this.arrangementLog[key].transitionConfirmed = false; // Reset confirmation
                      console.log("Transition Suggestion:", this.arrangementLog[key].transition);
                  },
-                confirmTransition() { // Step 3.4 Confirmation [cite: 65]
-                     if (!this.currentArrangementInstance || this.isLastSection || !this.arrangementLog[this.currentArrangementInstance.logKey]?.transition) return; // Must have suggestion first
+                confirmTransition() { // Step 3.4 Confirmation
+                     if (!this.currentArrangementInstance || this.isLastSection || !this.arrangementLog[this.currentArrangementInstance.logKey]?.transition) return;
                      const key = this.currentArrangementInstance.logKey;
-                     if (this.arrangementLog[key]) {
-                          this.arrangementLog[key].transitionConfirmed = true;
-                          console.log(`Transition confirmed for instance: ${key}`);
-                     }
+                     if (this.arrangementLog[key]) { this.arrangementLog[key].transitionConfirmed = true; console.log(`Transition confirmed for instance: ${key}`); }
                  },
-                 completeCurrentInstance() { // Step 3.5 / Transition to next instance or phase [cite: 66, 68]
-                     if (!this.canCompleteInstance) {
-                         console.warn("Cannot complete instance yet. Check confirmations."); return;
-                     }
-
+                 completeCurrentInstance() { // Step 3.5 / Transition to next instance or phase
+                     if (!this.canCompleteInstance) { console.warn("Cannot complete instance yet. Check confirmations."); return; }
                      const completedKey = this.currentArrangementInstance.logKey;
                      console.log(`Completing instance ${this.currentArrangementIndex + 1} (${completedKey})`);
-                     // Log final state for the instance (already done via reactivity)
-
                      const nextIndex = this.currentArrangementIndex + 1;
-                     if (nextIndex < this.structure.templateSequence.length) { // If there are more sections
+                     if (nextIndex < this.structure.templateSequence.length) { // More sections?
                          this.currentArrangementIndex = nextIndex;
-                         this.initializeLogEntry(this.getInstanceLogKey(nextIndex)); // Setup log for next instance
+                         this.initializeLogEntry(this.getInstanceLogKey(nextIndex)); // Setup log for next
                          console.log("Moving to next instance:", this.currentArrangementIndex + 1);
-                         window.scrollTo(0, 0); // Scroll to top for the new section view
+                         window.scrollTo(0, 0); // Scroll up
                      } else { // Arrangement phase complete
                          console.log("Arrangement Forge Complete!");
                          this.startPhase4(); // Proceed to Final Polish
                      }
                  },
 
-                 // --- Phase 4 Methods (ADDED) ---
-                 startPhase4() { // Transition from Phase 3 [cite: 69]
+                 // --- Phase 4 Methods ---
+                 startPhase4() { // Transition from Phase 3
                       if (this.currentPhase !== 3) { console.warn("Cannot start Phase 4 from current phase:", this.currentPhase); return; }
                       console.log("Moving to Phase 4: Final Polish");
                       this.currentPhase = 4;
                       this.currentStep = 4.1; // Start with mandatory break
                       this.resetPhase4State(); // Initialize Phase 4 state variables
                  },
-                 startBreak() { // Step 4.1 - Start Break [cite: 70]
+                 startBreak() { // Step 4.1 - Start Break
                       this.breakDuration = this.getRandomInt(1, 6) * 5; // d6 * 5 minutes
                       this.breakConfirmed = false;
                       console.log("Starting mandatory break:", this.breakDuration, "minutes");
                  },
-                 confirmBreakComplete() { // Step 4.1 - Confirm Break [cite: 71]
-                     this.breakConfirmed = true;
-                     console.log("Break confirmed complete.");
-                     // Automatically move to the first check
-                     this.currentStep = 4.2;
-                     this.currentCheckType = 'flow';
-                     // Reset check-specific state for the new check
-                     this.checkOutcome.flow = null;
-                     this.adjustmentMade.flow = false;
+                 confirmBreakComplete() { // Step 4.1 - Confirm Break
+                     this.breakConfirmed = true; console.log("Break confirmed complete.");
+                     this.currentStep = 4.2; this.currentCheckType = 'flow'; // Move to first check
+                     this.checkOutcome.flow = null; this.adjustmentMade.flow = false; // Reset check state
                  },
-                 startCheck(checkType) { // Prepares UI for a specific check [cite: 72, 78, 84]
+                 startCheck(checkType) { // Prepares UI for a specific check
                     console.log(`Starting Guided Check: ${checkType}`);
                     if (checkType === 'flow') this.currentStep = 4.2;
                     else if (checkType === 'harmony') this.currentStep = 4.3;
                     else if (checkType === 'balance') this.currentStep = 4.4;
                     else return;
-
                     this.currentCheckType = checkType;
-                    // Reset previous outcome/adjustment for this check type before getting new feedback
-                    this.checkOutcome[checkType] = null;
-                    this.adjustmentMade[checkType] = false;
+                    this.checkOutcome[checkType] = null; this.adjustmentMade[checkType] = false; // Reset check state
                  },
-                 getCheckFeedback(checkType) { // Step 4.2, 4.3, 4.4 - Get Suggestion [cite: 73, 79, 84]
+                 getCheckFeedback(checkType) { // Step 4.2, 4.3, 4.4 - Get Suggestion
                     if (!checkType || !['flow', 'harmony', 'balance'].includes(checkType)) return;
                     console.log(`Getting feedback suggestion for: ${checkType}`);
-                    const roll = this.getRandomInt(1, 6);
-                    let suggestion = "No specific suggestion this time.";
-                    let allowChange = false;
-
-                    if (checkType === 'flow') { // [cite: 73, 74, 75]
+                    const roll = this.getRandomInt(1, 6); let suggestion = ""; let allowChange = false;
+                    if (checkType === 'flow') {
                         if (roll <= 2) { suggestion = "Suggestion: Identify ONE transition that feels weakest and make ONE small adjustment."; allowChange = true; }
                         else if (roll <= 4) { suggestion = "Suggestion: Evaluate energy difference between main sections (A vs B). Make ONE small adjustment to enhance contrast if needed."; allowChange = true; }
                         else { suggestion = "Result: Flow seems adequate. No changes recommended for this check."; allowChange = false; }
-                    } else if (checkType === 'harmony') { // [cite: 79, 80, 81]
+                    } else if (checkType === 'harmony') {
                          if (roll <= 2) { suggestion = "Suggestion: Check the BASSLINE across sections. Fix ONE awkward note/timing issue if found."; allowChange = true; }
                         else if (roll <= 4) { suggestion = "Suggestion: Check main CHORDS/PADS. Make ONE small level or sound parameter adjustment if needed."; allowChange = true; }
                         else { suggestion = "Result: Harmonic/Melodic elements seem coherent. No changes recommended."; allowChange = false; }
-                    } else if (checkType === 'balance') { // [cite: 84, 85, 86]
+                    } else if (checkType === 'balance') {
                         if (roll <= 2) { suggestion = "Suggestion: Check main DRUM (Kick/Snare) impact/level. Make ONE level adjustment if needed."; allowChange = true; }
                         else if (roll <= 4) { suggestion = "Suggestion: Check BASS/KICK relationship. Make ONE bass level adjustment if needed."; allowChange = true; }
                         else { suggestion = "Result: Rhythm and basic balance seem adequate. No changes recommended."; allowChange = false; }
                     }
-
                     this.checkOutcome[checkType] = { suggestion, allowChange };
                     console.log("Feedback Suggestion:", this.checkOutcome[checkType]);
                  },
-                 confirmCheckComplete(checkType) { // Step 4.2, 4.3, 4.4 - Confirm Completion [cite: 76, 82, 87]
+                 confirmCheckComplete(checkType) { // Step 4.2, 4.3, 4.4 - Confirm Completion
                     if (!checkType || !this.checkOutcome[checkType]) { console.warn("Cannot confirm check - no outcome generated for", checkType); return; }
-
-                    // Determine the logged outcome string based on suggestion and user action
+                    // Log outcome string
                     let outcomeString = this.checkOutcome[checkType].suggestion;
-                    if (this.checkOutcome[checkType].allowChange) {
-                         outcomeString += (this.adjustmentMade[checkType] ? " (User indicated ONE adjustment was made.)" : " (User indicated NO adjustment was made.)");
-                    }
-
-                    this.finalChecksLog[checkType] = outcomeString; // Log the final outcome [cite: 77, 83, 88]
-                    console.log(`Check complete and logged for ${checkType}:`, outcomeString);
-
-                    // Advance to the next check or phase
-                    if (checkType === 'flow') {
-                        this.startCheck('harmony'); // Start next check
-                    } else if (checkType === 'harmony') {
-                        this.startCheck('balance'); // Start next check
-                    } else if (checkType === 'balance') {
+                    if (this.checkOutcome[checkType].allowChange) { outcomeString += (this.adjustmentMade[checkType] ? " (User indicated ONE adjustment was made.)" : " (User indicated NO adjustment was made.)"); }
+                    this.finalChecksLog[checkType] = outcomeString;
+                    console.log(`Check complete and logged for ${checkType}`);
+                    // Advance state
+                    if (checkType === 'flow') this.startCheck('harmony');
+                    else if (checkType === 'harmony') this.startCheck('balance');
+                    else if (checkType === 'balance') {
                         console.log("All final checks complete!");
-                        // Phase 4 is done, ready for Phase 5 (Summary)
-                        // Setting currentStep to something like '4.post' or directly triggering Phase 5 start
-                        this.currentStep = '4.post'; // Indicate phase 4 checks are done
+                        this.currentStep = '4.post'; // Mark phase 4 checks as done
                     }
                  },
 
-                 // --- Phase 5 Methods (Placeholder) ---
-                 startPhase5() { // Transition from Phase 4 [cite: 89]
+                 // --- Phase 5 Methods ---
+                 startPhase5() { // Transition from Phase 4
                     if (this.currentPhase !== 4 || this.currentStep !== '4.post') { console.warn("Cannot start Phase 5 yet."); return; }
                     console.log("Moving to Phase 5: Summary");
                     this.currentPhase = 5;
                     this.currentStep = 5.1; // Display summary step
+                    window.scrollTo(0, 0); // Scroll up
                  },
-                 getSummaryData() { // Gathers all data for display [cite: 91]
-                    return {
-                        framework: this.framework,
-                        initialLayers: this.layers,
-                        progressionA: this.structure.progressions.A, // Show base progression
-                        structureMap: {
-                             name: this.structure.templateName,
-                             sequence: this.structure.templateSequence,
-                             progressions: this.structure.progressions, // Show all defined progressions
-                             lengths: this.structure.lengths
-                        },
-                        arrangementLog: this.arrangementLog,
-                        finalChecksLog: this.finalChecksLog
-                    };
-                 },
-                 printSummary() { // [cite: 92]
+                 // getSummaryData() is implicitly used by the template now
+                 printSummary() {
                      console.log("Triggering print...");
+                     // Could potentially hide non-summary elements before printing if needed
                      window.print();
                  },
-                 resetGame() { // [cite: 93]
+                 resetGame() { // Start over
                      console.log("Resetting game state...");
-                     this.generateContext(); // Easiest way to reset everything back to Phase 1, Step 1.1
+                     if (confirm("Are you sure you want to discard this song and start a new one?")) {
+                        this.generateContext(); // Easiest way to reset everything
+                     }
                  },
 
                 // --- Debug/Navigation Helpers ---
-                skipToPhase3Debug() { // Debug skip - Setup basic P1/P2 state and jump to P3
+                skipToPhase3Debug() {
                     console.warn("DEBUG: Skipping to Phase 3");
-                    // Minimal viable P1/P2 state
-                    this.framework = reactive({ key: 'C', scale: 'Minor', tempo: 90 }); this.contextGenerated = true; this.contextConfirmed = true;
-                    this.layers = reactive([ { id: 1, type: 'Foundation Rhythm', modifier: 'Minimal/Dry', confirmed: true }, { id: 2, type: 'Groove Bass', modifier: 'Warm/Analog', confirmed: true }, { id: 3, type: 'Main Chords', modifier: 'Reverby/Dreamy', confirmed: true }, { id: 4, type: 'Arpeggio/Sequence', modifier: 'Filtered', confirmed: true }]);
-                    this.structure.progressions.A = 'i-VI-III-VII'; // Example minor prog A
-                    this.structure.templateName = 'Classic Structure';
-                    this.structure.templateSequence = ['Intro', 'A', 'B', 'A', 'B', 'Outro'];
-                     // Example progressions for other sections (replace with actual generation logic later)
-                    this.structure.progressions = { A: 'i-VI-III-VII', B: 'i-iv-v-i', Intro: 'i-VII', Outro: 'VI-v-i'};
+                    // Minimal P1/P2 state
+                    this.framework = reactive({ key: 'A', scale: 'Major', tempo: 110 }); this.contextGenerated = true; this.contextConfirmed = true;
+                    this.layers = reactive([ { id: 1, type: 'Rhythm', modifier: 'Dry', confirmed: true }, { id: 2, type: 'Bass', modifier: 'Warm', confirmed: true }, { id: 3, type: 'Chords', modifier: 'Reverby', confirmed: true }, { id: 4, type: 'Lead', modifier: 'Filtered', confirmed: true }]);
+                    this.structure.progressions.A = 'I-V-vi-IV';
+                    this.structure.templateName = 'Classic Structure'; this.structure.templateSequence = ['Intro', 'A', 'B', 'A', 'B', 'Outro'];
+                    this.structure.progressions = { A: 'I-V-vi-IV', B: 'vi-IV-I-V', Intro: 'IV-I', Outro: 'I-V' };
                     this.structure.lengths = { A: 16, B: 12, Intro: 8, Outro: 8 };
-                    this.structure.templateGenerated = true; this.structure.templateConfirmed = true;
-                    this.structure.lengthsGenerated = true; this.structure.lengthsConfirmed = true;
-                    this.sectionsToDefineHarmony = ['Intro', 'B', 'Outro']; // Example
-                    this.harmonyConfirmed = { Intro: true, B: true, Outro: true }; // Assume confirmed
-                    // Reset P3/P4 state before starting P3
-                    this.resetPhase3State();
-                    this.resetPhase4State();
-                    this.currentPhase = 2; // Need to be in P2 to trigger P3 start correctly
-                    this.currentStep = 2.3; // Need lengths confirmed
-                    this.startPhase3(); // Use the proper transition
+                    this.structure.templateGenerated = true; this.structure.templateConfirmed = true; this.structure.lengthsGenerated = true; this.structure.lengthsConfirmed = true;
+                    this.sectionsToDefineHarmony = ['Intro', 'B', 'Outro']; this.harmonyConfirmed = { Intro: true, B: true, Outro: true };
+                    this.resetPhase3State(); this.resetPhase4State();
+                    this.currentPhase = 2; this.currentStep = 2.3; // Ensure P2 is 'complete'
+                    this.startPhase3();
                 },
-                skipToPhase4Debug() { // ADDED Debug Helper to skip to Phase 4 start
+                skipToPhase4Debug() {
                      console.warn("DEBUG: Skipping to Phase 4");
-                     this.skipToPhase3Debug(); // Setup P1/P2/P3 prerequisites first
-
-                     // Ensure we are conceptually at the end of Phase 3
+                     this.skipToPhase3Debug(); // Setup P1-P3 first
                      if(this.currentPhase === 3 && this.structure.templateSequence?.length > 0) {
-                         // Simulate completing all arrangement instances quickly
+                         // Simulate completing all instances
                          this.structure.templateSequence.forEach((_, index) => {
-                             const key = this.getInstanceLogKey(index);
-                             if (!this.arrangementLog[key]) this.initializeLogEntry(key);
-                             // Mark all steps as done for each instance
-                             this.arrangementLog[key].adaptationConfirmed = true;
-                             this.arrangementLog[key].density = 'Medium'; // Example value
-                             this.arrangementLog[key].variations = ['Debug Variation'];
-                             this.arrangementLog[key].variationsConfirmed = true;
-                             const isLast = (index === this.structure.templateSequence.length - 1);
-                             if (!isLast) {
-                                 this.arrangementLog[key].transition = 'Abrupt Cut'; // Example value
-                                 this.arrangementLog[key].transitionConfirmed = true;
-                             }
+                             const key = this.getInstanceLogKey(index); if (!this.arrangementLog[key]) this.initializeLogEntry(key);
+                             this.arrangementLog[key].adaptationConfirmed = true; this.arrangementLog[key].density = 'Medium';
+                             this.arrangementLog[key].variations = ['Debug Variation']; this.arrangementLog[key].variationsConfirmed = true;
+                             if (index < this.structure.templateSequence.length - 1) { this.arrangementLog[key].transition = 'Abrupt Cut'; this.arrangementLog[key].transitionConfirmed = true; }
                          });
-                         // Set index to the last one conceptually, so startPhase4 can be called
                          this.currentArrangementIndex = this.structure.templateSequence.length - 1;
-                         this.startPhase4(); // Trigger the transition to Phase 4
-                     } else {
-                         console.warn("Cannot skip to P4 - Phase 3 setup failed or no sequence.");
-                         // Fallback: Try starting P4 directly if P2 is done (less realistic state)
-                         if (this.structure.lengthsConfirmed) {
-                              this.startPhase4();
-                         }
-                     }
+                         this.startPhase4(); // Trigger transition
+                     } else { console.warn("Cannot skip to P4 - Phase 3 setup failed."); }
                  },
                 goBackToPhase1Post() { this.currentPhase = 1; this.currentStep = '1.post'; },
                 goBackToContext() { this.currentPhase = 1; this.currentStep = 1.1; this.currentLayerIndex = 0; },
                 goBackToPhase2Lengths() { this.currentPhase = 2; this.currentStep = 2.3; },
-                goBackToPhase3() { // Navigate back to start of P3 or last P2 step
-                    if (this.currentPhase >= 4) { // If currently in P4 or later
-                        this.currentPhase = 3;
-                        this.currentStep = 3.1; // Go back to arrangement view
-                        // Try to set the index to the last section if possible
+                goBackToPhase3() { // Navigate back from P4 or P5 to end of P3
+                    if (this.currentPhase >= 4) {
+                        this.currentPhase = 3; this.currentStep = 3.1; // Go back to arrangement view
                         if (this.structure.templateSequence?.length > 0) {
-                            this.currentArrangementIndex = this.structure.templateSequence.length - 1;
-                             this.initializeLogEntry(this.getInstanceLogKey(this.currentArrangementIndex)); // Ensure log exists
-                        } else {
-                             this.currentArrangementIndex = -1; // No sections
-                             this.currentPhase = 2; this.currentStep = 2.3; // Go further back
-                        }
-                    } else {
-                         // If already in P3 or earlier, go back to P2
-                         this.currentPhase = 2; this.currentStep = 2.3;
-                    }
+                            this.currentArrangementIndex = this.structure.templateSequence.length - 1; // Show last instance
+                             this.initializeLogEntry(this.getInstanceLogKey(this.currentArrangementIndex));
+                        } else { this.currentArrangementIndex = -1; this.currentPhase = 2; this.currentStep = 2.3; } // Fallback
+                    } else { this.currentPhase = 2; this.currentStep = 2.3; } // If already in P3 or earlier
                  },
 
             },
             // --- MOUNTED ---
             mounted() {
                 console.log("Vue App Mounted!");
-                // Optional: Start with context generation automatically or require button press
+                // Optional: Automatically generate context on load?
                 // this.generateContext();
             }
         }).mount('#app');
