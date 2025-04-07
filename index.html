@@ -1,139 +1,257 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Songwriting Game V2.3 (English)</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <style>
         /* Styles... Identical to V2.2 ... */
-        body { background-color: #f8f9fa; font-family: sans-serif; }
-        .phase-title { margin-bottom: 1.5rem; color: #6c757d; border-bottom: 1px solid #dee2e6; padding-bottom: 0.5rem;}
-        .step-card { margin-bottom: 1.5rem; }
-        .list-group-item span, .layer-suggestion-value, .structure-display span,
-        .progression-display span, .length-display span, .arrangement-value span,
-        .check-suggestion span, .break-duration span, .summary-value span { font-weight: bold; color: #fd5f00; }
-        .layer-suggestion-block { background-color: #e9ecef; border-radius: 0.25rem; padding: 1rem; margin-bottom: 1rem; border-left: 5px solid #fd5f00;}
-        .layer-suggestion-label { font-weight: bold; color: #495057; display: block; margin-bottom: 0.2rem;}
-        .layer-suggestion-detail { margin-bottom: 0.5rem; }
-        .layer-flexibility-note { font-size: 0.85em; font-style: italic; color: #6c757d; margin-top: 0.5rem; }
-        .previous-layers { margin-top: 1.5rem; font-size: 0.9rem; }
-        .previous-layers .card { margin-bottom: 0.5rem; background-color: #f8f9fa;}
-        .previous-layers .card-body { padding: 0.75rem; }
-        .previous-layers .card-title { font-size: 1em; margin-bottom: 0.25rem;}
-        .previous-layers .badge { margin-right: 5px; font-size: 0.8em;}
-        .btn { margin-top: 0.5rem; }
-        .chord-sequence span {
-            display: inline-block; padding: 0.3em 0.6em; margin: 2px; border-radius: 0.25rem;
-            background-color: #dee2e6; color: #212529; font-family: monospace; font-size: 1.1em; border: 1px solid #adb5bd;
+        body {
+            background-color: #f8f9fa;
+            font-family: sans-serif;
         }
-        .progression-name { font-size: 0.9em; color: #6c757d; margin-bottom: 0.5rem; display: block; }
-        .chord-notes { font-size: 0.8em; color: #495057; font-family: monospace; }
 
+        .phase-title {
+            margin-bottom: 1.5rem;
+            color: #6c757d;
+            border-bottom: 1px solid #dee2e6;
+            padding-bottom: 0.5rem;
+        }
+
+        .step-card {
+            margin-bottom: 1.5rem;
+        }
+
+        .list-group-item span,
+        .layer-suggestion-value,
+        .structure-display span,
+        .progression-display span,
+        .length-display span,
+        .arrangement-value span,
+        .check-suggestion span,
+        .break-duration span,
+        .summary-value span {
+            font-weight: bold;
+            color: #fd5f00;
+        }
+
+        .layer-suggestion-block {
+            background-color: #e9ecef;
+            border-radius: 0.25rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-left: 5px solid #fd5f00;
+        }
+
+        .layer-suggestion-label {
+            font-weight: bold;
+            color: #495057;
+            display: block;
+            margin-bottom: 0.2rem;
+        }
+
+        .layer-suggestion-detail {
+            margin-bottom: 0.5rem;
+        }
+
+        .layer-flexibility-note {
+            font-size: 0.85em;
+            font-style: italic;
+            color: #6c757d;
+            margin-top: 0.5rem;
+        }
+
+        .previous-layers {
+            margin-top: 1.5rem;
+            font-size: 0.9rem;
+        }
+
+        .previous-layers .card {
+            margin-bottom: 0.5rem;
+            background-color: #f8f9fa;
+        }
+
+        .previous-layers .card-body {
+            padding: 0.75rem;
+        }
+
+        .previous-layers .card-title {
+            font-size: 1em;
+            margin-bottom: 0.25rem;
+        }
+
+        .previous-layers .badge {
+            margin-right: 5px;
+            font-size: 0.8em;
+        }
+
+        .btn {
+            margin-top: 0.5rem;
+        }
+
+        .chord-sequence span {
+            display: inline-block;
+            padding: 0.3em 0.6em;
+            margin: 2px;
+            border-radius: 0.25rem;
+            background-color: #dee2e6;
+            color: #212529;
+            font-family: monospace;
+            font-size: 1.1em;
+            border: 1px solid #adb5bd;
+        }
+
+        .progression-name {
+            font-size: 0.9em;
+            color: #6c757d;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .chord-notes {
+            font-size: 0.8em;
+            color: #495057;
+            font-family: monospace;
+        }
     </style>
 </head>
+
 <body>
     <div id="app" class="container mt-4 mb-5">
         <h1 class="mb-3">The Songwriting Game V2.3</h1>
         <hr>
 
         <div v-if="currentPhase === 1">
-             <h2 class="phase-title">Phase 1: Sonic Core Definition</h2>
-             <div class="card step-card" v-if="currentStep === 1.1">
-                 <div class="card-body">
-                     <h5 class="card-title">Step 1.1: Context & Base Progression</h5>
-                     <div v-if="!contextGenerated && !contextConfirmed">
-                         <p>Let's define the musical foundation...</p>
-                         <button class="btn btn-primary" @click="generateContext">Generate Key, Scale & Tempo</button>
-                     </div>
-                     <div v-if="contextGenerated && !contextConfirmed">
-                         <p>Suggested Context:</p>
-                         <ul class="list-group mb-3">
-                             <li class="list-group-item">Key: <span>{{ framework.key }}</span></li>
-                             <li class="list-group-item">Scale/Mode: <span>{{ framework.scale }}</span> <small>({{ getScaleDefinition(framework.scale) }})</small></li>
-                             <li class="list-group-item">Tempo: <span>{{ framework.tempo }} BPM</span></li>
-                         </ul>
-                         <button class="btn btn-success me-2" @click="confirmContext">Confirm Context</button>
-                         <button class="btn btn-secondary" @click="generateContext" :disabled="progressionAGenerated">Generate Again</button>
-                     </div>
-                     <div v-if="contextConfirmed">
-                         <p class="alert alert-success mb-3">Context confirmed: <strong>{{ framework.key }} {{ framework.scale }}</strong> @ <strong>{{ framework.tempo }} BPM</strong>.</p>
-                         <div v-if="progressionAGenerated" class="mb-3">
-                              <h6>Initial Chord Progression (Progression 'A'):</h6>
-                              <span v-if="structure.progressions.A_name" class="progression-name">Name: {{ structure.progressions.A_name }}</span>
-                              <div class="progression-display chord-sequence mb-2">
-                                 <span v-for="(chord, index) in structure.progressions.A_chords" :key="index">
+            <h2 class="phase-title">Phase 1: Sonic Core Definition</h2>
+            <div class="card step-card" v-if="currentStep === 1.1">
+                <div class="card-body">
+                    <h5 class="card-title">Step 1.1: Context & Base Progression</h5>
+                    <div v-if="!contextGenerated && !contextConfirmed">
+                        <p>Let's define the musical foundation...</p>
+                        <button class="btn btn-primary" @click="generateContext">Generate Key, Scale & Tempo</button>
+                    </div>
+                    <div v-if="contextGenerated && !contextConfirmed">
+                        <p>Suggested Context:</p>
+                        <ul class="list-group mb-3">
+                            <li class="list-group-item">Key: <span>{{ framework.key }}</span></li>
+                            <li class="list-group-item">Scale/Mode: <span>{{ framework.scale }}</span> <small>({{
+                                    getScaleDefinition(framework.scale) }})</small></li>
+                            <li class="list-group-item">Tempo: <span>{{ framework.tempo }} BPM</span></li>
+                        </ul>
+                        <button class="btn btn-success me-2" @click="confirmContext">Confirm Context</button>
+                        <button class="btn btn-secondary" @click="generateContext"
+                            :disabled="progressionAGenerated">Generate Again</button>
+                    </div>
+                    <div v-if="contextConfirmed">
+                        <p class="alert alert-success mb-3">Context confirmed: <strong>{{ framework.key }} {{
+                                framework.scale }}</strong> @ <strong>{{ framework.tempo }} BPM</strong>.</p>
+                        <div v-if="progressionAGenerated" class="mb-3">
+                            <h6>Initial Chord Progression (Progression 'A'):</h6>
+                            <span v-if="structure.progressions.A_name" class="progression-name">Name: {{
+                                structure.progressions.A_name }}</span>
+                            <div class="progression-display chord-sequence mb-2">
+                                <span v-for="(chord, index) in structure.progressions.A_chords" :key="index">
                                     {{ chord }}
-                                    <small v-if="structure.progressions.A_chordNotes && structure.progressions.A_chordNotes[index]" class="d-block chord-notes">({{ structure.progressions.A_chordNotes[index] }})</small>
-                                 </span>
-                              </div>
-                              <small class="d-block mt-1 text-muted">Pattern: {{ structure.progressions.A_pattern }}</small>
-                         </div>
-                         <button class="btn btn-info" @click="startLayerGeneration" :disabled="!progressionAGenerated">
-                             {{ progressionAGenerated ? 'Start Creating Layer 1' : 'Waiting for Progression...' }}
-                         </button>
-                         <button v-if="progressionAGenerated" class="btn btn-sm btn-outline-secondary ms-2" @click="generateAndDisplayProgressionA">Regenerate Progression A</button>
-                     </div>
-                 </div>
-             </div>
+                                    <small
+                                        v-if="structure.progressions.A_chordNotes && structure.progressions.A_chordNotes[index]"
+                                        class="d-block chord-notes">({{ structure.progressions.A_chordNotes[index]
+                                        }})</small>
+                                </span>
+                            </div>
+                            <small class="d-block mt-1 text-muted">Pattern: {{ structure.progressions.A_pattern
+                                }}</small>
+                        </div>
+                        <button class="btn btn-info" @click="startLayerGeneration" :disabled="!progressionAGenerated">
+                            {{ progressionAGenerated ? 'Start Creating Layer 1' : 'Waiting for Progression...' }}
+                        </button>
+                        <button v-if="progressionAGenerated" class="btn btn-sm btn-outline-secondary ms-2"
+                            @click="generateAndDisplayProgressionA">Regenerate Progression A</button>
+                    </div>
+                </div>
+            </div>
 
-             <div class="card step-card" v-if="currentStep === 1.2">
-                  <div class="card-body">
-                      <h5 class="card-title">Step 1.2: Create Initial Layers ({{ currentLayerIndex }} / 4)</h5>
-                      <p><strong>Context:</strong> {{ framework.key }} {{ framework.scale }}, {{ framework.tempo }} BPM</p>
-                       <p><strong>Progression A:</strong> <span class="chord-sequence"><span v-for="(chord, index) in structure.progressions.A_chords" :key="index">{{ chord }}</span></span></p>
-                      <hr>
-                      <div v-if="layers[currentLayerIndex - 1]">
-                          <div v-if="!layers[currentLayerIndex - 1].suggested">
-                              <p>Ready for <strong>Layer {{ currentLayerIndex }}</strong>?</p>
-                              <button class="btn btn-primary" @click="generateLayerSuggestion(currentLayerIndex)">Generate Suggestion L{{currentLayerIndex}}</button>
-                          </div>
-                          <div v-if="layers[currentLayerIndex - 1].suggested && !layers[currentLayerIndex - 1].confirmed">
-                              <p>Suggestion for <strong>Layer {{ currentLayerIndex }}</strong>:</p>
-                              <div class="layer-suggestion-block">
-                                  <div class="layer-suggestion-detail"> <span class="layer-suggestion-label">Category:</span> <span class="layer-suggestion-value">{{ layers[currentLayerIndex - 1].category }}</span> </div>
-                                  <div class="layer-suggestion-detail"> <span class="layer-suggestion-label">Specific Sound:</span> <span class="layer-suggestion-value">{{ layers[currentLayerIndex - 1].specificSound }}</span> </div>
-                                  <div class="row">
-                                      <div class="col-md-6 layer-suggestion-detail"> <span class="layer-suggestion-label">Primary Role:</span> <span class="layer-suggestion-value">{{ layers[currentLayerIndex - 1].role }}</span> </div>
-                                      <div class="col-md-6 layer-suggestion-detail"> <span class="layer-suggestion-label">Typical Frequency Range:</span> <span class="layer-suggestion-value">{{ layers[currentLayerIndex - 1].freqRange }}</span> </div>
-                                  </div>
-                                  <div class="layer-suggestion-detail">
-                                       <span class="layer-suggestion-label">Typical Note Range:</span>
-                                       <span class="layer-suggestion-value">{{ layers[currentLayerIndex - 1].typicalNotes || 'N/A' }}</span>
-                                  </div>
-                                  <div v-if="layers[currentLayerIndex - 1].flexibilityNote" class="layer-flexibility-note"> <i class="bi bi-info-circle"></i> {{ layers[currentLayerIndex - 1].flexibilityNote }} </div>
-                              </div>
-                              <button class="btn btn-success" @click="confirmLayerCreated(currentLayerIndex)">Confirm Layer {{currentLayerIndex}} Created</button>
-                              <button class="btn btn-secondary ms-2" @click="generateLayerSuggestion(currentLayerIndex)">Regenerate Suggestion</button>
-                          </div>
-                      </div>
-                      <div class="previous-layers" v-if="getConfirmedLayers.length > 0">
-                          <h6>Confirmed Layers:</h6>
-                          <div class="row">
-                              <div class="col-md-6 mb-2" v-for="layer in getConfirmedLayers" :key="layer.id">
-                                  <div class="card">
-                                      <div class="card-body">
-                                          <h6 class="card-title mb-1">L{{ layer.id }}: {{ layer.specificSound }} <span class="badge bg-secondary">{{layer.category}}</span></h6>
-                                          <span class="badge bg-info text-dark">{{ layer.role }}</span>
-                                          <span class="badge bg-light text-dark">{{ layer.freqRange }}</span>
-                                          <span class="badge bg-white text-dark border">{{ layer.typicalNotes || 'N/A' }}</span>
-                                      </div>
-                                  </div>
-                              </div>
-                          </div>
-                      </div>
-                      <div v-if="layers.length === 4 && layers[3].confirmed" class="mt-4">
-                            <p class="alert alert-success">Sonic Core Complete!</p>
-                            <button class="btn btn-info" @click="startPhase2">Proceed to Phase 2: Structure Map</button>
-                       </div>
-                  </div>
-             </div>
+            <div class="card step-card" v-if="currentStep === 1.2">
+                <div class="card-body">
+                    <h5 class="card-title">Step 1.2: Create Initial Layers ({{ currentLayerIndex }} / 4)</h5>
+                    <p><strong>Context:</strong> {{ framework.key }} {{ framework.scale }}, {{ framework.tempo }} BPM
+                    </p>
+                    <p><strong>Progression A:</strong> <span class="chord-sequence"><span
+                                v-for="(chord, index) in structure.progressions.A_chords" :key="index">{{ chord
+                                }}</span></span></p>
+                    <hr>
+                    <div v-if="layers[currentLayerIndex - 1]">
+                        <div v-if="!layers[currentLayerIndex - 1].suggested">
+                            <p>Ready for <strong>Layer {{ currentLayerIndex }}</strong>?</p>
+                            <button class="btn btn-primary" @click="generateLayerSuggestion(currentLayerIndex)">Generate
+                                Suggestion L{{currentLayerIndex}}</button>
+                        </div>
+                        <div v-if="layers[currentLayerIndex - 1].suggested && !layers[currentLayerIndex - 1].confirmed">
+                            <p>Suggestion for <strong>Layer {{ currentLayerIndex }}</strong>:</p>
+                            <div class="layer-suggestion-block">
+                                <div class="layer-suggestion-detail"> <span
+                                        class="layer-suggestion-label">Category:</span> <span
+                                        class="layer-suggestion-value">{{ layers[currentLayerIndex - 1].category
+                                        }}</span> </div>
+                                <div class="layer-suggestion-detail"> <span class="layer-suggestion-label">Specific
+                                        Sound:</span> <span class="layer-suggestion-value">{{ layers[currentLayerIndex -
+                                        1].specificSound }}</span> </div>
+                                <div class="row">
+                                    <div class="col-md-6 layer-suggestion-detail"> <span
+                                            class="layer-suggestion-label">Primary Role:</span> <span
+                                            class="layer-suggestion-value">{{ layers[currentLayerIndex - 1].role
+                                            }}</span> </div>
+                                    <div class="col-md-6 layer-suggestion-detail"> <span
+                                            class="layer-suggestion-label">Typical Frequency Range:</span> <span
+                                            class="layer-suggestion-value">{{ layers[currentLayerIndex - 1].freqRange
+                                            }}</span> </div>
+                                </div>
+                                <div class="layer-suggestion-detail">
+                                    <span class="layer-suggestion-label">Typical Note Range:</span>
+                                    <span class="layer-suggestion-value">{{ layers[currentLayerIndex - 1].typicalNotes
+                                        || 'N/A' }}</span>
+                                </div>
+                                <div v-if="layers[currentLayerIndex - 1].flexibilityNote"
+                                    class="layer-flexibility-note"> <i class="bi bi-info-circle"></i> {{
+                                    layers[currentLayerIndex - 1].flexibilityNote }} </div>
+                            </div>
+                            <button class="btn btn-success" @click="confirmLayerCreated(currentLayerIndex)">Confirm
+                                Layer {{currentLayerIndex}} Created</button>
+                            <button class="btn btn-secondary ms-2"
+                                @click="generateLayerSuggestion(currentLayerIndex)">Regenerate Suggestion</button>
+                        </div>
+                    </div>
+                    <div class="previous-layers" v-if="getConfirmedLayers.length > 0">
+                        <h6>Confirmed Layers:</h6>
+                        <div class="row">
+                            <div class="col-md-6 mb-2" v-for="layer in getConfirmedLayers" :key="layer.id">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h6 class="card-title mb-1">L{{ layer.id }}: {{ layer.specificSound }} <span
+                                                class="badge bg-secondary">{{layer.category}}</span></h6>
+                                        <span class="badge bg-info text-dark">{{ layer.role }}</span>
+                                        <span class="badge bg-light text-dark">{{ layer.freqRange }}</span>
+                                        <span class="badge bg-white text-dark border">{{ layer.typicalNotes || 'N/A'
+                                            }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div v-if="layers.length === 4 && layers[3].confirmed" class="mt-4">
+                        <p class="alert alert-success">Sonic Core Complete!</p>
+                        <button class="btn btn-info" @click="startPhase2">Proceed to Phase 2: Structure Map</button>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div v-if="currentPhase === 2">
-             <h2 class="phase-title">Phase 2: Structure Map Definition</h2>
-             <p class="alert alert-warning">Phase 2 not yet implemented according to the new vision.</p>
-             <button class="btn btn-secondary" @click="goBackToPhase1Context">Back to Phase 1</button>
+            <h2 class="phase-title">Phase 2: Structure Map Definition</h2>
+            <p class="alert alert-warning">Phase 2 not yet implemented according to the new vision.</p>
+            <button class="btn btn-secondary" @click="goBackToPhase1Context">Back to Phase 1</button>
         </div>
         <div v-if="currentPhase === 3">
             <h2 class="phase-title">Phase 3: Arrangement Forge</h2>
@@ -141,15 +259,15 @@
             <button class="btn btn-secondary" @click="goBackToPhase1Context">Back to Phase 1</button>
         </div>
         <div v-if="currentPhase === 4">
-             <h2 class="phase-title">Phase 4: Final Polish</h2>
-             <p class="alert alert-warning">Phase 4 not yet implemented.</p>
-             <button class="btn btn-secondary" @click="goBackToPhase1Context">Back to Phase 1</button>
+            <h2 class="phase-title">Phase 4: Final Polish</h2>
+            <p class="alert alert-warning">Phase 4 not yet implemented.</p>
+            <button class="btn btn-secondary" @click="goBackToPhase1Context">Back to Phase 1</button>
         </div>
         <div v-if="currentPhase === 5">
-              <h2 class="phase-title">Phase 5: Song Summary</h2>
-               <p class="alert alert-warning">Phase 5 not yet implemented.</p>
-               <button class="btn btn-secondary" @click="goBackToPhase1Context">Back to Phase 1</button>
-         </div>
+            <h2 class="phase-title">Phase 5: Song Summary</h2>
+            <p class="alert alert-warning">Phase 5 not yet implemented.</p>
+            <button class="btn btn-secondary" @click="goBackToPhase1Context">Back to Phase 1</button>
+        </div>
 
     </div>
 
@@ -163,14 +281,14 @@
         // --- Helper Tonal Music Logic ---
         // (No changes needed here, logic is language-agnostic)
         const Tonal = { /* ... Identical to V2.2 ... */
-             NOTES: ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'],
-             getNoteIndex(noteName) { return this.NOTES.indexOf(noteName.toUpperCase()); },
-             getNoteFromIndex(index) { return this.NOTES[index % 12]; },
-             SCALE_INTERVALS: { 'major': [0, 2, 4, 5, 7, 9, 11], 'natural minor': [0, 2, 3, 5, 7, 8, 10], 'harmonic minor': [0, 2, 3, 5, 7, 8, 11], 'melodic minor': [0, 2, 3, 5, 7, 9, 11], 'dorian': [0, 2, 3, 5, 7, 9, 10], 'phrygian': [0, 1, 3, 5, 7, 8, 10], 'lydian': [0, 2, 4, 6, 7, 9, 11], 'mixolydian': [0, 2, 4, 5, 7, 9, 10], },
-             ROMAN_MAP: { 'I': 1, 'II': 2, 'III': 3, 'IV': 4, 'V': 5, 'VI': 6, 'VII': 7 },
-             CHORD_INTERVALS: { '': [0, 4, 7], 'maj': [0, 4, 7], 'm': [0, 3, 7], 'min': [0, 3, 7], 'dim': [0, 3, 6], 'aug': [0, 4, 8], 'sus4': [0, 5, 7], 'sus2': [0, 2, 7], 'maj7': [0, 4, 7, 11], '7': [0, 4, 7, 10], 'm7': [0, 3, 7, 10], 'm(maj7)': [0, 3, 7, 11], 'dim7': [0, 3, 6, 9], 'm7b5': [0, 3, 6, 10], '6': [0, 4, 7, 9], 'm6': [0, 3, 7, 9], 'maj9': [0, 4, 7, 11, 14], '9': [0, 4, 7, 10, 14], 'm9': [0, 3, 7, 10, 14], '6/9': [0, 4, 7, 9, 14], },
-             translateProgression(patternString, key, scaleName) { /* ... Identical to V2.2 ... */ if (!patternString || !key || !scaleName) return ['Error: Missing info']; const rootIndex = this.getNoteIndex(key); if (rootIndex === -1) return ['Error: Invalid key']; const scaleType = scaleName.toLowerCase().includes('minor') ? 'natural minor' : 'major'; const intervals = this.SCALE_INTERVALS[scaleName.toLowerCase().replace(' scale','')] || this.SCALE_INTERVALS[scaleType]; if (!intervals) return [`Error: Scale intervals not found for ${scaleName}`]; const tokens = patternString.split('-'); const chords = []; for (const token of tokens) { if (!token) continue; const match = token.match(/^(b|#)?(VII|VI|V|IV|III|II|I)(.*)$/i); if (!match) { chords.push(`Err: ${token}`); continue; } const accidental = match[1]; const roman = match[2].toUpperCase(); let quality = match[3] || ''; const degree = this.ROMAN_MAP[roman]; if (!degree) { chords.push(`Err: ${token}`); continue; } let intervalIndex = degree - 1; let noteIndex = (rootIndex + intervals[intervalIndex]) % 12; if (accidental === 'b') noteIndex = (noteIndex + 11) % 12; if (accidental === '#') noteIndex = (noteIndex + 1) % 12; const chordRootNote = this.getNoteFromIndex(noteIndex); if (!quality) { quality = (match[2] === roman) ? '' : 'm'; if (quality === '' && degree === 7 && scaleType === 'major') quality = 'dim'; if (quality === 'm' && degree === 2 && scaleType === 'natural minor') quality = 'dim'; } if (quality.toLowerCase() === 'maj') quality = ''; if (quality.toLowerCase() === 'min') quality = 'm'; if (quality.toLowerCase() === 'dominant' || quality.toLowerCase() === 'dom') quality = '7'; if (quality === 'ø7' || quality === 'm7b5') quality = 'm7b5'; if (quality === '°7') quality = 'dim7'; chords.push(`${chordRootNote}${quality}`); } return chords; },
-             getChordNotes(chordName) { /* ... Identical to V2.2 ... */ if (!chordName || chordName.startsWith('Err')) return '?'; const match = chordName.match(/^([A-G](#|b)?)(.*)$/); if (!match) return '?'; const rootNote = match[1]; let quality = match[3] || ''; if(quality === '') quality = 'maj'; const rootIndex = this.getNoteIndex(rootNote); if (rootIndex === -1) return '?'; const intervals = this.CHORD_INTERVALS[quality] || this.CHORD_INTERVALS[quality.toLowerCase()]; if (!intervals) { console.warn(`Intervals not found for chord quality: ${quality}`); const basicQuality = quality.startsWith('m') ? 'm' : 'maj'; const basicIntervals = this.CHORD_INTERVALS[basicQuality]; if(basicIntervals) return basicIntervals.map(interval => this.getNoteFromIndex(rootIndex + interval)).join('-'); else return '?'; } const notes = intervals.map(interval => this.getNoteFromIndex(rootIndex + interval)); return notes.join('-'); }
+            NOTES: ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'],
+            getNoteIndex(noteName) { return this.NOTES.indexOf(noteName.toUpperCase()); },
+            getNoteFromIndex(index) { return this.NOTES[index % 12]; },
+            SCALE_INTERVALS: { 'major': [0, 2, 4, 5, 7, 9, 11], 'natural minor': [0, 2, 3, 5, 7, 8, 10], 'harmonic minor': [0, 2, 3, 5, 7, 8, 11], 'melodic minor': [0, 2, 3, 5, 7, 9, 11], 'dorian': [0, 2, 3, 5, 7, 9, 10], 'phrygian': [0, 1, 3, 5, 7, 8, 10], 'lydian': [0, 2, 4, 6, 7, 9, 11], 'mixolydian': [0, 2, 4, 5, 7, 9, 10], },
+            ROMAN_MAP: { 'I': 1, 'II': 2, 'III': 3, 'IV': 4, 'V': 5, 'VI': 6, 'VII': 7 },
+            CHORD_INTERVALS: { '': [0, 4, 7], 'maj': [0, 4, 7], 'm': [0, 3, 7], 'min': [0, 3, 7], 'dim': [0, 3, 6], 'aug': [0, 4, 8], 'sus4': [0, 5, 7], 'sus2': [0, 2, 7], 'maj7': [0, 4, 7, 11], '7': [0, 4, 7, 10], 'm7': [0, 3, 7, 10], 'm(maj7)': [0, 3, 7, 11], 'dim7': [0, 3, 6, 9], 'm7b5': [0, 3, 6, 10], '6': [0, 4, 7, 9], 'm6': [0, 3, 7, 9], 'maj9': [0, 4, 7, 11, 14], '9': [0, 4, 7, 10, 14], 'm9': [0, 3, 7, 10, 14], '6/9': [0, 4, 7, 9, 14], },
+            translateProgression(patternString, key, scaleName) { /* ... Identical to V2.2 ... */ if (!patternString || !key || !scaleName) return ['Error: Missing info']; const rootIndex = this.getNoteIndex(key); if (rootIndex === -1) return ['Error: Invalid key']; const scaleType = scaleName.toLowerCase().includes('minor') ? 'natural minor' : 'major'; const intervals = this.SCALE_INTERVALS[scaleName.toLowerCase().replace(' scale', '')] || this.SCALE_INTERVALS[scaleType]; if (!intervals) return [`Error: Scale intervals not found for ${scaleName}`]; const tokens = patternString.split('-'); const chords = []; for (const token of tokens) { if (!token) continue; const match = token.match(/^(b|#)?(VII|VI|V|IV|III|II|I)(.*)$/i); if (!match) { chords.push(`Err: ${token}`); continue; } const accidental = match[1]; const roman = match[2].toUpperCase(); let quality = match[3] || ''; const degree = this.ROMAN_MAP[roman]; if (!degree) { chords.push(`Err: ${token}`); continue; } let intervalIndex = degree - 1; let noteIndex = (rootIndex + intervals[intervalIndex]) % 12; if (accidental === 'b') noteIndex = (noteIndex + 11) % 12; if (accidental === '#') noteIndex = (noteIndex + 1) % 12; const chordRootNote = this.getNoteFromIndex(noteIndex); if (!quality) { quality = (match[2] === roman) ? '' : 'm'; if (quality === '' && degree === 7 && scaleType === 'major') quality = 'dim'; if (quality === 'm' && degree === 2 && scaleType === 'natural minor') quality = 'dim'; } if (quality.toLowerCase() === 'maj') quality = ''; if (quality.toLowerCase() === 'min') quality = 'm'; if (quality.toLowerCase() === 'dominant' || quality.toLowerCase() === 'dom') quality = '7'; if (quality === 'ø7' || quality === 'm7b5') quality = 'm7b5'; if (quality === '°7') quality = 'dim7'; chords.push(`${chordRootNote}${quality}`); } return chords; },
+            getChordNotes(chordName) { /* ... Identical to V2.2 ... */ if (!chordName || chordName.startsWith('Err')) return '?'; const match = chordName.match(/^([A-G](#|b)?)(.*)$/); if (!match) return '?'; const rootNote = match[1]; let quality = match[3] || ''; if (quality === '') quality = 'maj'; const rootIndex = this.getNoteIndex(rootNote); if (rootIndex === -1) return '?'; const intervals = this.CHORD_INTERVALS[quality] || this.CHORD_INTERVALS[quality.toLowerCase()]; if (!intervals) { console.warn(`Intervals not found for chord quality: ${quality}`); const basicQuality = quality.startsWith('m') ? 'm' : 'maj'; const basicIntervals = this.CHORD_INTERVALS[basicQuality]; if (basicIntervals) return basicIntervals.map(interval => this.getNoteFromIndex(rootIndex + interval)).join('-'); else return '?'; } const notes = intervals.map(interval => this.getNoteFromIndex(rootIndex + interval)); return notes.join('-'); }
         };
 
         // --- Vue App ---
@@ -181,7 +299,7 @@
                     currentPhase: 1, currentStep: 1.1,
                     framework: reactive({ key: null, scale: null, tempo: null }),
                     contextGenerated: false, contextConfirmed: false, progressionAGenerated: false,
-                    currentLayerIndex: 0, layers: reactive([]),
+                    rhythmLayerSlot: null, currentLayerIndex: 0, layers: reactive([]),
                     structure: reactive({ progressions: { A_pattern: null, A_chords: [], A_name: null, A_chordNotes: [] } }),
                     // --- Data Lists ---
                     musicalKeys: Tonal.NOTES,
@@ -204,165 +322,158 @@
                     // Translate flexibility notes and potentially category names if desired (kept original for now)
                     instrumentCategories: { /* Data Identical to V2.2, flexibility notes need translation if required by user */
                         'Bass': { role: 'Bass', primaryFreqRange: 'Low (40-200Hz)', typicalNotes: 'C0-C2', specificSounds: ['Sub Bass', 'Sine Bass', 'Square Bass', 'FM Bass', 'Acid Bass', 'Reso Bass', 'Acoustic Bass', 'Synth Bass Pluck'], flexibilityNote: 'Some sounds (Acid, Reso) can have significant mid-range harmonics.' }, // Example translation
-                        'Rhythmic': { role: 'Rhythm', primaryFreqRange: 'Variable/Full', typicalNotes: 'N/A', specificSounds: ['Kick Drum', 'Snare Drum', 'Hi-Hat Closed', 'Hi-Hat Open', 'Clap', 'Percussion Loop', 'Glitch Sequence', 'Noise FX Loop', 'Shaker/Tambourine'], flexibilityNote: 'Spectral focus depends entirely on the specific sound.' }, // Example translation
+                        'Rhythmic': {
+                            role: 'Rhythm', primaryFreqRange: 'Variable/Full', typicalNotes: 'N/A',
+                            // MODIFIED: Suggest kit types instead of single sounds
+                            specificSounds: ['Acoustic Kit', 'Electronic Kit', 'Hybrid Kit'],
+                            // MODIFIED: Updated flexibility note
+                            flexibilityNote: 'Build a full drum kit based on the suggested type (Acoustic, Electronic, Hybrid).'
+                        }, // Example translation
                         'Piano & Keys': { role: 'Harmony/Melody', primaryFreqRange: 'Versatile Mid (100Hz-4kHz)', typicalNotes: 'C2-C7', specificSounds: ['Acoustic Grand Piano', 'Electric Piano (Rhodes)', 'Electric Piano (Wurli)', 'Organ B3 Style', 'Clavinet', 'Harpsichord', 'Synth Keys Soft'], flexibilityNote: 'Range and role depend heavily on voicing and arrangement.' }, // Example translation
                         'Pad': { role: 'Harmony/Texture', primaryFreqRange: 'Mid (200Hz-2kHz)', typicalNotes: 'C3-C5', specificSounds: ['Saw Pad', 'String Pad', 'Warm Analog Pad', 'Glassy FM Pad', 'Airy Pad', 'Moving/Evolving Pad', 'Choir Pad'], flexibilityNote: 'Can be used in different registers or to fill specific spectral areas.' }, // Example translation
                         'Synth Lead': { role: 'Melody', primaryFreqRange: 'Mid/High (500Hz-5kHz)', typicalNotes: 'C4-C6', specificSounds: ['Square Lead', 'Saw Lead', 'Sine Lead', 'FM Lead', 'Plucked Lead', 'Hoover Lead', 'Distorted Lead'], flexibilityNote: 'Ensure it doesn\'t clash too much with vocals or other lead elements.' }, // Example translation
-                         'Guitar & Plucked': { role: 'Harmony/Melody/Texture', primaryFreqRange: 'Mid (150Hz-5kHz)', typicalNotes: 'E2-E6', specificSounds: ['Acoustic Guitar Strum', 'Acoustic Guitar Fingerstyle', 'Electric Guitar Clean', 'Electric Guitar Crunch', 'Electric Guitar Distorted', 'Harp', 'Synth Pluck Echoes', 'Pizzicato Strings'], flexibilityNote: 'Very versatile. Role depends on the pattern and sound.' }, // Example translation
-                         'Mallets': { role: 'Melody/Texture', primaryFreqRange: 'Mid/High (300Hz-8kHz)', typicalNotes: 'C4-C7', specificSounds: ['Marimba', 'Vibraphone', 'Xylophone', 'Glockenspiel', 'Steel Drum', 'Synth Mallet'], flexibilityNote: 'Bright sounds, useful for arpeggios or secondary melodies.' }, // Example translation
-                          'Synth Pluck': { role: 'Melody/Harmony', primaryFreqRange: 'Mid/High (200Hz-6kHz)', typicalNotes: 'C3-C6', specificSounds: ['Short Pluck', 'Reso Pluck', 'Delayed Pluck', 'FM Pluck', 'Karplus-Strong Pluck'], flexibilityNote: 'Great for arpeggios, rhythmic sequences, or staccato chords.' }, // Example translation
-                         'Strings': { role: 'Harmony/Melody/Texture', primaryFreqRange: 'Mid/High (100Hz-8kHz)', typicalNotes: 'C2-C7', specificSounds: ['Violin Section', 'Viola Section', 'Cello Section', 'Double Bass Section', 'Full String Ensemble Sustain', 'String Ensemble Staccato', 'Synth Strings'], flexibilityNote: 'Very powerful for orchestral harmony or expressive melodic lines.' }, // Example translation
-                         'Brass': { role: 'Harmony/Melody/Stabs', primaryFreqRange: 'Mid (200Hz-3kHz)', typicalNotes: 'C3-C6', specificSounds: ['Trumpet Section', 'Trombone Section', 'French Horn Section', 'Full Brass Ensemble Sustain', 'Brass Stabs', 'Synth Brass'], flexibilityNote: 'Powerful sound, great for fanfares, melodies, or punchy chords.' }, // Example translation
-                         'Winds': { role: 'Melody/Texture', primaryFreqRange: 'Mid/High (200Hz-4kHz)', typicalNotes: 'C3-C7', specificSounds: ['Flute Solo', 'Flute Section', 'Clarinet Solo', 'Oboe Solo', 'Synth Flute', 'Woodwind Ensemble'], flexibilityNote: 'Agile sounds, suitable for melodies or counterpoints.' }, // Example translation
-                         'Voice': { role: 'Melody/Harmony/Texture', primaryFreqRange: 'Mid (150Hz-3kHz)', typicalNotes: 'C3-C6', specificSounds: ['Choir Aahs', 'Choir Oohs', 'Synth Vox Pad', 'Vocal Chop Sequence', 'Solo Synth Voice'], flexibilityNote: 'Can add a human or ethereal element.' }, // Example translation
-                          'Evolving': { role: 'Texture/Harmony', primaryFreqRange: 'Variable', typicalNotes: 'N/A', specificSounds: ['Long Drone', 'Moving Ambient Texture', 'Slow Sweeping Pad', 'Granular Cloud', 'Complex Sequence'], flexibilityNote: 'Ideal for creating atmosphere and slow movement.' }, // Example translation
-                           'Special Effects': { role: 'FX/Texture', primaryFreqRange: 'Variable/Full', typicalNotes: 'N/A', specificSounds: ['Riser', 'Downlifter', 'Impact', 'White Noise Sweep', 'Vinyl Crackle', 'Ambient FX Loop', 'Sci-Fi Sound'], flexibilityNote: 'Used for transitions, emphasis, or adding character.' } // Example translation
-                     },
+                        'Guitar & Plucked': { role: 'Harmony/Melody/Texture', primaryFreqRange: 'Mid (150Hz-5kHz)', typicalNotes: 'E2-E6', specificSounds: ['Acoustic Guitar Strum', 'Acoustic Guitar Fingerstyle', 'Electric Guitar Clean', 'Electric Guitar Crunch', 'Electric Guitar Distorted', 'Harp', 'Synth Pluck Echoes', 'Pizzicato Strings'], flexibilityNote: 'Very versatile. Role depends on the pattern and sound.' }, // Example translation
+                        'Mallets': { role: 'Melody/Texture', primaryFreqRange: 'Mid/High (300Hz-8kHz)', typicalNotes: 'C4-C7', specificSounds: ['Marimba', 'Vibraphone', 'Xylophone', 'Glockenspiel', 'Steel Drum', 'Synth Mallet'], flexibilityNote: 'Bright sounds, useful for arpeggios or secondary melodies.' }, // Example translation
+                        'Synth Pluck': { role: 'Melody/Harmony', primaryFreqRange: 'Mid/High (200Hz-6kHz)', typicalNotes: 'C3-C6', specificSounds: ['Short Pluck', 'Reso Pluck', 'Delayed Pluck', 'FM Pluck', 'Karplus-Strong Pluck'], flexibilityNote: 'Great for arpeggios, rhythmic sequences, or staccato chords.' }, // Example translation
+                        'Strings': { role: 'Harmony/Melody/Texture', primaryFreqRange: 'Mid/High (100Hz-8kHz)', typicalNotes: 'C2-C7', specificSounds: ['Violin Section', 'Viola Section', 'Cello Section', 'Double Bass Section', 'Full String Ensemble Sustain', 'String Ensemble Staccato', 'Synth Strings'], flexibilityNote: 'Very powerful for orchestral harmony or expressive melodic lines.' }, // Example translation
+                        'Brass': { role: 'Harmony/Melody/Stabs', primaryFreqRange: 'Mid (200Hz-3kHz)', typicalNotes: 'C3-C6', specificSounds: ['Trumpet Section', 'Trombone Section', 'French Horn Section', 'Full Brass Ensemble Sustain', 'Brass Stabs', 'Synth Brass'], flexibilityNote: 'Powerful sound, great for fanfares, melodies, or punchy chords.' }, // Example translation
+                        'Winds': { role: 'Melody/Texture', primaryFreqRange: 'Mid/High (200Hz-4kHz)', typicalNotes: 'C3-C7', specificSounds: ['Flute Solo', 'Flute Section', 'Clarinet Solo', 'Oboe Solo', 'Synth Flute', 'Woodwind Ensemble'], flexibilityNote: 'Agile sounds, suitable for melodies or counterpoints.' }, // Example translation
+                        'Voice': { role: 'Melody/Harmony/Texture', primaryFreqRange: 'Mid (150Hz-3kHz)', typicalNotes: 'C3-C6', specificSounds: ['Choir Aahs', 'Choir Oohs', 'Synth Vox Pad', 'Vocal Chop Sequence', 'Solo Synth Voice'], flexibilityNote: 'Can add a human or ethereal element.' }, // Example translation
+                        'Evolving': { role: 'Texture/Harmony', primaryFreqRange: 'Variable', typicalNotes: 'N/A', specificSounds: ['Long Drone', 'Moving Ambient Texture', 'Slow Sweeping Pad', 'Granular Cloud', 'Complex Sequence'], flexibilityNote: 'Ideal for creating atmosphere and slow movement.' }, // Example translation
+                        'Special Effects': { role: 'FX/Texture', primaryFreqRange: 'Variable/Full', typicalNotes: 'N/A', specificSounds: ['Riser', 'Downlifter', 'Impact', 'White Noise Sweep', 'Vinyl Crackle', 'Ambient FX Loop', 'Sci-Fi Sound'], flexibilityNote: 'Used for transitions, emphasis, or adding character.' } // Example translation
+                    },
                     musicalRoles: ['Bass', 'Rhythm', 'Harmony', 'Melody', 'Texture', 'FX'],
                     frequencyRanges: ['Low', 'Mid', 'High', 'Full', 'Versatile'],
                     // Translate progression names
                     commonProgressions: {
-                         major: [
-                             { name: 'Pop Standard', pattern: 'Imaj7-V7-vi7-IVmaj7' },
-                             { name: 'Pop Alternative', pattern: 'IVmaj7-Imaj7-V7-vi7' },
-                             { name: 'Simple I-IV-V', pattern: 'I-IV-V7-I' },
-                             { name: 'Jazz Standard Cycle', pattern: 'Imaj7-vi7-ii7-V7' },
-                             { name: '50s Feel', pattern: 'I-vi-IV-V7' },
-                             { name: 'Modal/Lydian Hint', pattern: 'IVmaj7-V7-Imaj7-Imaj7' },
-                             //{ name: 'Canon-esque', pattern: 'Imaj7-V7/vi-vi7-iii7-IVmaj7-Imaj7/V-ii7-V7' } // Disabled complex pattern for now
-                         ],
-                         minor: [
-                             { name: 'Standard Minor 1', pattern: 'i7-VImaj7-IIImaj7-VIImaj7' },
-                             { name: 'Standard Minor 2', pattern: 'i7-iv7-v7-i7' },
-                             { name: 'Harmonic Feel', pattern: 'i7-iv7-V7-i7' },
-                             { name: 'Andalusian Cadence', pattern: 'i-VII-VI-V' },
-                             { name: 'Minor Descending', pattern: 'i7-VIImaj7-VImaj7-V7' },
-                             //{ name: 'Jazzy Minor ii-V-i', pattern: 'iiø7-V7alt-i(maj7)' }, // Disabled complex pattern
-                             { name: 'Modal Dorian Feel', pattern: 'i7-IV7-i7-IV7'}
-                         ]
+                        major: [
+                            { name: 'Pop Standard', pattern: 'Imaj7-V7-vi7-IVmaj7' },
+                            { name: 'Pop Alternative', pattern: 'IVmaj7-Imaj7-V7-vi7' },
+                            { name: 'Simple I-IV-V', pattern: 'I-IV-V7-I' },
+                            { name: 'Jazz Standard Cycle', pattern: 'Imaj7-vi7-ii7-V7' },
+                            { name: '50s Feel', pattern: 'I-vi-IV-V7' },
+                            { name: 'Modal/Lydian Hint', pattern: 'IVmaj7-V7-Imaj7-Imaj7' },
+                            //{ name: 'Canon-esque', pattern: 'Imaj7-V7/vi-vi7-iii7-IVmaj7-Imaj7/V-ii7-V7' } // Disabled complex pattern for now
+                        ],
+                        minor: [
+                            { name: 'Standard Minor 1', pattern: 'i7-VImaj7-IIImaj7-VIImaj7' },
+                            { name: 'Standard Minor 2', pattern: 'i7-iv7-v7-i7' },
+                            { name: 'Harmonic Feel', pattern: 'i7-iv7-V7-i7' },
+                            { name: 'Andalusian Cadence', pattern: 'i-VII-VI-V' },
+                            { name: 'Minor Descending', pattern: 'i7-VIImaj7-VImaj7-V7' },
+                            //{ name: 'Jazzy Minor ii-V-i', pattern: 'iiø7-V7alt-i(maj7)' }, // Disabled complex pattern
+                            { name: 'Modal Dorian Feel', pattern: 'i7-IV7-i7-IV7' }
+                        ]
                     },
                 }
             },
             computed: {
-                 getConfirmedLayers() { return this.layers.filter(layer => layer.confirmed); },
+                getConfirmedLayers() { return this.layers.filter(layer => layer.confirmed); },
             },
             methods: {
                 // --- Helpers (Identical) ---
                 getRandomInt(min, max) { min = Math.ceil(min); max = Math.floor(max); return Math.floor(Math.random() * (max - min + 1)) + min; }, getRandomElement(arr) { if (!arr || arr.length === 0) return null; const randomIndex = Math.floor(Math.random() * arr.length); return arr[randomIndex]; }, getScaleDefinition(scaleName) { const scaleObj = this.musicalScales.find(s => s.name === scaleName); return scaleObj ? scaleObj.definition : 'Unknown scale'; }, getScaleType(scaleName) { const scaleObj = this.musicalScales.find(s => s.name === scaleName); return scaleObj ? scaleObj.type : 'major'; },
                 // --- Reset ---
-                resetPhase1State() { /* Translate Log */ console.log("Resetting Phase 1 State"); this.framework = reactive({ key: null, scale: null, tempo: null }); this.contextGenerated = false; this.contextConfirmed = false; this.progressionAGenerated = false; this.currentLayerIndex = 0; this.layers.length = 0; this.structure.progressions.A_pattern = null; this.structure.progressions.A_chords = []; this.structure.progressions.A_name = null; this.structure.progressions.A_chordNotes = []; },
+                resetPhase1State() { /* Translate Log */ console.log("Resetting Phase 1 State"); this.framework = reactive({ key: null, scale: null, tempo: null }); this.contextGenerated = false; this.contextConfirmed = false; this.progressionAGenerated = false; this.rhythmLayerSlot = null; this.currentLayerIndex = 0; this.layers.length = 0; this.structure.progressions.A_pattern = null; this.structure.progressions.A_chords = []; this.structure.progressions.A_name = null; this.structure.progressions.A_chordNotes = []; },
                 // ==================== PHASE 1 METHODS (V2.3 - English) ====================
                 // --- Context & Progression ---
                 generateContext() { /* Translate Log */ console.log("Generating context..."); this.resetPhase1State(); const selectedScaleObject = this.getRandomElement(this.musicalScales); this.framework.key = this.getRandomElement(this.musicalKeys); this.framework.scale = selectedScaleObject ? selectedScaleObject.name : 'Major'; this.framework.tempo = this.getRandomInt(this.tempoRange.min, this.tempoRange.max); this.contextGenerated = true; this.contextConfirmed = false; this.progressionAGenerated = false; this.currentPhase = 1; this.currentStep = 1.1; /* Translate Log */ console.log("Context proposed:", this.framework); },
                 confirmContext() { /* Translate Log */ if (!this.contextGenerated) return; console.log("Context confirmed:", this.framework); this.contextConfirmed = true; this.generateAndDisplayProgressionA(); },
-                generateAndDisplayProgressionA() { /* Translate Logs */ console.log("Generating and Displaying Initial Progression A..."); if (!this.framework.scale || !this.framework.key) { console.error("Cannot generate progression without key and scale."); return; } const scaleType = this.getScaleType(this.framework.scale); const possibleProgressions = this.commonProgressions[scaleType] || this.commonProgressions.major; const chosenProgression = this.getRandomElement(possibleProgressions); if (!chosenProgression) { console.error("No progressions found for scale type:", scaleType); this.structure.progressions.A_pattern = "Error"; this.structure.progressions.A_chords = ["Error"]; this.structure.progressions.A_name = "Error"; this.progressionAGenerated = true; return; } this.structure.progressions.A_pattern = chosenProgression.pattern; this.structure.progressions.A_name = chosenProgression.name; this.structure.progressions.A_chords = Tonal.translateProgression( chosenProgression.pattern, this.framework.key, this.framework.scale ); this.structure.progressions.A_chordNotes = this.structure.progressions.A_chords.map(chord => Tonal.getChordNotes(chord)); this.progressionAGenerated = true; console.log(`Progression A: ${chosenProgression.name} (${chosenProgression.pattern}) -> ${this.structure.progressions.A_chords.join(' ')}`); console.log(`Chord Notes: ${this.structure.progressions.A_chordNotes.join(' | ')}`); },
-                startLayerGeneration() { /* Translate Log */ if (!this.contextConfirmed || !this.progressionAGenerated) return; console.log("Starting layer generation..."); if(this.layers.length === 0) this.initializeLayerData(4); this.currentStep = 1.2; this.currentLayerIndex = 1; /* Translate Log */ console.log("Initialized layers structure:", this.layers); },
+                generateAndDisplayProgressionA() { /* Translate Logs */ console.log("Generating and Displaying Initial Progression A..."); if (!this.framework.scale || !this.framework.key) { console.error("Cannot generate progression without key and scale."); return; } const scaleType = this.getScaleType(this.framework.scale); const possibleProgressions = this.commonProgressions[scaleType] || this.commonProgressions.major; const chosenProgression = this.getRandomElement(possibleProgressions); if (!chosenProgression) { console.error("No progressions found for scale type:", scaleType); this.structure.progressions.A_pattern = "Error"; this.structure.progressions.A_chords = ["Error"]; this.structure.progressions.A_name = "Error"; this.progressionAGenerated = true; return; } this.structure.progressions.A_pattern = chosenProgression.pattern; this.structure.progressions.A_name = chosenProgression.name; this.structure.progressions.A_chords = Tonal.translateProgression(chosenProgression.pattern, this.framework.key, this.framework.scale); this.structure.progressions.A_chordNotes = this.structure.progressions.A_chords.map(chord => Tonal.getChordNotes(chord)); this.progressionAGenerated = true; console.log(`Progression A: ${chosenProgression.name} (${chosenProgression.pattern}) -> ${this.structure.progressions.A_chords.join(' ')}`); console.log(`Chord Notes: ${this.structure.progressions.A_chordNotes.join(' | ')}`); },
+                startLayerGeneration() { /* Translate Log */ if (!this.contextConfirmed || !this.progressionAGenerated) return; console.log("Starting layer generation..."); if (this.layers.length === 0) this.initializeLayerData(4); this.rhythmLayerSlot = this.getRandomInt(1, 4); console.log(`Rhythm layer slot pre-assigned to: Layer ${this.rhythmLayerSlot}`); this.currentStep = 1.2; this.currentLayerIndex = 1; /* Translate Log */ console.log("Initialized layers structure:", this.layers); },
                 // --- Layers ---
                 initializeLayerData(count) { /* ... Identical to V2.2 ... */ this.layers.length = 0; for (let i = 1; i <= count; i++) { this.layers.push(reactive({ id: i, category: null, specificSound: null, role: null, freqRange: null, typicalNotes: null, flexibilityNote: null, suggested: false, confirmed: false })); } },
-                 // Updated with English logs and rhythm logic
-                 generateLayerSuggestion(layerIndex) {
-                     if (layerIndex < 1 || layerIndex > this.layers.length) return;
-                     /* Translate Log */ console.log(`--- Generating suggestion for Layer ${layerIndex} ---`);
-                     const currentLayerData = this.layers[layerIndex - 1]; if (!currentLayerData) return;
+                // Updated with English logs and rhythm logic
+                generateLayerSuggestion(layerIndex) {
+                    if (layerIndex < 1 || layerIndex > this.layers.length || !this.rhythmLayerSlot) return; // Aggiunto check per rhythmLayerSlot
+                    console.log(`--- Generating suggestion for Layer ${layerIndex} ---`);
+                    const currentLayerData = this.layers[layerIndex - 1]; if (!currentLayerData) return;
 
-                     let suggestedCategory = null; let suggestedSound = null; let categoryData = null;
-                     const confirmedLayers = this.getConfirmedLayers;
-                     const confirmedRoles = confirmedLayers.map(l => l.role);
-                     const confirmedFreqs = confirmedLayers.map(l => l.freqRange);
-                     const rhythmLayerConfirmed = confirmedLayers.some(l => l.role && l.role.includes('Rhythm'));
-                     /* Translate Log */ console.log("Confirmed Roles:", confirmedRoles, "| Rhythm Confirmed:", rhythmLayerConfirmed);
-                     /* Translate Log */ console.log("Confirmed Freqs:", confirmedFreqs);
+                    let suggestedCategory = null; let suggestedSound = null; let categoryData = null;
+                    const isRhythmSlot = (layerIndex === this.rhythmLayerSlot); // Verifica se questo è lo slot assegnato al ritmo
+                    console.log(`Layer ${layerIndex}, Is Pre-assigned Rhythm Slot: ${isRhythmSlot}`);
 
-                     if (layerIndex === 1) {
-                         const startingRolePool = ['Rhythm', 'Rhythm', 'Bass', 'Bass', 'Harmony', 'Harmony', 'Texture', 'Melody'];
-                         const targetRole = this.getRandomElement(startingRolePool);
-                         /* Translate Log */ console.log(`Layer 1: Target Role selected = ${targetRole}`);
-                         const possibleCategories = Object.entries(this.instrumentCategories).filter(([catName, data]) => data.role && data.role.includes(targetRole) && (!data.role.includes('FX') || data.role === 'FX/Texture'));
-                         /* Translate Log */ console.log(`Layer 1: Found ${possibleCategories.length} possible cats for role ${targetRole}:`, possibleCategories.map(p => p[0]));
-                         if (possibleCategories.length > 0) { const [catName, catData] = this.getRandomElement(possibleCategories); suggestedCategory = catName; categoryData = catData; /* Translate Log */ console.log(`Layer 1: Selected Cat = ${suggestedCategory}`); }
-                         else { /* Translate Log */ console.error(`Layer 1: FAILED to find cat for role: ${targetRole}`); }
-                     } else {
-                         let forceRhythm = false;
-                         // Force rhythm on Layer 4 if still missing
-                         if (layerIndex === 4 && !rhythmLayerConfirmed) {
-                            /* Translate Log */ console.log("Layer 4 and rhythm missing - Forcing Rhythm suggestion!");
-                             forceRhythm = true;
-                         }
+                    let potentialCategories = [];
 
-                         let neededRoles = this.musicalRoles.filter(r => !confirmedRoles.some(cr => cr && cr.includes(r)) && r !== 'FX');
-                         if (forceRhythm) {
-                             neededRoles = ['Rhythm'];
-                         } else {
-                             if (!rhythmLayerConfirmed && !neededRoles.includes('Rhythm')) neededRoles.push('Rhythm');
-                             if (!confirmedRoles.some(cr => cr && cr.includes('Bass'))) neededRoles.push('Bass');
-                             if (!confirmedRoles.some(cr => cr && cr.includes('Harmony'))) neededRoles.push('Harmony');
-                             neededRoles = [...new Set(neededRoles)];
-                         }
+                    if (isRhythmSlot) {
+                        // FORZA RITMO: Cerca solo categorie con ruolo 'Rhythm'
+                        potentialCategories = Object.entries(this.instrumentCategories)
+                                                   .filter(([catName, data]) => data.role && data.role.includes('Rhythm'));
+                        console.log(`Forcing Rhythm. Found ${potentialCategories.length} rhythmic categories.`);
+                        if(potentialCategories.length === 0) console.error("Configuration Error: No categories found with role 'Rhythm'!");
 
-                         let neededFreqs = this.frequencyRanges.filter(f => !confirmedFreqs.includes(f) && f !== 'Versatile' && f !== 'Full');
+                    } else {
+                        // ESCLUDI RITMO: Cerca altri ruoli/frequenze necessarie
+                        const confirmedLayers = this.getConfirmedLayers;
+                        const confirmedRoles = confirmedLayers.map(l => l.role);
+                        const confirmedFreqs = confirmedLayers.map(l => l.freqRange);
+
+                        // Determina bisogni escludendo ritmo
+                        let neededRoles = this.musicalRoles.filter(r =>
+                            !r.includes('Rhythm') && // Esclude ritmo
+                            !r.includes('FX') &&
+                            !confirmedRoles.some(cr => cr && cr.includes(r))
+                         );
+                         if (!confirmedRoles.some(cr => cr && cr.includes('Bass'))) neededRoles.push('Bass');
+                         if (!confirmedRoles.some(cr => cr && cr.includes('Harmony'))) neededRoles.push('Harmony');
+                         neededRoles = [...new Set(neededRoles)];
+
+                        let neededFreqs = this.frequencyRanges.filter(f => !confirmedFreqs.includes(f) && f !== 'Versatile' && f !== 'Full');
                          if (!confirmedFreqs.some(f => f.includes('Low'))) neededFreqs.push('Low');
                          if (!confirmedFreqs.some(f => f.includes('Mid'))) neededFreqs.push('Mid');
                          if (!confirmedFreqs.some(f => f.includes('High'))) neededFreqs.push('High');
                          neededFreqs = [...new Set(neededFreqs)];
-                         /* Translate Log */ console.log("Needed Roles:", neededRoles); console.log("Needed Freqs:", neededFreqs);
+                         console.log("Needed Non-Rhythm Roles:", neededRoles); console.log("Needed Freqs:", neededFreqs);
 
-                         let potentialCategories = Object.entries(this.instrumentCategories).filter(([catName, catData]) => {
-                             if (!catData.role) return false;
-                             // Exclude rhythm if already confirmed
-                             if (rhythmLayerConfirmed && catData.role.includes('Rhythm')) return false;
-                             // Exclude duplicates (allow Rhythmic only if not confirmed yet)
-                             if (confirmedLayers.some(l => l.category === catName) && (catName !== 'Rhythmic' || rhythmLayerConfirmed)) return false;
-                             // Exclude pure FX
-                             if (catData.role.includes('FX') && !catData.role.includes('Texture')) return false;
+                         // Filtra categorie NON ritmiche
+                         potentialCategories = Object.entries(this.instrumentCategories).filter(([catName, catData]) => {
+                             if (!catData.role || catData.role.includes('Rhythm')) return false; // ESCLUDE RITMO
+                             if (confirmedLayers.some(l => l.category === catName)) return false; // Esclude duplicati
+                             if (catData.role.includes('FX') && !catData.role.includes('Texture')) return false; // Esclude FX puri
 
-                             // If forcing rhythm, only allow rhythmic roles
-                             if (forceRhythm) { return catData.role.includes('Rhythm'); }
-
-                             // Normal logic: check needed roles/freqs
                              const fillsNeededRole = neededRoles.some(nr => catData.role.includes(nr));
                              const fillsNeededFreq = neededFreqs.some(nf => catData.primaryFreqRange === nf || (nf === 'Mid' && catData.primaryFreqRange.includes(nf)));
+
                              if (fillsNeededRole) return true;
-                             if ((!neededRoles.some(nr => ['Bass','Harmony','Melody'].includes(nr)) || confirmedLayers.length >= 2) && fillsNeededFreq) return true;
-                             return false;
+                              // Priorità frequenze se ruoli base coperti
+                              if ((!neededRoles.some(nr => ['Bass','Harmony','Melody'].includes(nr)) || confirmedLayers.length >= 2) && fillsNeededFreq) return true;
+                              return false;
                          });
-                         /* Translate Log */ console.log("Potential Categories (Primary Filter):", potentialCategories.map(p => p[0]));
+                         console.log("Potential Non-Rhythm Categories (Primary Filter):", potentialCategories.map(p => p[0]));
 
-                         // Fallback
-                         if (potentialCategories.length === 0) {
-                             /* Translate Log */ console.warn("No specific category found, broadening search...");
-                             potentialCategories = Object.entries(this.instrumentCategories).filter(([catName, catData]) => {
-                                 if (!catData.role || (catData.role.includes('FX') && !catData.role.includes('Texture'))) return false;
-                                 if (rhythmLayerConfirmed && catData.role.includes('Rhythm')) return false;
-                                 if (confirmedLayers.some(l => l.category === catName) && (catName !== 'Rhythmic' || rhythmLayerConfirmed)) return false;
-                                 if (forceRhythm) return catData.role.includes('Rhythm'); // Apply force even in fallback
-                                 return true;
-                             });
-                              /* Translate Log */ console.log("Potential Categories (Fallback Filter):", potentialCategories.map(p => p[0]));
+                        // Fallback (sempre escludendo ritmo)
+                        if (potentialCategories.length === 0) {
+                             console.warn("No specific non-rhythm category found, broadening search...");
+                             potentialCategories = Object.entries(this.instrumentCategories).filter(([catName, catData]) =>
+                                 catData.role && !catData.role.includes('Rhythm') && // ESCLUDE RITMO
+                                 (!catData.role.includes('FX') || catData.role==='FX/Texture') &&
+                                 !confirmedLayers.some(l => l.category === catName)
+                             );
+                             console.log("Potential Non-Rhythm Categories (Fallback Filter):", potentialCategories.map(p => p[0]));
                          }
+                    } // Fine else (non è lo slot ritmico)
 
-                         if (potentialCategories.length > 0) {
-                             const [catName, catData] = this.getRandomElement(potentialCategories);
-                             suggestedCategory = catName;
-                             categoryData = catData;
-                         }
-                    } // End Layer 2-4 logic
+                    // --- Selezione Finale e Aggiornamento Layer ---
+                    if (potentialCategories.length > 0) {
+                        const [catName, catData] = this.getRandomElement(potentialCategories);
+                        suggestedCategory = catName;
+                        categoryData = catData;
+                        suggestedSound = this.getRandomElement(catData.specificSounds);
 
-                    // --- Update Layer Data ---
-                    if (suggestedCategory && categoryData) {
-                        suggestedSound = this.getRandomElement(categoryData.specificSounds);
-                         /* Translate Log */ console.log(`Suggestion L${layerIndex}: ${suggestedCategory} - ${suggestedSound} (Role: ${categoryData.role}, Freq: ${categoryData.primaryFreqRange})`);
-                         currentLayerData.category = suggestedCategory; currentLayerData.specificSound = suggestedSound;
-                         currentLayerData.role = categoryData.role; currentLayerData.freqRange = categoryData.primaryFreqRange;
-                         currentLayerData.typicalNotes = categoryData.typicalNotes || 'N/A'; // Added
-                         currentLayerData.flexibilityNote = categoryData.flexibilityNote || null;
-                         currentLayerData.suggested = true; currentLayerData.confirmed = false;
-                     } else {
-                         /* Translate Log */ console.error("Could not determine a suggestion for Layer", layerIndex);
-                         currentLayerData.category = 'Error'; currentLayerData.specificSound = 'Suggestion generation failed'; // Adjusted error message
-                         currentLayerData.role = '-'; currentLayerData.freqRange = '-'; currentLayerData.typicalNotes = '?';
-                         currentLayerData.suggested = true; currentLayerData.confirmed = false;
-                     }
-                 }, // Fine generateLayerSuggestion
+                        console.log(`Suggestion L${layerIndex}: ${suggestedCategory} - ${suggestedSound} (Role: ${categoryData.role}, Freq: ${categoryData.primaryFreqRange})`);
+                        currentLayerData.category = suggestedCategory; currentLayerData.specificSound = suggestedSound;
+                        currentLayerData.role = categoryData.role; currentLayerData.freqRange = categoryData.primaryFreqRange;
+                        currentLayerData.typicalNotes = categoryData.typicalNotes || 'N/A';
+                        currentLayerData.flexibilityNote = categoryData.flexibilityNote || null;
+                        currentLayerData.suggested = true; currentLayerData.confirmed = false;
+                    } else {
+                        // Questo errore ora indica un problema più serio (es. nessuna categoria ritmica trovata, o nessun'altra categoria disponibile)
+                        console.error(`CRITICAL: Could not determine any suggestion for Layer ${layerIndex} (Is Rhythm Slot: ${isRhythmSlot})`);
+                        currentLayerData.category = 'Error'; currentLayerData.specificSound = 'Suggestion Logic Failed';
+                        currentLayerData.role = '-'; currentLayerData.freqRange = '-'; currentLayerData.typicalNotes = '?';
+                        currentLayerData.suggested = true; currentLayerData.confirmed = false;
+                    }
+                }, // Fine generateLayerSuggestion
 
                 confirmLayerCreated(layerIndex) { /* Translate Logs & Alert */
                     if (layerIndex < 1 || layerIndex > this.layers.length) return;
@@ -381,4 +492,5 @@
         }).mount('#app');
     </script>
 </body>
+
 </html>
