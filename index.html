@@ -1,376 +1,184 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="it">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Songwriting Game</title>
+    <title>The Songwriting Game V2</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <style>
-        /* Combined Styles */
+        /* Stili Base (simili a prima, con piccole aggiunte) */
         body { background-color: #f8f9fa; font-family: sans-serif; }
-        .phase-title { margin-bottom: 1.5rem; color: #6c757d; }
+        .phase-title { margin-bottom: 1.5rem; color: #6c757d; border-bottom: 1px solid #dee2e6; padding-bottom: 0.5rem;}
         .step-card { margin-bottom: 1.5rem; }
-        .list-group-item span, .layer-suggestion span, .structure-display span,
+        .list-group-item span, .layer-suggestion-value, .structure-display span,
         .progression-display span, .length-display span, .arrangement-value span,
         .check-suggestion span, .break-duration span, .summary-value span { font-weight: bold; color: #fd5f00; }
-        .layer-suggestion { font-size: 1.1rem; margin-bottom: 1rem; }
+
+        /* Stili specifici Fase 1 V2 */
+        .layer-suggestion-block { background-color: #e9ecef; border-radius: 0.25rem; padding: 1rem; margin-bottom: 1rem; border-left: 5px solid #fd5f00;}
+        .layer-suggestion-label { font-weight: bold; color: #495057; display: block; margin-bottom: 0.2rem;}
+        .layer-suggestion-detail { margin-bottom: 0.5rem; }
+        .layer-flexibility-note { font-size: 0.85em; font-style: italic; color: #6c757d; margin-top: 0.5rem; }
+
         .previous-layers { margin-top: 1.5rem; font-size: 0.9rem; }
-        .previous-layers .badge { margin-right: 5px; }
+        .previous-layers .card { margin-bottom: 0.5rem; background-color: #f8f9fa;}
+        .previous-layers .card-body { padding: 0.75rem; }
+        .previous-layers .card-title { font-size: 1em; margin-bottom: 0.25rem;}
+         .previous-layers .badge { margin-right: 5px; font-size: 0.8em;}
+
+
         .btn { margin-top: 0.5rem; }
-        .structure-sequence .badge { font-size: 1rem; margin: 2px; padding: 0.5em 0.7em; }
-        .section-roles { font-size: 0.9em; color: #6c757d; }
         .chord-progression { font-family: monospace; font-size: 1.1em; background-color: #e9ecef; padding: 0.1em 0.3em; border-radius: 0.2rem;}
 
-        /* Phase 3 Styles */
-        .arrangement-step { padding: 1rem; border-left: 3px solid #dee2e6; margin-bottom: 1rem; background-color: #fff; }
-        .arrangement-step.active { border-left-color: #fd5f00; }
-        .arrangement-step.completed { border-left-color: #198754; opacity: 0.8; }
-        .arrangement-step h6 { margin-bottom: 0.75rem; color: #495057; }
-        .initial-layers-list li { font-size: 0.9em; }
-        .variation-prompt { font-style: italic; }
-
-        /* Phase 4 Styles */
-        .check-instruction { font-weight: 500; margin-bottom: 1rem; }
-        .check-suggestion { font-style: italic; padding: 0.75rem; background-color: #e9ecef; border-radius: 0.25rem; margin-bottom: 1rem; }
-        .check-result { font-weight: bold; }
-        .form-check-input:checked { background-color: #fd5f00; border-color: #fd5f00; }
-        .mandatory-break { font-size: 1.1em; }
-
-        /* Phase 5 Styles */
-        .summary-section h5 { border-bottom: 1px solid #dee2e6; padding-bottom: 0.5rem; margin-bottom: 1rem; color: #495057;}
-        .summary-section { margin-bottom: 1.5rem; }
-        .summary-label { font-weight: bold; color: #343a40; min-width: 100px; display: inline-block;}
-        .summary-list li { margin-bottom: 0.3rem; }
-        .arrangement-log-item { margin-bottom: 1rem; padding-left: 1rem; border-left: 2px solid #eee; }
-        .arrangement-log-item strong { color: #6c757d; }
-        .final-check-item { background-color: #f8f9fa; padding: 0.5rem; border-radius: 0.25rem; margin-bottom: 0.5rem; font-size: 0.9em;}
+        /* Aggiungeremo stili per le Fasi 2-5 quando le implementeremo */
+        /* ... */
 
     </style>
 </head>
 <body>
 
     <div id="app" class="container mt-4 mb-5">
-        <h1 class="mb-3">The Songwriting Game</h1>
+        <h1 class="mb-3">The Songwriting Game V2</h1>
         <hr>
 
         <div v-if="currentPhase === 1">
-             <h2 class="phase-title">Phase 1: Sonic Core Definition</h2>
-            <div class="card step-card" v-if="currentStep === 1.1">
-                <div class="card-body"> <h5 class="card-title">Step 1.1: Generate Musical Context</h5> <div v-if="!contextGenerated && !contextConfirmed"> <p>Let's define the musical foundation...</p><button class="btn btn-primary" @click="generateContext">Generate Key, Scale & Tempo</button> </div> <div v-if="contextGenerated && !contextConfirmed"> <p>Suggested context:</p> <ul class="list-group mb-3"> <li class="list-group-item">Key: <span>{{ framework.key }}</span></li> <li class="list-group-item">Scale/Mode: <span>{{ framework.scale }}</span> <small>({{ getScaleDefinition(framework.scale) }})</small></li> <li class="list-group-item">Tempo: <span>{{ framework.tempo }} BPM</span></li> </ul> <button class="btn btn-success me-2" @click="confirmContext">Confirm Context</button> <button class="btn btn-secondary" @click="generateContext">Generate Again</button> </div> <div v-if="contextConfirmed"> <p class="alert alert-success">Context confirmed: <strong>{{ framework.key }} {{ framework.scale }}</strong> @ <strong>{{ framework.tempo }} BPM</strong>.</p> <button class="btn btn-info" @click="startLayerGeneration">Start Creating Layer 1</button> </div> </div>
+             <h2 class="phase-title">Fase 1: Definizione Nucleo Sonoro</h2>
+
+             <div class="card step-card" v-if="currentStep === 1.1">
+                <div class="card-body">
+                    <h5 class="card-title">Step 1.1: Genera Contesto Musicale</h5>
+                    <div v-if="!contextGenerated && !contextConfirmed">
+                        <p>Definiamo le fondamenta musicali...</p>
+                        <button class="btn btn-primary" @click="generateContext">Genera Tonalità, Scala & Tempo</button>
+                    </div>
+                    <div v-if="contextGenerated && !contextConfirmed">
+                        <p>Contesto suggerito:</p>
+                        <ul class="list-group mb-3">
+                            <li class="list-group-item">Tonalità: <span>{{ framework.key }}</span></li>
+                            <li class="list-group-item">Scala/Modo: <span>{{ framework.scale }}</span> <small>({{ getScaleDefinition(framework.scale) }})</small></li>
+                            <li class="list-group-item">Tempo: <span>{{ framework.tempo }} BPM</span></li>
+                        </ul>
+                        <button class="btn btn-success me-2" @click="confirmContext">Conferma Contesto</button>
+                        <button class="btn btn-secondary" @click="generateContext">Genera di Nuovo</button>
+                    </div>
+                    <div v-if="contextConfirmed">
+                        <p class="alert alert-success">Contesto confermato: <strong>{{ framework.key }} {{ framework.scale }}</strong> @ <strong>{{ framework.tempo }} BPM</strong>.</p>
+                        <button class="btn btn-info" @click="startLayerGeneration">Inizia Creazione Layer 1</button>
+                    </div>
+                </div>
             </div>
+
             <div class="card step-card" v-if="currentStep === 1.2">
-                 <div class="card-body"> <h5 class="card-title">Step 1.2: Create Initial Layers ({{ currentLayerIndex }} / 4)</h5> <p><strong>Context:</strong> {{ framework.key }} {{ framework.scale }}, {{ framework.tempo }} BPM</p> <hr> <div v-if="layers[currentLayerIndex - 1]"> <div v-if="!layers[currentLayerIndex - 1].suggested"> <p>Ready for <strong>Layer {{ currentLayerIndex }}</strong>?</p> <button class="btn btn-primary" @click="generateLayerSuggestion(currentLayerIndex)">Generate Suggestion L{{currentLayerIndex}}</button> </div> <div v-if="layers[currentLayerIndex - 1].suggested && !layers[currentLayerIndex - 1].confirmed"> <p>Suggestion for <strong>Layer {{ currentLayerIndex }}</strong>:</p> <p class="alert alert-info layer-suggestion">Create a <span>{{ layers[currentLayerIndex - 1].modifier }}</span> <span>{{ layers[currentLayerIndex - 1].type }}</span>.</p> <button class="btn btn-success" @click="confirmLayerCreated(currentLayerIndex)">Confirm L{{currentLayerIndex}} Created</button> <button class="btn btn-secondary ms-2" @click="generateLayerSuggestion(currentLayerIndex)">Regenerate</button> </div> </div> <div class="previous-layers" v-if="getConfirmedLayers().length > 0"> <h6>Confirmed Layers:</h6> <p><span v-for="layer in getConfirmedLayers()" :key="layer.id" class="badge bg-secondary text-light">L{{ layer.id }}: {{ layer.modifier }} {{ layer.type }}</span></p> </div> </div>
+                 <div class="card-body">
+                     <h5 class="card-title">Step 1.2: Crea Layer Iniziali ({{ currentLayerIndex }} / 4)</h5>
+                     <p><strong>Contesto:</strong> {{ framework.key }} {{ framework.scale }}, {{ framework.tempo }} BPM</p>
+                     <hr>
+
+                     <div v-if="layers[currentLayerIndex - 1]">
+                         <div v-if="!layers[currentLayerIndex - 1].suggested">
+                             <p>Pronto per il <strong>Layer {{ currentLayerIndex }}</strong>?</p>
+                             <button class="btn btn-primary" @click="generateLayerSuggestion(currentLayerIndex)">Genera Suggerimento L{{currentLayerIndex}}</button>
+                         </div>
+
+                         <div v-if="layers[currentLayerIndex - 1].suggested && !layers[currentLayerIndex - 1].confirmed">
+                             <p>Suggerimento per <strong>Layer {{ currentLayerIndex }}</strong>:</p>
+                             <div class="layer-suggestion-block">
+                                 <div class="layer-suggestion-detail">
+                                     <span class="layer-suggestion-label">Categoria:</span>
+                                     <span class="layer-suggestion-value">{{ layers[currentLayerIndex - 1].category }}</span>
+                                 </div>
+                                 <div class="layer-suggestion-detail">
+                                     <span class="layer-suggestion-label">Suono Specifico:</span>
+                                     <span class="layer-suggestion-value">{{ layers[currentLayerIndex - 1].specificSound }}</span>
+                                 </div>
+                                  <div class="row">
+                                     <div class="col-md-6 layer-suggestion-detail">
+                                        <span class="layer-suggestion-label">Ruolo Primario:</span>
+                                        <span class="layer-suggestion-value">{{ layers[currentLayerIndex - 1].role }}</span>
+                                     </div>
+                                     <div class="col-md-6 layer-suggestion-detail">
+                                         <span class="layer-suggestion-label">Range Frequenze Tipico:</span>
+                                         <span class="layer-suggestion-value">{{ layers[currentLayerIndex - 1].freqRange }}</span>
+                                     </div>
+                                 </div>
+                                 <div v-if="layers[currentLayerIndex - 1].flexibilityNote" class="layer-flexibility-note">
+                                     <i class="bi bi-info-circle"></i> {{ layers[currentLayerIndex - 1].flexibilityNote }}
+                                 </div>
+                             </div>
+                             <button class="btn btn-success" @click="confirmLayerCreated(currentLayerIndex)">Confermo Layer {{currentLayerIndex}} Creato</button>
+                             <button class="btn btn-secondary ms-2" @click="generateLayerSuggestion(currentLayerIndex)">Rigenera Suggerimento</button>
+                         </div>
+                     </div>
+
+                     <div class="previous-layers" v-if="getConfirmedLayers.length > 0">
+                         <h6>Layer Confermati:</h6>
+                         <div class="row">
+                             <div class="col-md-6 mb-2" v-for="layer in getConfirmedLayers" :key="layer.id">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h6 class="card-title mb-1">L{{ layer.id }}: {{ layer.specificSound }} <span class="badge bg-secondary">{{layer.category}}</span></h6>
+                                        <span class="badge bg-info text-dark">{{ layer.role }}</span>
+                                        <span class="badge bg-light text-dark">{{ layer.freqRange }}</span>
+                                    </div>
+                                 </div>
+                             </div>
+                         </div>
+                     </div>
+                 </div>
             </div>
-            <div class="card step-card" v-if="currentStep === '1.post'">
-                 <div class="card-body"> <h5 class="card-title">Sonic Core Complete!</h5> <p class="alert alert-success">All 4 initial layers created.</p> <p>Suggested initial chord progression (Progression A - Roman Numerals):</p> <p class="alert alert-info progression-display"><strong>Progression A:</strong> <span class="chord-progression">{{ structure.progressions.A }}</span></p> <button class="btn btn-info" @click="startPhase2">Proceed to Phase 2</button> </div>
+
+             <div class="card step-card" v-if="currentStep === '1.post'">
+                 <div class="card-body">
+                    <h5 class="card-title">Nucleo Sonoro Completo!</h5>
+                    <p class="alert alert-success">Tutti i 4 layer iniziali sono stati definiti.</p>
+
+                    <h6>Layer Creati:</h6>
+                     <div class="row mb-3">
+                         <div class="col-md-6 mb-2" v-for="layer in layers" :key="layer.id">
+                             <div class="card">
+                                 <div class="card-body">
+                                     <h6 class="card-title mb-1">L{{ layer.id }}: {{ layer.specificSound }} <span class="badge bg-secondary">{{layer.category}}</span></h6>
+                                     <span class="badge bg-info text-dark">{{ layer.role }}</span>
+                                     <span class="badge bg-light text-dark">{{ layer.freqRange }}</span>
+                                 </div>
+                             </div>
+                         </div>
+                     </div>
+
+                    <h6>Progressione Armonica Iniziale (Numeri Romani):</h6>
+                    <p class="alert alert-info progression-display">
+                        <strong>Progressione A:</strong> <span class="chord-progression">{{ structure.progressions.A }}</span>
+                        <br><small>(Questa è la base armonica per iniziare. Gli accordi reali dipendono da {{ framework.key }} {{ framework.scale }}).</small>
+                    </p>
+                    <button class="btn btn-info" @click="startPhase2">Procedi alla Fase 2: Mappa Struttura</button>
+                 </div>
             </div>
         </div>
 
         <div v-if="currentPhase === 2">
-            <h2 class="phase-title">Phase 2: Structure Map Definition</h2>
-            <div class="card step-card" v-if="currentStep === 2.1">
-                 <div class="card-body"> <h5 class="card-title">Step 2.1: Generate Structure Template</h5> <div v-if="!structure.templateGenerated"> <p>Let's choose a structure...</p><button class="btn btn-primary" @click="generateStructureTemplate">Generate Structure</button> </div> <div v-if="structure.templateGenerated && !structure.templateConfirmed"> <p>Suggested Structure:</p> <div class="structure-display mb-3"> <h6>Name: <span>{{ structure.templateName }}</span></h6> <p>Sequence:</p> <p class="structure-sequence"><span v-for="(section, index) in structure.templateSequence" :key="index" class="badge bg-dark">{{ section }}</span></p> <p class="section-roles"><small>Roles: A=Verse/Main, B=Chorus/Contrast, C=Bridge, etc.</small></p> </div> <button class="btn btn-success me-2" @click="confirmStructureTemplate">Confirm</button> <button class="btn btn-secondary" @click="generateStructureTemplate">Regenerate</button> </div> <div v-if="structure.templateConfirmed"> <p class="alert alert-success">Structure confirmed: <strong>{{ structure.templateName }}</strong></p> <button class="btn btn-info" @click="startHarmonyDefinition">{{ sectionsToDefineHarmony.length > 0 ? 'Next: Define Harmony' : 'Next: Define Lengths' }}</button> </div> </div>
-            </div>
-            <div class="card step-card" v-if="currentStep === 2.2">
-                 <div class="card-body"> <h5 class="card-title">Step 2.2: Define Harmony ({{ currentSectionIndexToDefine + 1 }} / {{ sectionsToDefineHarmony.length }})</h5> <div v-if="currentSectionLetterToDefine"> <p>Define harmony for section: <strong style="font-size: 1.5em;">'{{ currentSectionLetterToDefine }}'</strong></p> <p>Ref - Prog A: <code class="chord-progression">{{ structure.progressions.A }}</code></p> <hr> <div v-if="!structure.progressions[currentSectionLetterToDefine]"> <button class="btn btn-primary" @click="generateHarmonyForSection(currentSectionLetterToDefine)">Generate Suggestion for '{{ currentSectionLetterToDefine }}'</button> </div> <div v-if="structure.progressions[currentSectionLetterToDefine] && !harmonyConfirmed[currentSectionLetterToDefine]"> <p>Suggested pattern for '{{ currentSectionLetterToDefine }}' (Roman Numerals):</p> <p class="alert alert-info progression-display"><strong>Prog {{ currentSectionLetterToDefine }}:</strong> <span class="chord-progression">{{ structure.progressions[currentSectionLetterToDefine] }}</span> <br><small>(Note: Actual chords depend on key {{ framework.key }} {{ framework.scale }}. Implementation uses Roman numerals for now.)</small> </p> <button class="btn btn-success me-2" @click="confirmHarmony(currentSectionLetterToDefine)">Confirm Harmony</button> <button class="btn btn-secondary" @click="generateHarmonyForSection(currentSectionLetterToDefine)">Regenerate</button> </div> <div v-if="harmonyConfirmed[currentSectionLetterToDefine]"> </div> </div> <div v-else> <p class="alert alert-success">All section harmonies defined!</p> <button class="btn btn-info" @click="startLengthDefinition">Next: Define Lengths</button> </div> </div>
-            </div>
-            <div class="card step-card" v-if="currentStep === 2.3">
-                 <div class="card-body"> <h5 class="card-title">Step 2.3: Define Section Lengths</h5> <div v-if="!structure.lengthsGenerated"> <p>Determine length (in bars) for each unique section type...</p><button class="btn btn-primary" @click="generateSectionLengths">Generate Lengths</button> </div> <div v-if="structure.lengthsGenerated && !structure.lengthsConfirmed"> <p>Suggested Lengths:</p> <ul class="list-group mb-3"> <li v-for="(length, section) in structure.lengths" :key="section" class="list-group-item length-display"> Section <strong>'{{ section }}'</strong>: <span>{{ length }} bars</span> </li> </ul> <button class="btn btn-success me-2" @click="confirmSectionLengths">Confirm Lengths</button> <button class="btn btn-secondary" @click="generateSectionLengths">Regenerate</button> </div> <div v-if="structure.lengthsConfirmed"> <p class="alert alert-success">Structure Map defined!</p> <button class="btn btn-info" @click="startPhase3">Proceed to Phase 3: Arrangement Forge</button> </div> </div>
-            </div>
+             <h2 class="phase-title">Fase 2: Definizione Mappa Struttura</h2>
+             <p class="alert alert-warning">Fase 2 non ancora implementata secondo la nuova visione.</p>
+              <button class="btn btn-secondary" @click="goBackToPhase1Post">Torna a Fase 1</button>
         </div>
 
         <div v-if="currentPhase === 3">
-            <h2 class="phase-title">Phase 3: Arrangement Forge <button class="btn btn-sm btn-outline-secondary float-end" @click="skipToPhase4Debug">Skip to Phase 4 (Debug)</button></h2>
-            <div class="card step-card">
-                <div class="card-body">
-                    <div v-if="currentArrangementInstance">
-                        <h5 class="card-title">Arranging Section {{ currentArrangementIndex + 1 }} / {{ structure.templateSequence.length }}</h5>
-                        <h4>
-                            {{ currentArrangementInstance.displayName }}
-                            <small class="text-muted">({{ currentArrangementInstance.sectionLetter }}, Instance {{ currentArrangementInstance.instanceNumber }})</small>
-                        </h4>
-                        <p>
-                            <strong>Length:</strong> <span class="summary-value">{{ currentArrangementInstance.length }} bars</span> |
-                            <strong>Progression:</strong> <code class="chord-progression">{{ currentArrangementInstance.progression }}</code>
-                        </p>
-                        <hr>
-                         <div>
-                            <div class="arrangement-step" :class="{ active: !currentInstanceLogEntry.adaptationConfirmed, completed: currentInstanceLogEntry.adaptationConfirmed }">
-                                <h6>Step 3.2: Harmonic Adaptation</h6>
-                                <div v-if="!currentInstanceLogEntry.adaptationConfirmed">
-                                    <p v-if="currentArrangementInstance.progression === currentArrangementInstance.previousProgression && currentArrangementIndex > 0">Progression is the same as the previous section. Focus on arrangement variations below.</p>
-                                    <p v-else>
-                                        <span v-if="currentArrangementIndex === 0">Use your initial 4 layers as the basis for this first section, playing the progression: <code class="chord-progression">{{ currentArrangementInstance.progression }}</code></span>
-                                        <span v-else>Progression changed! Adapt your core harmonic/melodic layers to fit: <code class="chord-progression">{{ currentArrangementInstance.progression }}</code></span>
-                                        <br><span v-if="layers.length > 0" class="mt-2 d-block"><small>Initial Layers Reference:</small></span>
-                                        <ul class="list-inline initial-layers-list" v-if="layers.length > 0">
-                                            <li v-for="layer in layers" class="list-inline-item"><span class="badge bg-light text-dark">{{ layer.modifier }} {{ layer.type }}</span></li>
-                                        </ul>
-                                    </p>
-                                    <button class="btn btn-success btn-sm" @click="confirmAdaptation">
-                                        {{ (currentArrangementInstance.progression === currentArrangementInstance.previousProgression && currentArrangementIndex > 0) ? 'Continue to Variations' : 'Confirm Layers Adapted / Applied' }}
-                                    </button>
-                                </div>
-                                <div v-else><p class="text-success mb-0"><small><i class="bi bi-check-lg"></i> Adaptation Confirmed.</small></p></div>
-                            </div>
-                            <div class="arrangement-step" :class="{ active: currentInstanceLogEntry.adaptationConfirmed && !currentInstanceLogEntry.variationsConfirmed, completed: currentInstanceLogEntry.variationsConfirmed, 'd-none': !currentInstanceLogEntry.adaptationConfirmed }">
-                                <h6>Step 3.3: Arrangement Variations</h6>
-                                <div v-if="!currentInstanceLogEntry.variationsConfirmed">
-                                    <div v-if="!currentInstanceLogEntry.density">
-                                        <p>Ready to add unique character to this section instance?</p>
-                                        <button class="btn btn-primary btn-sm" @click="suggestVariations">Suggest Variations</button>
-                                    </div>
-                                    <div v-else>
-                                        <p>Suggestions for this instance:</p>
-                                        <ul class="list-unstyled">
-                                            <li><strong>Density:</strong> <span class="arrangement-value">{{ currentInstanceLogEntry.density }}</span></li>
-                                            <li v-for="(prompt, pIdx) in currentInstanceLogEntry.variations" :key="pIdx"><strong>Prompt {{ pIdx + 1 }}:</strong> <span class="variation-prompt">{{ prompt }}</span></li>
-                                        </ul>
-                                        <button class="btn btn-success btn-sm me-2" @click="confirmVariations">Confirm Variations Implemented</button>
-                                        <button class="btn btn-secondary btn-sm" @click="suggestVariations">Regenerate Suggestions</button>
-                                    </div>
-                                </div>
-                                <div v-else><p class="text-success mb-0"><small><i class="bi bi-check-lg"></i> Variations Confirmed.</small></p></div>
-                            </div>
-                            <div class="arrangement-step" :class="{ active: currentInstanceLogEntry.variationsConfirmed && !currentInstanceLogEntry.transitionConfirmed && !isLastSection, completed: currentInstanceLogEntry.transitionConfirmed, 'd-none': !currentInstanceLogEntry.variationsConfirmed || isLastSection }">
-                                <h6>Step 3.4: Transition Out</h6>
-                                <div v-if="!currentInstanceLogEntry.transitionConfirmed">
-                                    <div v-if="!currentInstanceLogEntry.transition">
-                                        <p>Suggest how to transition into the <em>next</em> section?</p>
-                                        <button class="btn btn-primary btn-sm" @click="suggestTransition">Suggest Transition</button>
-                                    </div>
-                                    <div v-else>
-                                        <p>Suggested Transition Out: <span class="arrangement-value">{{ currentInstanceLogEntry.transition }}</span></p>
-                                        <button class="btn btn-success btn-sm me-2" @click="confirmTransition">Confirm Transition Implemented</button>
-                                        <button class="btn btn-secondary btn-sm" @click="suggestTransition">Regenerate Suggestion</button>
-                                    </div>
-                                </div>
-                                <div v-else><p class="text-success mb-0"><small><i class="bi bi-check-lg"></i> Transition Confirmed.</small></p></div>
-                            </div>
-                             <div class="arrangement-step completed" v-if="isLastSection && currentInstanceLogEntry.variationsConfirmed">
-                                <h6>Step 3.4: Transition Out</h6> <p class="mb-0 text-muted"><small>N/A (This is the final section)</small></p>
-                            </div>
-                            <div class="mt-4 text-center">
-                                <button class="btn btn-info" @click="completeCurrentInstance" :disabled="!canCompleteInstance">
-                                   {{ isLastSection ? 'Complete Final Section & Proceed to Polish' : 'Complete Section & Move to Next' }}
-                                </button>
-                                <p v-if="!canCompleteInstance" class="text-muted small mt-2">Complete all steps above to proceed.</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div v-else>
-                         <p class="alert alert-warning">Loading arrangement data or Phase 2 not complete...</p>
-                         <button class="btn btn-secondary btn-sm" @click="goBackToPhase2Lengths">Go Back to Phase 2</button>
-                    </div>
-                </div>
-            </div>
-        </div>
+             <h2 class="phase-title">Fase 3: Forgia Arrangiamento</h2>
+              <p class="alert alert-warning">Fase 3 non ancora implementata secondo la nuova visione.</p>
+              <button class="btn btn-secondary" @click="goBackToPhase1Post">Torna a Fase 1</button> </div>
 
-        <div v-if="currentPhase === 4">
-            <h2 class="phase-title">Phase 4: Final Polish</h2>
+         <div v-if="currentPhase === 4">
+             <h2 class="phase-title">Fase 4: Perfezionamento Finale</h2>
+              <p class="alert alert-warning">Fase 4 non ancora implementata secondo la nuova visione.</p>
+              <button class="btn btn-secondary" @click="goBackToPhase1Post">Torna a Fase 1</button> </div>
 
-            <div class="card step-card" v-if="currentStep === 4.1">
-                <div class="card-body">
-                    <h5 class="card-title">Step 4.1: Mandatory Break</h5>
-                    <div v-if="!breakDuration">
-                        <p class="mandatory-break">Time for a short break to refresh your ears before the final checks!</p>
-                        <button class="btn btn-primary" @click="startBreak">Start Break Timer</button>
-                    </div>
-                    <div v-if="breakDuration && !breakConfirmed">
-                        <p class="mandatory-break">Take a break for <span class="break-duration">{{ breakDuration }} minutes</span>.</p>
-                        <p>Step away, relax, then come back and confirm below.</p>
-                        <button class="btn btn-success" @click="confirmBreakComplete">Confirm Break Complete</button>
-                    </div>
-                    <div v-if="breakConfirmed">
-                         <p class="alert alert-success">Break complete. Ready for final checks!</p>
-                         </div>
-                </div>
-            </div>
+         <div v-if="currentPhase === 5">
+              <h2 class="phase-title">Fase 5: Sommario Canzone</h2>
+               <p class="alert alert-warning">Fase 5 non ancora implementata secondo la nuova visione.</p>
+               <button class="btn btn-secondary" @click="goBackToPhase1Post">Torna a Fase 1</button> </div>
 
-            <div class="card step-card" v-if="currentStep === 4.2">
-                 <div class="card-body">
-                    <h5 class="card-title">Step 4.2: Check 1 - Flow & Structure</h5>
-                    <div v-if="!checkOutcome['flow']">
-                        <p class="check-instruction">Listen to the entire track from beginning to end. Pay attention to the transitions between sections and the overall energy level changes.</p>
-                        <button class="btn btn-primary" @click="getCheckFeedback('flow')">Get Feedback Suggestion</button>
-                    </div>
-                    <div v-if="checkOutcome['flow'] && !finalChecksLog['flow']">
-                         <p class="check-suggestion"><span>{{ checkOutcome['flow'].suggestion }}</span></p>
-                         <div class="form-check mb-3" v-if="checkOutcome['flow'].allowChange">
-                            <input class="form-check-input" type="checkbox" v-model="adjustmentMade['flow']" id="flowAdjustCheck">
-                            <label class="form-check-label" for="flowAdjustCheck">
-                                I made ONE small adjustment based on this feedback.
-                            </label>
-                         </div>
-                         <p v-else class="check-result">No specific change needed based on this check.</p>
-                         <button class="btn btn-success" @click="confirmCheckComplete('flow')">Confirm Flow Check Complete</button>
-                    </div>
-                     <div v-if="finalChecksLog['flow']">
-                        <p class="alert alert-success">Flow & Structure Check logged.</p>
-                        </div>
-                </div>
-            </div>
+         </div>
 
-            <div class="card step-card" v-if="currentStep === 4.3">
-                 <div class="card-body">
-                    <h5 class="card-title">Step 4.3: Check 2 - Harmonic/Melodic Cohesion</h5>
-                     <div v-if="!checkOutcome['harmony']">
-                        <p class="check-instruction">Listen again, focusing on how the main melodic and harmonic elements (like basslines, chord voicings, lead lines) fit together. Do any notes sound out of place or clash awkwardly?</p>
-                        <button class="btn btn-primary" @click="getCheckFeedback('harmony')">Get Feedback Suggestion</button>
-                    </div>
-                     <div v-if="checkOutcome['harmony'] && !finalChecksLog['harmony']">
-                         <p class="check-suggestion"><span>{{ checkOutcome['harmony'].suggestion }}</span></p>
-                         <div class="form-check mb-3" v-if="checkOutcome['harmony'].allowChange">
-                            <input class="form-check-input" type="checkbox" v-model="adjustmentMade['harmony']" id="harmonyAdjustCheck">
-                            <label class="form-check-label" for="harmonyAdjustCheck">
-                                I made ONE small adjustment based on this feedback.
-                            </label>
-                         </div>
-                          <p v-else class="check-result">No specific change needed based on this check.</p>
-                         <button class="btn btn-success" @click="confirmCheckComplete('harmony')">Confirm Harmony Check Complete</button>
-                    </div>
-                     <div v-if="finalChecksLog['harmony']">
-                        <p class="alert alert-success">Harmonic/Melodic Check logged.</p>
-                         </div>
-                 </div>
-            </div>
-
-            <div class="card step-card" v-if="currentStep === 4.4">
-                 <div class="card-body">
-                     <h5 class="card-title">Step 4.4: Check 3 - Rhythm & Basic Balance</h5>
-                     <div v-if="!checkOutcome['balance']">
-                        <p class="check-instruction">Listen a final time, focusing on the core rhythm (kick, snare/clap) and its relationship with the bassline. Is the low end clear? Does the main beat feel solid?</p>
-                        <button class="btn btn-primary" @click="getCheckFeedback('balance')">Get Feedback Suggestion</button>
-                    </div>
-                    <div v-if="checkOutcome['balance'] && !finalChecksLog['balance']">
-                         <p class="check-suggestion"><span>{{ checkOutcome['balance'].suggestion }}</span></p>
-                         <div class="form-check mb-3" v-if="checkOutcome['balance'].allowChange">
-                            <input class="form-check-input" type="checkbox" v-model="adjustmentMade['balance']" id="balanceAdjustCheck">
-                            <label class="form-check-label" for="balanceAdjustCheck">
-                                I made ONE small adjustment based on this feedback.
-                            </label>
-                         </div>
-                         <p v-else class="check-result">No specific change needed based on this check.</p>
-                         <button class="btn btn-success" @click="confirmCheckComplete('balance')">Confirm Balance Check Complete</button>
-                    </div>
-                    <div v-if="finalChecksLog['balance'] && currentStep === 4.4">
-                        <p class="alert alert-success">Rhythm & Balance Check logged. Preparing summary...</p>
-                     </div>
-                 </div>
-                 <div class="card-footer bg-transparent border-0 text-end">
-                     <button class="btn btn-sm btn-outline-secondary mt-0" @click="goBackToPhase3">Back to Arrangement (Debug)</button>
-                 </div>
-            </div>
-
-            <div class="card step-card" v-if="currentStep === '4.post'">
-                 <div class="card-body text-center">
-                     <h5 class="card-title">Final Polish Complete!</h5>
-                      <p class="alert alert-info"><strong>Your song recipe is ready.</strong></p>
-                      <button class="btn btn-primary" @click="startPhase5">Show Final Summary</button>
-                 </div>
-                  <div class="card-footer bg-transparent border-0 text-end">
-                     <button class="btn btn-sm btn-outline-secondary mt-0" @click="goBackToPhase3">Back to Arrangement (Debug)</button>
-                 </div>
-            </div>
-
-        </div>
-
-        <div v-if="currentPhase === 5">
-             <h2 class="phase-title">Phase 5: Song Summary</h2>
-             <div class="card">
-                 <div class="card-body">
-                     <h5 class="card-title">Your Song Recipe</h5>
-                     <p>This is the blueprint generated during your Songwriting Game session.</p>
-                     <hr>
-
-                     <div class="summary-section">
-                         <h5>1. Musical Framework</h5>
-                         <ul class="list-unstyled summary-list">
-                             <li><span class="summary-label">Key:</span> <span class="summary-value">{{ framework.key }}</span></li>
-                             <li><span class="summary-label">Scale/Mode:</span> <span class="summary-value">{{ framework.scale }}</span> <small class="text-muted">({{ getScaleDefinition(framework.scale) }})</small></li>
-                             <li><span class="summary-label">Tempo:</span> <span class="summary-value">{{ framework.tempo }} BPM</span></li>
-                         </ul>
-                     </div>
-
-                     <div class="summary-section">
-                          <h5>2. Initial Sonic Core</h5>
-                          <h6>Layers:</h6>
-                          <ul class="list-group list-group-flush mb-3">
-                              <li v-for="layer in layers" :key="layer.id" class="list-group-item ps-0">
-                                  L{{ layer.id }}: <span class="summary-value">{{ layer.modifier }} {{ layer.type }}</span>
-                              </li>
-                          </ul>
-                          <h6>Initial Progression (Progression 'A'):</h6>
-                          <p><code class="chord-progression">{{ structure.progressions.A }}</code> <small>(Roman Numerals)</small></p>
-                     </div>
-
-                     <div class="summary-section">
-                        <h5>3. Structure Map</h5>
-                        <p><span class="summary-label">Template:</span> <span class="summary-value">{{ structure.templateName }}</span></p>
-                        <h6>Sequence:</h6>
-                        <p class="structure-sequence mb-3">
-                            <span v-for="(section, index) in structure.templateSequence" :key="index" class="badge bg-dark">{{ section }}</span>
-                        </p>
-                        <h6>Progressions per Section Type <small>(Roman Numerals)</small>:</h6>
-                        <ul class="list-unstyled summary-list mb-3">
-                            <li v-for="(prog, letter) in structure.progressions" :key="letter">
-                                <span class="summary-label">Prog '{{ letter }}':</span> <code class="chord-progression">{{ prog }}</code>
-                            </li>
-                        </ul>
-                        <h6>Lengths per Section Type:</h6>
-                         <ul class="list-unstyled summary-list">
-                            <li v-for="(length, letter) in structure.lengths" :key="letter">
-                                <span class="summary-label">Section '{{ letter }}':</span> <span class="summary-value">{{ length }} bars</span>
-                            </li>
-                        </ul>
-                    </div>
-
-                     <div class="summary-section">
-                         <h5>4. Arrangement Log</h5>
-                         <div v-if="Object.keys(arrangementLog).length > 0">
-                            <p><small>Decisions made for each section instance during Phase 3:</small></p>
-                            <div v-for="(log, key) in arrangementLog" :key="key" class="arrangement-log-item">
-                                 <strong>Instance {{ key }}:</strong>
-                                 <ul class="list-unstyled summary-list mt-1">
-                                     <li><span class="summary-label">Density:</span> <span class="summary-value">{{ log.density || 'N/A' }}</span></li>
-                                     <li><span class="summary-label">Variations:</span>
-                                         <span v-if="log.variations && log.variations.length > 0">
-                                            <span v-for="(variation, vIndex) in log.variations" :key="vIndex" class="d-block ps-2">- "{{ variation }}"</span>
-                                         </span>
-                                         <span v-else>None Suggested</span>
-                                    </li>
-                                     <li><span class="summary-label">Transition Out:</span> <span class="summary-value">{{ log.transition || 'N/A (or Last Section)' }}</span></li>
-                                 </ul>
-                            </div>
-                         </div>
-                         <div v-else>
-                            <p class="text-muted">No arrangement log entries found.</p>
-                         </div>
-                     </div>
-
-                     <div class="summary-section">
-                         <h5>5. Final Polish Checks</h5>
-                         <div v-if="Object.values(finalChecksLog).some(v => v)">
-                              <p><small>Outcomes of the guided checks in Phase 4:</small></p>
-                              <div class="final-check-item" v-if="finalChecksLog.flow"><strong>Flow/Structure:</strong> {{ finalChecksLog.flow }}</div>
-                              <div class="final-check-item" v-if="finalChecksLog.harmony"><strong>Harmony/Melody:</strong> {{ finalChecksLog.harmony }}</div>
-                              <div class="final-check-item" v-if="finalChecksLog.balance"><strong>Rhythm/Balance:</strong> {{ finalChecksLog.balance }}</div>
-                         </div>
-                           <div v-else>
-                            <p class="text-muted">No final check results logged.</p>
-                         </div>
-                     </div>
-
-                     <hr>
-                     <div class="text-center">
-                        <button class="btn btn-secondary me-2" @click="printSummary"><i class="bi bi-printer"></i> Print Summary</button>
-                        <button class="btn btn-warning" @click="resetGame"><i class="bi bi-arrow-clockwise"></i> Start New Song</button>
-                     </div>
-                 </div>
-             </div>
-        </div>
-
-    </div> <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
 
@@ -378,52 +186,32 @@
         const { createApp, ref, reactive, computed } = Vue;
 
         createApp({
-            // --- DATA --- (Identico a prima)
             data() {
                 return {
-                    // Core & Phase 1 & 2 State
+                    // --- Core State ---
                     currentPhase: 1,
-                    currentStep: 1.1, // String or Number (e.g., '1.post', 2.1, 4.1, '4.post', 5.1)
+                    currentStep: 1.1, // String or Number (e.g., 1.1, 1.2, '1.post')
                     framework: reactive({ key: null, scale: null, tempo: null }),
                     contextGenerated: false, contextConfirmed: false,
-                    currentLayerIndex: 0, layers: reactive([]),
+
+                    // --- Phase 1 State (V2) ---
+                    currentLayerIndex: 0, // Quale layer stiamo definendo (1 to 4)
+                    layers: reactive([]), // Array di oggetti layer { id, category, specificSound, role, freqRange, flexibilityNote, suggested, confirmed }
+
+                    // --- Phase 2 State (Minimal Placeholder) ---
                     structure: reactive({
-                        templateName: null, templateSequence: [],
-                        progressions: { A: null }, // Holds Roman Numeral strings like 'i-VI-III-VII'
-                        lengths: {}, // { A: 8, B: 16 ... }
-                        templateGenerated: false, templateConfirmed: false,
-                        lengthsGenerated: false, lengthsConfirmed: false,
-                    }),
-                    sectionsToDefineHarmony: [], currentSectionIndexToDefine: -1,
-                    harmonyConfirmed: reactive({}), // Tracks confirmation for each section letter harmony
-
-                    // Phase 3 State
-                    currentArrangementIndex: -1, // Index for structure.templateSequence instance
-                    arrangementLog: reactive({}), // Log for arrangement decisions per instance { 'A-1': { density, variations, transition }, 'B-1': {...} }
-
-                    // Phase 4 State
-                    breakDuration: null, // In minutes
-                    breakConfirmed: false,
-                    currentCheckType: null, // 'flow', 'harmony', 'balance'
-                    checkOutcome: reactive({ // Stores the specific suggestion for the current check
-                        flow: null, // { suggestion: "...", allowChange: true/false }
-                        harmony: null,
-                        balance: null
-                    }),
-                    adjustmentMade: reactive({ // Tracks if user checked the box for making an adjustment
-                         flow: false,
-                         harmony: false,
-                         balance: false
-                    }),
-                    finalChecksLog: reactive({ // Final logged outcome strings
-                        flow: null,
-                        harmony: null,
-                        balance: null
+                        progressions: { A: null }, // Conterrà le progressioni per sezione (es. A, B, C...)
+                         // Aggiungeremo templateName, sequence, lengths, etc.
                     }),
 
-                    // --- DATA LISTS (Checked with Spec) ---
+                    // --- Phase 3-5 State (Placeholders) ---
+                     // Aggiungeremo arrangementLog, checkOutcome, finalChecksLog etc.
+
+
+                    // ==================== DATA LISTS (V2) ====================
+
                     musicalKeys: ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'],
-                    musicalScales: [
+                    musicalScales: [ // Manteniamo le scale precedenti
                         { name: 'Major', type: 'major', definition: 'Standard happy/bright scale' },
                         { name: 'Natural Minor', type: 'minor', definition: 'Standard sad/dark scale' },
                         { name: 'Harmonic Minor', type: 'minor', definition: 'Minor scale, raised 7th, exotic' },
@@ -436,140 +224,327 @@
                         { name: 'Pentatonic Minor', type: 'minor', definition: 'Simple 5-note minor' },
                         { name: 'Blues Scale', type: 'minor', definition: 'Pentatonic minor + flat 5th' }
                     ],
-                    instrumentTypes: [
-                        'Foundation Rhythm', 'Groove Bass', 'Main Chords', 'Arpeggio/Sequence',
-                        'Percussive Texture High', 'Simple Lead/Hook', 'Atmospheric Pad/Drone',
-                        'Rhythmic FX/Stab', 'Counter Melody', 'Tuned Percussion'
-                    ],
-                    stylisticModifiers: [
-                        'Filtered', 'Reverby/Dreamy', 'Wobbly/Detuned', 'Minimal/Dry', 'Warm/Analog',
-                        'Glitchy/Fragmented', 'Compressed/Pumpy', 'Delayed/Spatial', 'Lo-Fi/Gritty',
-                        'Bright/Crispy', 'Dark/Mellow', 'Wide Stereo'
-                    ],
-                    tempoRange: { min: 70, max: 125 },
+                    tempoRange: { min: 70, max: 160 }, // Ampliato leggermente
+
+                    // --- Nuove Categorie Strumenti (Basate su Ableton + Info Aggiuntive) ---
+                    instrumentCategories: {
+                        'Bass': {
+                            role: 'Bass', primaryFreqRange: 'Low (40-200Hz)', typicalNotes: 'C0-C2',
+                            specificSounds: ['Sub Bass', 'Sine Bass', 'Square Bass', 'FM Bass', 'Acid Bass', 'Reso Bass', 'Acoustic Bass', 'Synth Bass Pluck'],
+                            flexibilityNote: 'Alcuni suoni (Acid, Reso) possono avere armoniche medie importanti.'
+                        },
+                         'Rhythmic': { // Categoria ampia per elementi percussivi/sequenze
+                             role: 'Rhythm', primaryFreqRange: 'Variable/Full', typicalNotes: 'N/A',
+                             specificSounds: ['Kick Drum', 'Snare Drum', 'Hi-Hat Closed', 'Hi-Hat Open', 'Clap', 'Percussion Loop', 'Glitch Sequence', 'Noise FX Loop', 'Shaker/Tambourine'],
+                             flexibilityNote: 'Il focus spettrale dipende totalmente dal suono specifico.'
+                         },
+                        'Piano & Keys': {
+                            role: 'Harmony/Melody', primaryFreqRange: 'Versatile Mid (100Hz-4kHz)', typicalNotes: 'C2-C7',
+                            specificSounds: ['Acoustic Grand Piano', 'Electric Piano (Rhodes)', 'Electric Piano (Wurli)', 'Organ B3 Style', 'Clavinet', 'Harpsichord', 'Synth Keys Soft'],
+                            flexibilityNote: 'Range e ruolo dipendono molto dal voicing e dall\'arrangiamento.'
+                        },
+                        'Pad': {
+                            role: 'Harmony/Texture', primaryFreqRange: 'Mid (200Hz-2kHz)', typicalNotes: 'C3-C5',
+                            specificSounds: ['Saw Pad', 'String Pad', 'Warm Analog Pad', 'Glassy FM Pad', 'Airy Pad', 'Moving/Evolving Pad', 'Choir Pad'],
+                            flexibilityNote: 'Può essere usato in registri diversi o per riempire specifiche aree spettrali.'
+                        },
+                        'Synth Lead': {
+                            role: 'Melody', primaryFreqRange: 'Mid/High (500Hz-5kHz)', typicalNotes: 'C4-C6',
+                            specificSounds: ['Square Lead', 'Saw Lead', 'Sine Lead', 'FM Lead', 'Plucked Lead', 'Hoover Lead', 'Distorted Lead'],
+                            flexibilityNote: 'Assicurati che non si scontri troppo con la voce o altri elementi lead.'
+                        },
+                         'Guitar & Plucked': {
+                             role: 'Harmony/Melody/Texture', primaryFreqRange: 'Mid (150Hz-5kHz)', typicalNotes: 'E2-E6',
+                             specificSounds: ['Acoustic Guitar Strum', 'Acoustic Guitar Fingerstyle', 'Electric Guitar Clean', 'Electric Guitar Crunch', 'Electric Guitar Distorted', 'Harp', 'Synth Pluck Echoes', 'Pizzicato Strings'],
+                             flexibilityNote: 'Molto versatile. Il ruolo dipende dal pattern e dal suono.'
+                         },
+                         'Mallets': {
+                              role: 'Melody/Texture', primaryFreqRange: 'Mid/High (300Hz-8kHz)', typicalNotes: 'C4-C7',
+                              specificSounds: ['Marimba', 'Vibraphone', 'Xylophone', 'Glockenspiel', 'Steel Drum', 'Synth Mallet'],
+                              flexibilityNote: 'Suoni brillanti, utili per arpeggi o melodie secondarie.'
+                          },
+                          'Synth Pluck': { // Sottocategoria specifica per chiarezza
+                               role: 'Melody/Harmony', primaryFreqRange: 'Mid/High (200Hz-6kHz)', typicalNotes: 'C3-C6',
+                               specificSounds: ['Short Pluck', 'Reso Pluck', 'Delayed Pluck', 'FM Pluck', 'Karplus-Strong Pluck'],
+                               flexibilityNote: 'Ottimi per arpeggi, sequenze ritmiche o accordi staccati.'
+                           },
+                         'Strings': {
+                              role: 'Harmony/Melody/Texture', primaryFreqRange: 'Mid/High (100Hz-8kHz)', typicalNotes: 'C2-C7',
+                              specificSounds: ['Violin Section', 'Viola Section', 'Cello Section', 'Double Bass Section', 'Full String Ensemble Sustain', 'String Ensemble Staccato', 'Synth Strings'],
+                              flexibilityNote: 'Molto potenti per armonia orchestrale o linee melodiche espressive.'
+                          },
+                         'Brass': {
+                             role: 'Harmony/Melody/Stabs', primaryFreqRange: 'Mid (200Hz-3kHz)', typicalNotes: 'C3-C6',
+                             specificSounds: ['Trumpet Section', 'Trombone Section', 'French Horn Section', 'Full Brass Ensemble Sustain', 'Brass Stabs', 'Synth Brass'],
+                             flexibilityNote: 'Suono potente, ottimo per fanfare, melodie o accordi incisivi.'
+                          },
+                         'Winds': {
+                             role: 'Melody/Texture', primaryFreqRange: 'Mid/High (200Hz-4kHz)', typicalNotes: 'C3-C7',
+                             specificSounds: ['Flute Solo', 'Flute Section', 'Clarinet Solo', 'Oboe Solo', 'Synth Flute', 'Woodwind Ensemble'],
+                             flexibilityNote: 'Suoni agili, adatti a melodie o contrappunti.'
+                         },
+                         'Voice': { // Include cori e synth vocali
+                              role: 'Melody/Harmony/Texture', primaryFreqRange: 'Mid (150Hz-3kHz)', typicalNotes: 'C3-C6',
+                              specificSounds: ['Choir Aahs', 'Choir Oohs', 'Synth Vox Pad', 'Vocal Chop Sequence', 'Solo Synth Voice'],
+                              flexibilityNote: 'Può aggiungere un elemento umano o etereo.'
+                          },
+                          'Evolving': { // Suoni lunghi e in movimento
+                               role: 'Texture/Harmony', primaryFreqRange: 'Variable', typicalNotes: 'N/A',
+                               specificSounds: ['Long Drone', 'Moving Ambient Texture', 'Slow Sweeping Pad', 'Granular Cloud', 'Complex Sequence'],
+                               flexibilityNote: 'Ideali per creare atmosfera e movimento lento.'
+                           },
+                           'Special Effects': {
+                               role: 'FX/Texture', primaryFreqRange: 'Variable/Full', typicalNotes: 'N/A',
+                               specificSounds: ['Riser', 'Downlifter', 'Impact', 'White Noise Sweep', 'Vinyl Crackle', 'Ambient FX Loop', 'Sci-Fi Sound'],
+                               flexibilityNote: 'Usati per transizioni, enfasi o per aggiungere carattere.'
+                           }
+                    },
+
+                    // Ruoli musicali primari (per la logica di suggerimento)
+                    musicalRoles: ['Bass', 'Rhythm', 'Harmony', 'Melody', 'Texture', 'FX'],
+                    // Range di frequenza primari (per la logica di suggerimento)
+                    frequencyRanges: ['Low', 'Mid', 'High', 'Full', 'Versatile'],
+
+
+                    // Progressioni Comuni (Roman Numerals)
                     commonProgressions: {
                          major: ['I-V-vi-IV', 'IV-I-V-vi', 'I-IV-V-I', 'vi-IV-I-V', 'I-vi-IV-V', 'ii-V-I', 'I-iii-IV-V', 'I-V-IV-I'],
                          minor: ['i-VI-III-VII', 'i-iv-v-i', 'i-VII-VI-V', 'vi-iv-i-v', 'i-iv-III-VI', 'ii°-V-i', 'i-VI-iv-v', 'i-v-VI-VII']
                     },
-                    structureTemplates: [
-                        { name: 'Simple A/B Repeat', sequence: ['A', 'B', 'A', 'B'] },
-                        { name: 'Compact Intro/Outro', sequence: ['Intro', 'A', 'B', 'Outro'] },
-                        { name: 'Classic Structure', sequence: ['Intro', 'A', 'B', 'A', 'B', 'Outro'] },
-                        { name: 'Verse Emphasis', sequence: ['Intro', 'A', 'A', 'B', 'Outro'] },
-                        { name: 'Bridge Structure', sequence: ['Intro', 'A', 'B', 'C', 'B', 'Outro'] },
-                        { name: 'Pre-Chorus Feel', sequence: ['Intro', 'A', 'C', 'B', 'A', 'C', 'B', 'Outro'] },
-                        { name: 'Extended A/B', sequence: ['Intro', 'A', 'B', 'A', 'B', 'C', 'B', 'Outro'] },
-                        { name: 'Instrumental Break', sequence: ['Intro', 'A', 'B', 'Instrumental', 'B', 'Outro'] },
-                        { name: 'Minimal Loop', sequence: ['A', 'A', 'B', 'A'] },
-                        { name: 'Developing Loop', sequence: ['Intro', 'A', 'A+', 'B', 'B+'] }
-                    ],
-                    densityOptions: ['Sparse', 'Medium', 'Dense'],
-                    variationPromptOptions: [
-                        "Simplify one layer's rhythm.", "Add filter movement.", "Introduce subtle background FX.",
-                        "Double main rhythm element briefly.", "Drop out the bass for 2 bars.", "Make chords more staccato.",
-                        "Add a simple counter-melody.", "Use panning/volume automation.", "Introduce a delay throw.",
-                        "Slightly detune a melodic element."
-                    ],
-                    transitionTypes: [
-                        'Drop Out', 'Filter Sweep Out', 'Rhythmic Fill', 'Sustained Element',
-                        'FX Swell/Riser', 'Abrupt Cut', 'Delayed Echo Out', 'Silence Gap (1 beat)'
-                    ],
+
+                    // Aggiungeremo qui liste per Strutture, Variazioni, Transizioni, Check...
                 }
             },
-            // --- COMPUTED --- (Identico a prima)
             computed: {
-                confirmedLayers() { return this.layers.filter(layer => layer.confirmed); },
-                currentSectionLetterToDefine() { if (this.currentStep !== 2.2 || this.currentSectionIndexToDefine < 0 || this.currentSectionIndexToDefine >= this.sectionsToDefineHarmony.length) { return null; } return this.sectionsToDefineHarmony[this.currentSectionIndexToDefine]; },
-                currentArrangementInstance() {
-                    if (this.currentPhase !== 3 || this.currentArrangementIndex < 0 || !this.structure.templateSequence || this.currentArrangementIndex >= this.structure.templateSequence.length) { return null; }
-                    const index = this.currentArrangementIndex; const sectionLetter = this.structure.templateSequence[index];
-                    const instanceNumber = this.calculateInstanceNumber(index, sectionLetter); const progression = this.structure.progressions[sectionLetter] || 'N/A';
-                    const length = this.structure.lengths[sectionLetter] || 'N/A'; const logKey = this.getInstanceLogKey(index);
-                    let previousProgression = null; if (index > 0) { const prevLetter = this.structure.templateSequence[index - 1]; previousProgression = this.structure.progressions[prevLetter] || 'N/A'; }
-                    let baseName = 'Section'; if (sectionLetter === 'A') baseName = 'Verse'; else if (sectionLetter === 'B') baseName = 'Chorus'; else if (sectionLetter === 'C') baseName = 'Bridge'; else if (sectionLetter === 'Intro') baseName = 'Intro'; else if (sectionLetter === 'Outro') baseName = 'Outro'; else if (sectionLetter === 'Instrumental') baseName = 'Instrumental'; else if (sectionLetter.endsWith('+')) baseName = 'Variation';
-                    const displayName = `${baseName} ${instanceNumber}`; return { index, logKey, sectionLetter, instanceNumber, displayName, progression, length, previousProgression };
+                // Helper per ottenere solo i layer confermati
+                // CORREZIONE: Definita correttamente, l'errore era nell'uso nel template
+                getConfirmedLayers() {
+                    return this.layers.filter(layer => layer.confirmed);
                 },
-                currentInstanceLogEntry() { if (!this.currentArrangementInstance) return {}; const key = this.currentArrangementInstance.logKey; if (!this.arrangementLog[key]) { this.initializeLogEntry(key); } return this.arrangementLog[key]; },
-                isLastSection() { if (this.currentPhase !== 3 || !this.structure.templateSequence || this.structure.templateSequence.length === 0) return false; return this.currentArrangementIndex === this.structure.templateSequence.length - 1; },
-                canCompleteInstance() { if (!this.currentArrangementInstance || !this.currentInstanceLogEntry) return false; const logEntry = this.currentInstanceLogEntry; const transitionNeeded = !this.isLastSection; return logEntry.adaptationConfirmed && logEntry.variationsConfirmed && (logEntry.transitionConfirmed || !transitionNeeded); }
             },
-            // --- METHODS --- (Identico a prima, inclusa la correzione in confirmCheckComplete)
-             methods: {
+            methods: {
                  // --- General Helpers ---
                 getRandomInt(min, max) { min = Math.ceil(min); max = Math.floor(max); return Math.floor(Math.random() * (max - min + 1)) + min; },
                 getRandomElement(arr) { if (!arr || arr.length === 0) return null; const randomIndex = Math.floor(Math.random() * arr.length); return arr[randomIndex]; },
                 getScaleDefinition(scaleName) { const scaleObj = this.musicalScales.find(s => s.name === scaleName); return scaleObj ? scaleObj.definition : 'Unknown scale'; },
-                getScaleType(scaleName) { const scaleObj = this.musicalScales.find(s => s.name === scaleName); return scaleObj ? scaleObj.type : 'major'; },
-                getConfirmedLayers() { return this.layers.filter(layer => layer.confirmed); },
-
-                // --- Phase Reset Methods ---
-                resetPhase1State() { console.log("Resetting Phase 1 State"); this.framework = reactive({ key: null, scale: null, tempo: null }); this.contextGenerated = false; this.contextConfirmed = false; this.currentLayerIndex = 0; this.layers.length = 0; },
-                resetPhase2State() { console.log("Resetting Phase 2 State"); this.structure.templateName = null; this.structure.templateSequence.length = 0; this.structure.progressions = { A: this.structure.progressions.A }; this.structure.lengths = {}; this.structure.templateGenerated = false; this.structure.templateConfirmed = false; this.structure.lengthsGenerated = false; this.structure.lengthsConfirmed = false; this.sectionsToDefineHarmony.length = 0; this.currentSectionIndexToDefine = -1; this.harmonyConfirmed = reactive({}); },
-                resetPhase3State() { console.log("Resetting Phase 3 State"); this.currentArrangementIndex = -1; this.arrangementLog = reactive({}); },
-                resetPhase4State() { console.log("Resetting Phase 4 State"); this.breakDuration = null; this.breakConfirmed = false; this.currentCheckType = null; this.checkOutcome = reactive({ flow: null, harmony: null, balance: null }); this.adjustmentMade = reactive({ flow: false, harmony: false, balance: false }); this.finalChecksLog = reactive({ flow: null, harmony: null, balance: null }); },
-
-                 // --- Phase 1 Methods ---
-                generateContext() { console.log("Generating context..."); const selectedScaleObject = this.getRandomElement(this.musicalScales); this.framework.key = this.getRandomElement(this.musicalKeys); this.framework.scale = selectedScaleObject ? selectedScaleObject.name : this.getRandomElement(this.musicalScales).name; this.framework.tempo = this.getRandomInt(this.tempoRange.min, this.tempoRange.max); this.contextGenerated = true; this.contextConfirmed = false; this.currentLayerIndex = 0; this.layers.length = 0; this.structure.progressions.A = null; this.resetPhase2State(); this.resetPhase3State(); this.resetPhase4State(); this.currentPhase = 1; this.currentStep = 1.1; },
-                confirmContext() { console.log("Context confirmed:", this.framework); this.contextConfirmed = true; },
-                startLayerGeneration() { if (!this.contextConfirmed) return; console.log("Starting layer generation..."); this.currentStep = 1.2; this.currentLayerIndex = 1; this.initializeLayerData(4); },
-                initializeLayerData(count) { this.layers.length = 0; for (let i = 1; i <= count; i++) { this.layers.push(reactive({ id: i, type: null, modifier: null, suggested: false, confirmed: false })); } console.log("Initialized layers:", this.layers); },
-                generateLayerSuggestion(layerIndex) { if (layerIndex < 1 || layerIndex > this.layers.length) return; console.log(`Generating suggestion for Layer ${layerIndex}`); const layer = this.layers[layerIndex - 1]; if (!layer) return; layer.type = this.getRandomElement(this.instrumentTypes); layer.modifier = this.getRandomElement(this.stylisticModifiers); layer.suggested = true; layer.confirmed = false; console.log(`Suggestion L${layerIndex}: ${layer.modifier} ${layer.type}`); },
-                confirmLayerCreated(layerIndex) { if (layerIndex < 1 || layerIndex > this.layers.length) return; const layer = this.layers[layerIndex - 1]; if (!layer || !layer.suggested) return; console.log(`Confirming Layer ${layerIndex} created.`); layer.confirmed = true; if (layerIndex === this.layers.length) { console.log("All 4 layers confirmed!"); this.generateInitialProgressionA(); this.currentStep = '1.post'; } else { this.currentLayerIndex++; console.log("Moving to Layer", this.currentLayerIndex); } },
-                generateInitialProgressionA() { console.log("Generating Progression A..."); const scaleType = this.getScaleType(this.framework.scale); let pattern = this.getRandomElement(this.commonProgressions[scaleType] || this.commonProgressions.major); this.structure.progressions.A = pattern; console.log("Progression A generated (Roman numerals):", this.structure.progressions.A); },
-
-                // --- Phase 2 Methods ---
-                startPhase2() { if (this.currentStep === '1.post') { this.currentPhase = 2; this.currentStep = 2.1; console.log("Moving to Phase 2, Step 2.1"); } },
-                generateStructureTemplate() { console.log("Generating structure template..."); const selectedTemplate = this.getRandomElement(this.structureTemplates); this.structure.templateName = selectedTemplate.name; this.structure.templateSequence = [...selectedTemplate.sequence]; this.structure.templateGenerated = true; this.structure.templateConfirmed = false; const uniqueSections = [...new Set(this.structure.templateSequence)]; this.sectionsToDefineHarmony = uniqueSections.filter(s => s !== 'A'); Object.keys(this.structure.progressions).forEach(key => { if (key !== 'A') delete this.structure.progressions[key]; }); this.harmonyConfirmed = reactive({}); this.structure.lengths = {}; this.structure.lengthsGenerated = false; this.structure.lengthsConfirmed = false; console.log("Template:", this.structure.templateName, "Sections needing harmony:", this.sectionsToDefineHarmony); },
-                confirmStructureTemplate() { if (!this.structure.templateGenerated) return; console.log("Structure template confirmed."); this.structure.templateConfirmed = true; this.currentSectionIndexToDefine = this.sectionsToDefineHarmony.length > 0 ? 0 : -1; },
-                startHarmonyDefinition() { if (!this.structure.templateConfirmed) return; if (this.sectionsToDefineHarmony.length === 0) { console.log("Skipping Harmony Definition."); this.currentStep = 2.3; } else { this.currentStep = 2.2; this.currentSectionIndexToDefine = 0; console.log("Starting harmony definition for:", this.sectionsToDefineHarmony[0]); } },
-                generateHarmonyForSection(sectionLetter) { if (!sectionLetter) return; console.log(`Generating harmony pattern for Section '${sectionLetter}'...`); const scaleType = this.getScaleType(this.framework.scale); let availablePatterns = [...(this.commonProgressions[scaleType] || this.commonProgressions.major)]; const usedPatterns = Object.values(this.structure.progressions).filter(p => p !== null); if (availablePatterns.length > usedPatterns.length) { availablePatterns = availablePatterns.filter(p => !usedPatterns.includes(p)); } const pattern = this.getRandomElement(availablePatterns.length > 0 ? availablePatterns : (this.commonProgressions[scaleType] || this.commonProgressions.major)); this.structure.progressions[sectionLetter] = pattern; this.harmonyConfirmed[sectionLetter] = false; console.log(`Suggested pattern for ${sectionLetter}: ${pattern}`); },
-                confirmHarmony(sectionLetter) { if (!sectionLetter || !this.structure.progressions[sectionLetter]) return; console.log(`Harmony confirmed for Section '${sectionLetter}'.`); this.harmonyConfirmed[sectionLetter] = true; const nextIndex = this.currentSectionIndexToDefine + 1; if (nextIndex < this.sectionsToDefineHarmony.length) { this.currentSectionIndexToDefine = nextIndex; console.log("Moving to define harmony for:", this.sectionsToDefineHarmony[nextIndex]); } else { console.log("All required section harmonies defined."); this.currentSectionIndexToDefine = -1; } },
-                startLengthDefinition() { if( (this.currentStep === 2.2 && this.currentSectionIndexToDefine === -1) || (this.currentStep === 2.1 && this.sectionsToDefineHarmony.length === 0) ) { this.currentStep = 2.3; console.log("Starting Section Length definition."); } else { console.warn("Cannot start length definition yet."); } },
-                generateSectionLengths() { console.log("Generating section lengths..."); const uniqueSectionsInTemplate = [...new Set(this.structure.templateSequence)]; const newLengths = {}; uniqueSectionsInTemplate.forEach(section => { let length = 8; if (['A', 'B', 'A+', 'B+'].includes(section)) { const roll = this.getRandomInt(1, 6); if (roll <= 2) length = 8; else if (roll <= 4) length = 12; else length = 16; } else { const roll = this.getRandomInt(1, 4); if (roll === 1) length = 4; else if (roll <= 3) length = 8; else length = 12; } newLengths[section] = length; }); this.structure.lengths = reactive(newLengths); this.structure.lengthsGenerated = true; this.structure.lengthsConfirmed = false; console.log("Generated lengths:", this.structure.lengths); },
-                confirmSectionLengths() { if (!this.structure.lengthsGenerated) return; console.log("Section lengths confirmed."); this.structure.lengthsConfirmed = true; },
-
-                // --- Phase 3 Methods ---
-                startPhase3() { if (this.currentPhase === 2 && this.structure.lengthsConfirmed) { this.currentPhase = 3; this.currentStep = 3.1; this.currentArrangementIndex = 0; this.initializeLogEntry(this.getInstanceLogKey(0)); console.log("Moving to Phase 3, starting arrangement for instance 1."); } else { console.warn("Cannot start Phase 3: Phase 2 (Lengths) not complete."); } },
-                getInstanceLogKey(index) { if (index < 0 || !this.structure.templateSequence || index >= this.structure.templateSequence.length) return null; const sectionLetter = this.structure.templateSequence[index]; const instanceNumber = this.calculateInstanceNumber(index, sectionLetter); return `${sectionLetter}-${instanceNumber}`; },
-                calculateInstanceNumber(targetIndex, sectionLetter) { let count = 0; if (!this.structure.templateSequence) return 0; for (let i = 0; i <= targetIndex; i++) { if (this.structure.templateSequence[i] === sectionLetter) count++; } return count; },
-                initializeLogEntry(key) { if (key && !this.arrangementLog[key]) { console.log("Initializing log entry for:", key); this.arrangementLog[key] = reactive({ adaptationConfirmed: false, density: null, variations: [], variationsConfirmed: false, transition: null, transitionConfirmed: false }); } },
-                confirmAdaptation() { if (!this.currentArrangementInstance) return; const key = this.currentArrangementInstance.logKey; if (this.arrangementLog[key]) { this.arrangementLog[key].adaptationConfirmed = true; console.log(`Adaptation confirmed for instance: ${key}`); } },
-                suggestVariations() { if (!this.currentArrangementInstance) return; const key = this.currentArrangementInstance.logKey; if (!this.arrangementLog[key]) this.initializeLogEntry(key); console.log(`Suggesting variations for ${key}`); const densityRoll = this.getRandomInt(1, 6); this.arrangementLog[key].density = (densityRoll <= 2) ? 'Sparse' : (densityRoll <= 4 ? 'Medium' : 'Dense'); const numPrompts = this.getRandomInt(1, 2); const selectedPrompts = []; let availablePrompts = [...this.variationPromptOptions]; for (let i = 0; i < numPrompts && availablePrompts.length > 0; i++) { const randomIndex = Math.floor(Math.random() * availablePrompts.length); selectedPrompts.push(availablePrompts.splice(randomIndex, 1)[0]); } this.arrangementLog[key].variations = selectedPrompts; this.arrangementLog[key].variationsConfirmed = false; console.log("Variation Suggestions:", this.arrangementLog[key].density, this.arrangementLog[key].variations); },
-                confirmVariations() { if (!this.currentArrangementInstance || !this.arrangementLog[this.currentArrangementInstance.logKey]?.density) return; const key = this.currentArrangementInstance.logKey; if (this.arrangementLog[key]) { this.arrangementLog[key].variationsConfirmed = true; console.log(`Variations confirmed for instance: ${key}`); } },
-                suggestTransition() { if (!this.currentArrangementInstance || this.isLastSection) return; const key = this.currentArrangementInstance.logKey; if (!this.arrangementLog[key]) this.initializeLogEntry(key); console.log(`Suggesting transition out for ${key}`); this.arrangementLog[key].transition = this.getRandomElement(this.transitionTypes); this.arrangementLog[key].transitionConfirmed = false; console.log("Transition Suggestion:", this.arrangementLog[key].transition); },
-                confirmTransition() { if (!this.currentArrangementInstance || this.isLastSection || !this.arrangementLog[this.currentArrangementInstance.logKey]?.transition) return; const key = this.currentArrangementInstance.logKey; if (this.arrangementLog[key]) { this.arrangementLog[key].transitionConfirmed = true; console.log(`Transition confirmed for instance: ${key}`); } },
-                completeCurrentInstance() { if (!this.canCompleteInstance) { console.warn("Cannot complete instance yet."); return; } const completedKey = this.currentArrangementInstance.logKey; console.log(`Completing instance ${this.currentArrangementIndex + 1} (${completedKey})`); const nextIndex = this.currentArrangementIndex + 1; if (nextIndex < this.structure.templateSequence.length) { this.currentArrangementIndex = nextIndex; this.initializeLogEntry(this.getInstanceLogKey(nextIndex)); console.log("Moving to next instance:", this.currentArrangementIndex + 1); window.scrollTo(0, 0); } else { console.log("Arrangement Forge Complete!"); this.startPhase4(); } },
-
-                 // --- Phase 4 Methods ---
-                startPhase4() { if (this.currentPhase !== 3) { console.warn("Cannot start P4"); return; } console.log("Moving to Phase 4: Final Polish"); this.currentPhase = 4; this.currentStep = 4.1; this.resetPhase4State(); },
-                startBreak() { this.breakDuration = this.getRandomInt(1, 6) * 5; this.breakConfirmed = false; console.log("Starting break:", this.breakDuration, "minutes"); },
-                confirmBreakComplete() { this.breakConfirmed = true; console.log("Break confirmed complete."); this.startCheck('flow'); }, // Passa direttamente al primo check
-                startCheck(checkType) { console.log(`Starting Guided Check: ${checkType}`); if (checkType === 'flow') this.currentStep = 4.2; else if (checkType === 'harmony') this.currentStep = 4.3; else if (checkType === 'balance') this.currentStep = 4.4; else return; this.currentCheckType = checkType; this.checkOutcome[checkType] = null; this.adjustmentMade[checkType] = false; },
-                getCheckFeedback(checkType) { if (!checkType || !['flow', 'harmony', 'balance'].includes(checkType)) return; console.log(`Getting feedback suggestion for: ${checkType}`); const roll = this.getRandomInt(1, 6); let suggestion = ""; let allowChange = false; if (checkType === 'flow') { if (roll <= 2) { suggestion = "Suggestion: Identify ONE transition that feels weakest and make ONE small adjustment."; allowChange = true; } else if (roll <= 4) { suggestion = "Suggestion: Evaluate energy difference between main sections (A vs B). Make ONE small adjustment to enhance contrast if needed."; allowChange = true; } else { suggestion = "Result: Flow seems adequate. No changes recommended."; allowChange = false; } } else if (checkType === 'harmony') { if (roll <= 2) { suggestion = "Suggestion: Check the BASSLINE across sections. Fix ONE awkward note/timing issue if found."; allowChange = true; } else if (roll <= 4) { suggestion = "Suggestion: Check main CHORDS/PADS. Make ONE small level or sound parameter adjustment if needed."; allowChange = true; } else { suggestion = "Result: Harmonic/Melodic elements seem coherent. No changes recommended."; allowChange = false; } } else if (checkType === 'balance') { if (roll <= 2) { suggestion = "Suggestion: Check main DRUM (Kick/Snare) impact/level. Make ONE level adjustment if needed."; allowChange = true; } else if (roll <= 4) { suggestion = "Suggestion: Check BASS/KICK relationship. Make ONE bass level adjustment if needed."; allowChange = true; } else { suggestion = "Result: Rhythm and basic balance seem adequate. No changes recommended."; allowChange = false; } } this.checkOutcome[checkType] = { suggestion, allowChange }; console.log("Feedback Suggestion:", this.checkOutcome[checkType]); },
-                confirmCheckComplete(checkType) { // CORRETTO: Imposta currentStep a '4.post' dopo l'ultimo check
-                    if (!checkType || !this.checkOutcome[checkType]) { console.warn("Cannot confirm check - no outcome for", checkType); return; }
-                    let outcomeString = this.checkOutcome[checkType].suggestion; if (this.checkOutcome[checkType].allowChange) { outcomeString += (this.adjustmentMade[checkType] ? " (User indicated ONE adjustment was made.)" : " (User indicated NO adjustment was made.)"); } this.finalChecksLog[checkType] = outcomeString; console.log(`Check complete and logged for ${checkType}`);
-                    if (checkType === 'flow') this.startCheck('harmony');
-                    else if (checkType === 'harmony') this.startCheck('balance');
-                    else if (checkType === 'balance') { console.log("All final checks complete!"); this.currentStep = '4.post'; } // <-- Imposta '4.post' qui
+                getScaleType(scaleName) { const scaleObj = this.musicalScales.find(s => s.name === scaleName); return scaleObj ? scaleObj.type : 'major'; // Default a major se non trovato
                  },
 
-                 // --- Phase 5 Methods ---
-                 startPhase5() { if (this.currentPhase !== 4 || this.currentStep !== '4.post') { console.warn("Cannot start Phase 5 yet."); return; } console.log("Moving to Phase 5: Summary"); this.currentPhase = 5; this.currentStep = 5.1; window.scrollTo(0, 0); },
-                 printSummary() { console.log("Triggering print..."); window.print(); },
-                 resetGame() { console.log("Resetting game state..."); if (confirm("Are you sure you want to discard this song and start a new one?")) { this.generateContext(); } },
+                // --- Phase Reset Methods ---
+                resetPhase1State() {
+                    console.log("Resetting Phase 1 State");
+                    this.framework = reactive({ key: null, scale: null, tempo: null });
+                    this.contextGenerated = false; this.contextConfirmed = false;
+                    this.currentLayerIndex = 0;
+                    this.layers.length = 0; // Svuota array layers
+                    this.structure.progressions.A = null; // Resetta Progressione A
+                },
+                // Aggiungeremo reset per le altre fasi
 
-                // --- Debug/Navigation Helpers ---
-                skipToPhase3Debug() { console.warn("DEBUG: Skipping to Phase 3"); this.framework = reactive({ key: 'A', scale: 'Major', tempo: 110 }); this.contextGenerated = true; this.contextConfirmed = true; this.layers = reactive([ { id: 1, type: 'Rhythm', modifier: 'Dry', confirmed: true }, { id: 2, type: 'Bass', modifier: 'Warm', confirmed: true }, { id: 3, type: 'Chords', modifier: 'Reverby', confirmed: true }, { id: 4, type: 'Lead', modifier: 'Filtered', confirmed: true }]); this.structure.progressions.A = 'I-V-vi-IV'; this.structure.templateName = 'Classic Structure'; this.structure.templateSequence = ['Intro', 'A', 'B', 'A', 'B', 'Outro']; this.structure.progressions = { A: 'I-V-vi-IV', B: 'vi-IV-I-V', Intro: 'IV-I', Outro: 'I-V' }; this.structure.lengths = { A: 16, B: 12, Intro: 8, Outro: 8 }; this.structure.templateGenerated = true; this.structure.templateConfirmed = true; this.structure.lengthsGenerated = true; this.structure.lengthsConfirmed = true; this.sectionsToDefineHarmony = ['Intro', 'B', 'Outro']; this.harmonyConfirmed = { Intro: true, B: true, Outro: true }; this.resetPhase3State(); this.resetPhase4State(); this.currentPhase = 2; this.currentStep = 2.3; this.startPhase3(); },
-                skipToPhase4Debug() { console.warn("DEBUG: Skipping to Phase 4"); this.skipToPhase3Debug(); if(this.currentPhase === 3 && this.structure.templateSequence?.length > 0) { this.structure.templateSequence.forEach((_, index) => { const key = this.getInstanceLogKey(index); if (!this.arrangementLog[key]) this.initializeLogEntry(key); this.arrangementLog[key].adaptationConfirmed = true; this.arrangementLog[key].density = 'Medium'; this.arrangementLog[key].variations = ['Debug Variation']; this.arrangementLog[key].variationsConfirmed = true; if (index < this.structure.templateSequence.length - 1) { this.arrangementLog[key].transition = 'Abrupt Cut'; this.arrangementLog[key].transitionConfirmed = true; } }); this.currentArrangementIndex = this.structure.templateSequence.length - 1; this.startPhase4(); } else { console.warn("Cannot skip to P4 - Phase 3 setup failed."); } },
-                goBackToPhase1Post() { this.currentPhase = 1; this.currentStep = '1.post'; },
-                goBackToContext() { this.currentPhase = 1; this.currentStep = 1.1; this.currentLayerIndex = 0; },
-                goBackToPhase2Lengths() { this.currentPhase = 2; this.currentStep = 2.3; },
-                goBackToPhase3() { if (this.currentPhase >= 4) { this.currentPhase = 3; this.currentStep = 3.1; if (this.structure.templateSequence?.length > 0) { this.currentArrangementIndex = this.structure.templateSequence.length - 1; this.initializeLogEntry(this.getInstanceLogKey(this.currentArrangementIndex)); } else { this.currentArrangementIndex = -1; this.currentPhase = 2; this.currentStep = 2.3; } } else { this.currentPhase = 2; this.currentStep = 2.3; } },
+                // ==================== PHASE 1 METHODS (V2) ====================
+
+                // --- Step 1.1: Context ---
+                generateContext() {
+                    console.log("Generating context...");
+                    this.resetPhase1State();
+                    const selectedScaleObject = this.getRandomElement(this.musicalScales);
+                    this.framework.key = this.getRandomElement(this.musicalKeys);
+                    this.framework.scale = selectedScaleObject ? selectedScaleObject.name : this.getRandomElement(this.musicalScales).name;
+                    this.framework.tempo = this.getRandomInt(this.tempoRange.min, this.tempoRange.max);
+                    this.contextGenerated = true;
+                    this.contextConfirmed = false;
+                    this.currentPhase = 1;
+                    this.currentStep = 1.1;
+                    console.log("Context proposed:", this.framework);
+                },
+                confirmContext() {
+                    if (!this.contextGenerated) return;
+                    console.log("Context confirmed:", this.framework);
+                    this.contextConfirmed = true;
+                },
+                startLayerGeneration() {
+                    if (!this.contextConfirmed) return;
+                    console.log("Starting layer generation...");
+                    this.initializeLayerData(4);
+                    this.currentStep = 1.2;
+                    this.currentLayerIndex = 1;
+                    console.log("Initialized layers structure:", this.layers);
+                },
+
+                // --- Step 1.2: Layers ---
+                initializeLayerData(count) {
+                    this.layers.length = 0;
+                    for (let i = 1; i <= count; i++) {
+                        this.layers.push(reactive({
+                            id: i, category: null, specificSound: null, role: null,
+                            freqRange: null, flexibilityNote: null,
+                            suggested: false, confirmed: false
+                        }));
+                    }
+                },
+
+                generateLayerSuggestion(layerIndex) {
+                     if (layerIndex < 1 || layerIndex > this.layers.length) return;
+                     console.log(`--- Generating suggestion for Layer ${layerIndex} ---`);
+                     const currentLayerData = this.layers[layerIndex - 1];
+                     if (!currentLayerData) return;
+
+                     let suggestedCategory = null;
+                     let suggestedSound = null;
+                     let categoryData = null;
+
+                     // CORREZIONE: Accede alla computed property correttamente
+                     const confirmedLayers = this.getConfirmedLayers;
+                     const confirmedRoles = confirmedLayers.map(l => l.role);
+                     const confirmedFreqs = confirmedLayers.map(l => l.freqRange);
+
+                     console.log("Confirmed Roles:", confirmedRoles);
+                     console.log("Confirmed Freqs:", confirmedFreqs);
+
+                     if (layerIndex === 1) {
+                         const startingRolePool = ['Rhythm', 'Rhythm', 'Bass', 'Bass', 'Harmony', 'Harmony', 'Texture', 'Melody'];
+                         const targetRole = this.getRandomElement(startingRolePool);
+                         console.log(`Layer 1: Target Role = ${targetRole}`);
+                         const possibleCategories = Object.entries(this.instrumentCategories)
+                                                        .filter(([_, data]) => data.role === targetRole);
+                         if (possibleCategories.length > 0) {
+                             const [catName, catData] = this.getRandomElement(possibleCategories);
+                             suggestedCategory = catName;
+                             categoryData = catData;
+                         }
+                     } else {
+                        let neededRoles = this.musicalRoles.filter(r => !confirmedRoles.includes(r) && r !== 'FX');
+                         if (!confirmedRoles.includes('Rhythm')) neededRoles.push('Rhythm');
+                         if (!confirmedRoles.includes('Bass')) neededRoles.push('Bass');
+                         if (!confirmedRoles.includes('Harmony')) neededRoles.push('Harmony');
+
+                         let neededFreqs = this.frequencyRanges.filter(f => !confirmedFreqs.includes(f) && f !== 'Versatile' && f !== 'Full');
+                         if (!confirmedFreqs.some(f => f.includes('Low'))) neededFreqs.push('Low');
+                         if (!confirmedFreqs.some(f => f.includes('Mid'))) neededFreqs.push('Mid');
+                         if (!confirmedFreqs.some(f => f.includes('High'))) neededFreqs.push('High');
+
+                         console.log("Needed Roles:", neededRoles);
+                         console.log("Needed Freqs:", neededFreqs);
+
+                         let potentialCategories = Object.entries(this.instrumentCategories).filter(([catName, catData]) => {
+                             if (confirmedLayers.some(l => l.category === catName) && catName !== 'Rhythmic') return false;
+                             if (catData.role === 'FX') return false; // Evita FX puri qui
+
+                             const fillsNeededRole = neededRoles.includes(catData.role);
+                             // Considera 'Versatile Mid' come Mid
+                             const fillsNeededFreq = neededFreqs.includes(catData.primaryFreqRange) || (neededFreqs.includes('Mid') && catData.primaryFreqRange.includes('Mid'));
+
+                             // Priorità: Ruolo > Frequenza
+                             if (fillsNeededRole) return true;
+                             // Se i ruoli principali sono coperti O non ci sono ruoli strettamente necessari, guarda le frequenze
+                             if ((!neededRoles.some(nr => ['Bass','Rhythm','Harmony','Melody'].includes(nr)) || confirmedRoles.length >= 3) && fillsNeededFreq) return true;
+
+                             return false;
+                         });
+
+                         console.log("Potential Categories (Primary Filter):", potentialCategories.map(p => p[0]));
+
+                         if (potentialCategories.length === 0) {
+                             console.warn("No specific category found fulfilling needs, broadening search...");
+                             potentialCategories = Object.entries(this.instrumentCategories).filter(([catName, catData]) =>
+                                 !confirmedLayers.some(l => l.category === catName) && catData.role !== 'FX' // Evita duplicati e FX puri
+                             );
+                               console.log("Potential Categories (Fallback Filter):", potentialCategories.map(p => p[0]));
+                         }
+
+                         if (potentialCategories.length > 0) {
+                             const [catName, catData] = this.getRandomElement(potentialCategories);
+                             suggestedCategory = catName;
+                             categoryData = catData;
+                         }
+                     }
+
+                     if (suggestedCategory && categoryData) {
+                         suggestedSound = this.getRandomElement(categoryData.specificSounds);
+                         console.log(`Suggestion L${layerIndex}: ${suggestedCategory} - ${suggestedSound} (Role: ${categoryData.role}, Freq: ${categoryData.primaryFreqRange})`);
+
+                         currentLayerData.category = suggestedCategory;
+                         currentLayerData.specificSound = suggestedSound;
+                         currentLayerData.role = categoryData.role;
+                         currentLayerData.freqRange = categoryData.primaryFreqRange;
+                         currentLayerData.flexibilityNote = categoryData.flexibilityNote || null;
+                         currentLayerData.suggested = true;
+                         currentLayerData.confirmed = false;
+                     } else {
+                         console.error("Could not determine a suggestion for Layer", layerIndex);
+                         // Potrebbe essere utile avere una categoria/suono di fallback?
+                          currentLayerData.category = 'Error';
+                          currentLayerData.specificSound = 'Could not generate suggestion';
+                          currentLayerData.role = '-';
+                          currentLayerData.freqRange = '-';
+                          currentLayerData.suggested = true; // Marca come suggerito per evitare loop infiniti
+                          currentLayerData.confirmed = false;
+                     }
+                 },
+
+                confirmLayerCreated(layerIndex) {
+                    if (layerIndex < 1 || layerIndex > this.layers.length) return;
+                    const layer = this.layers[layerIndex - 1];
+                    if (!layer || !layer.suggested) return;
+
+                    // Non confermare se c'è stato un errore di generazione
+                    if (layer.category === 'Error') {
+                        console.warn("Cannot confirm layer with generation error.");
+                        // Potremmo mostrare un alert all'utente qui
+                        alert("Errore nella generazione del suggerimento. Prova a rigenerare.");
+                        return;
+                    }
+
+
+                    console.log(`Confirming Layer ${layerIndex} created: ${layer.specificSound}`);
+                    layer.confirmed = true;
+
+                    if (layerIndex === this.layers.length) {
+                        console.log("All 4 initial layers confirmed!");
+                        this.generateInitialProgressionA();
+                        this.currentStep = '1.post';
+                        window.scrollTo(0, 0);
+                    } else {
+                        this.currentLayerIndex++;
+                        console.log("Moving to Layer", this.currentLayerIndex);
+                         window.scrollTo(0, 0);
+                    }
+                },
+
+                generateInitialProgressionA() {
+                     console.log("Generating Initial Progression A...");
+                     if (!this.framework.scale) {
+                         console.error("Cannot generate progression without a scale defined.");
+                         this.structure.progressions.A = "Error: Scale not set";
+                         return;
+                     }
+                    const scaleType = this.getScaleType(this.framework.scale);
+                    const possibleProgressions = this.commonProgressions[scaleType] || this.commonProgressions.major;
+                     let pattern = this.getRandomElement(possibleProgressions);
+                     this.structure.progressions.A = pattern;
+                     console.log(`Progression A generated for ${scaleType} scale: ${pattern}`);
+                 },
+
+
+                // --- Navigazione (Semplificata per ora) ---
+                startPhase2() {
+                    if (this.currentStep === '1.post') {
+                        this.currentPhase = 2;
+                        this.currentStep = 2.1; // Assumendo che il primo step di Fase 2 sia 2.1
+                        console.log("Moving to Phase 2, Step 2.1");
+                        window.scrollTo(0, 0);
+                    } else {
+                         console.warn("Cannot start Phase 2 yet.");
+                    }
+                },
+                 goBackToPhase1Post() {
+                     this.currentPhase = 1;
+                     this.currentStep = '1.post';
+                 },
+                 // Aggiungeremo metodi per le Fasi 2-5 qui...
             },
-            // --- MOUNTED ---
             mounted() {
-                console.log("Vue App Mounted!");
+                console.log("Vue App Mounted! Ready for Songwriting Game V2.");
             }
         }).mount('#app');
     </script>
