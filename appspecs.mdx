@@ -1,0 +1,110 @@
+# Part 1: Application Vision and Workflow
+
+## Application: The Songwriting Game (Final Vision)
+
+**General Objective:**
+To guide musicians and producers through a structured yet creative process to generate ideas, develop a basic loop, define a song structure, arrange the sections, and refine the track. The application provides suggestions based on musical principles and common production practices while maintaining an element of randomness and experimentation.
+The application acts as a creative assistant and a generator of song "recipes."
+
+## General Workflow:
+
+The application is a Single Page Application (currently in a single file, UI in English) divided into 5 sequential Phases:
+
+* **Phase 1: Base Loop Creation** - Defining the musical context and creating a playable fundamental loop.
+* **Phase 2: Structure & Length Definition** - Defining the structural map of the song and the length of the sections.
+* **Phase 3: Section-by-Section Arrangement** - Detailed guidance on arranging and developing each individual section of the song.
+* **Phase 4: Final Polish** - Guided checks for refining the complete track.
+* **Phase 5: Song Summary** - Complete summary of the generated song "recipe."
+
+## Detail of the Phases:
+
+### Phase 1: Base Loop Creation
+
+**Step 1.1: Context, Progression & Chord Rhythm**
+
+* **Context Generation:** Random generation of Key, Scale/Mode (from the scale/mode DB), Tempo (range 70-160 BPM), and Time Signature.
+    * The user is asked before generation if they prefer a fixed 4/4 or a random weighted selection from the Time Signature database.
+* **Context Confirmation:** User confirms or regenerates.
+* **Progression 'A' Generation:** After context confirmation, generates:
+    * Harmonic Progression 'A' (pattern from the Progression DB, with balanced extensions).
+    * Real Chords (e.g., "Cmaj7", "G7", "Am7", "Fmaj7").
+    * Absolute Notes for chords (e.g., "C-E-G-B").
+    * Suggested Harmonic Rhythm Pattern (from the Harmonic Rhythm DB, considering the length of Progression A and the Time Signature).
+* **Visualization:** Shows all generated data (including Time Signature).
+* **Interaction:** User can regenerate Progression/Harmonic Rhythm.
+* **Proceeds to Step 1.2.**
+* **Output:** Musical context (with Time Signature), Progression 'A' with rhythm.
+
+**Step 1.2: Create Loop Layers**
+
+* **Layer Generation (Iterative 1-4):**
+    * Suggests 4 layers one at a time.
+    * Randomly assigns the slot (1-4) for the Rhythmic layer.
+* **Suggestion Logic:**
+    * Forces 'Rhythm' into the assigned slot.
+    * Excludes 'Rhythm' in other slots.
+    * For the others, tries to balance missing roles (Bass, Harmony, Melody, Texture) and frequencies (Low, Mid, High).
+* **Suggestion Details (All):** Category, Specific Sound, Role, Freq Range, Note Range, Flexibility Note.
+* **Additional Details (Rhythm):** Kit Type (as Specific Sound), Groove Archetype (e.g., Four On Floor, selection potentially influenced by Time Signature), Core Elements (Kick, Snare...), Basic Pattern Idea (text).
+* **Additional Details (Rhythm/Bass):** Suggested Rhythmic Feel (e.g., Straight, Swing, influenced by Time Signature like 6/8 or 12/8).
+* **Visualization:** Shows suggestion details (including specific rhythmic details). Shows summary of confirmed layers (with feel/groove).
+* **Interaction:** User confirms layer or regenerates suggestion. After the 4th layer, proceeds to Phase 2.
+* **Output:** 4 Core Layers defined with rhythmic details.
+* **The "Base Loop" is complete.**
+
+### Phase 2: Structure & Length Definition
+
+**Step 2.1: Generate Structure Template**
+
+* **Generation:** Random template (name + sequence of sections, e.g., ['Intro', 'A', 'B', 'A', 'B', 'Outro']).
+* **Target Bar Calculation:** Calculates a target bar range for a duration of 2.5-3.5 min based on Tempo and Time Signature (influencing seconds per bar).
+* **Visualization:** Template name, sequence, target bar range.
+* **Interaction:** User confirms or regenerates.
+
+**Step 2.2: Define Section Lengths**
+
+* **Generation:** Lengths (in bars) per section type (e.g., A=16, B=12).
+* **Duration Constraint Logic:** Attempts to fit the total bars within the target range (calculated with the Time Signature), adjusting the generated lengths.
+* **Visualization:** Suggested lengths, resulting total bars, estimated duration. Warning if out of range.
+* **Interaction:** User confirms or regenerates.
+* **External User Action:** Instruction to replicate the structure in the DAW.
+* **Output:** Complete structure (sequence, harmony per type, length per type).
+
+**Step 2.3 Assign the initial loop to one of the main sections A or B.** Generate it randomly with the possibility to regenerate and store it.
+At the end of this section, the user is asked to duplicate the initial loop to create sections of the defined lengths.
+
+### Phase 3: Section-by-Section Arrangement (Planned)
+
+* **Initial Setup:** Asks: Vocal or Instrumental. Proposes general energy curve.
+* **Iteration per Section Instance:** (e.g., Intro, A1, B1, A2...).
+* **For each Instance:**
+    * If the section is the one to which the initial loop was assigned, report what was already generated for the initial loop.
+    * Otherwise **Harmony Generation:** Progression (pattern+name, different from others if used, selected from DB), Real Chords, Absolute Notes.
+    * (Specific Harmonic Rhythm for the section, influenced by Time Signature).
+    * **Visualization:** Target section, Prog A (reference), suggested progression.
+    * **Interaction:** User confirms or regenerates. Proceeds.
+* **Context:** Shows section info (letter, #, Length, harmonic prog, role, Time Signature).
+* **Arrangement Suggestions:** Density, Active Layers (Core + possible Temporary), Layer Entry/Exit, Harmonic Rhythm (confirm/vary from Rhythm DB, influenced by Time Signature), Active Percussive Elements (influenced by Time Signature).
+* **Variation Suggestions:** 1-3 specific prompts (synthesis, FX, rhythm, dynamics...).
+* **Vocal Suggestions (if Vocal):** Timing, rhythmic feel, melodic contour, production tips.
+* **Exit Transition Suggestions.**
+* **Note:** All suggestions consider the target energy curve, style (calm/energetic), section length, harmonic/rhythmic density, and Time Signature.
+* **Interaction:** User works on section, confirms/regenerates, moves to the next.
+
+### Phase 4: Final Polish (Planned)
+
+* **Pause:** Optional.
+* **Guided Checks:** Series of checks (Flow, Harmony, Balance, Stereo, Dynamics, Interest?).
+* **Specific and contextual suggestions** based on previous phases (including consistency with Time Signature).
+* **Feedback:** Flexible recording of user-made changes.
+
+### Phase 5: Song Summary (Planned)
+
+* **Content:** Complete summary: Framework (Key, Scale, Tempo, Time Signature), Base Loop, Structure, Harmonic Map (with used harmonic rhythms), Lengths, Arrangement Log (Phase 3 decisions), Polish Log (Phase 4 results).
+* **Visualization:** Includes graphic elements (structure diagram?).
+* **Functionality:** Export (TXT, JSON, MD?), Restart. (Future: Save/Load).
+
+## General UI/UX (Planned):
+
+* **Persistent Info:** Bar/panel with Key, Scale, Tempo, Time Signature, mini-structure map.
+* **Progress:** Visual stepper for the phases.
